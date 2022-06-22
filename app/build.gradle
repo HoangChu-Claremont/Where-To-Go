@@ -44,7 +44,7 @@ dependencies {
     implementation 'com.github.parse-community.Parse-SDK-Android:parse:1.25.0'
 
     // Facebook SDK
-    implementation "com.github.parse-community.Parse-SDK-Android:facebook:$parseVersion"
+//    implementation "com.github.parse-community.Parse-SDK-Android:facebook:$parseVersion"
 
 
 }

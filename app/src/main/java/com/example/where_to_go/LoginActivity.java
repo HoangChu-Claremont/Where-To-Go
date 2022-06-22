@@ -10,13 +10,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
+//import com.facebook.CallbackManager;
+//import com.facebook.FacebookCallback;
+//import com.facebook.FacebookException;
+//import com.facebook.GraphRequest;
+//import com.facebook.GraphResponse;
+//import com.facebook.login.LoginResult;
+//import com.facebook.login.widget.LoginButton;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -35,9 +35,9 @@ public class LoginActivity extends AppCompatActivity{
     private EditText etPassword;
     private Button btnLogin;
     private Button btnSignup;
-    private LoginButton facebookLoginButton; // Log in by Facebook
-
-    private CallbackManager callbackManager;
+//    private LoginButton facebookLoginButton; // Log in by Facebook
+//
+//    private CallbackManager callbackManager;
     private boolean isLoggedInFB = false;
     private String id, firstName, lastName, email;
     private URL profilePic;
@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity{
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
-        facebookLoginButton = findViewById(R.id.login_button);
+//        facebookLoginButton = findViewById(R.id.login_button);
 
         // Button clicks
         btnLogin.setOnClickListener(v -> {
@@ -74,41 +74,41 @@ public class LoginActivity extends AppCompatActivity{
             signUp(username, password);
         });
 
-        facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-
-                Log.d("fb", "request");
-
-                //  Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                //  String accesstoken = loginResult.getAccessToken().getToken();
-
-                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.d("response", response.toString());
-                        isLoggedInFB = true;
-                        getData(object);
-                    }
-                });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,email,first_name,last_name");
-                request.setParameters(parameters);
-                request.executeAsync();
-                Log.d("fb", "request user log in now");
-//                checkUser(ParseUser.getCurrentUser(), true);
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-
-            }
-        });
+//        facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+//            @Override
+//            public void onSuccess(LoginResult loginResult) {
+//
+//                Log.d("fb", "request");
+//
+//                //  Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                //  String accesstoken = loginResult.getAccessToken().getToken();
+//
+//                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+//                    @Override
+//                    public void onCompleted(JSONObject object, GraphResponse response) {
+//                        Log.d("response", response.toString());
+//                        isLoggedInFB = true;
+//                        getData(object);
+//                    }
+//                });
+//                Bundle parameters = new Bundle();
+//                parameters.putString("fields", "id,email,first_name,last_name");
+//                request.setParameters(parameters);
+//                request.executeAsync();
+//                Log.d("fb", "request user log in now");
+////                checkUser(ParseUser.getCurrentUser(), true);
+//            }
+//
+//            @Override
+//            public void onCancel() {
+//
+//            }
+//
+//            @Override
+//            public void onError(FacebookException error) {
+//
+//            }
+//        });
 
     }
 
