@@ -11,7 +11,6 @@ import com.parse.ParseUser;
 public class MainActivity extends AppCompatActivity{
 
     private static final String TAG = "MainActivity";
-    Intent i; // Navigate to either login or home screen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +29,12 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void goHomeActivity() {
-        i = new Intent(this, HomeActivity.class);
+        Intent i = new Intent(this, HomeActivity.class);
         startActivity(i);
     }
 
     private void goLoginActivity() {
-        i = new Intent(this, LoginActivity.class);
+        Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
     }
 }

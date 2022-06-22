@@ -16,6 +16,12 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+    }
+
     // Logout Button
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -38,11 +44,7 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-    }
+    // HELPER METHODS
 
     private void goLoginActivity() {
         Intent i = new Intent(this, LoginActivity.class);

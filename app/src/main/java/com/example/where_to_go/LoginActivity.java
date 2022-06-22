@@ -28,14 +28,14 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private EditText etUsername;
     private EditText etPassword;
     private Button btnLogin;
     private Button btnSignup;
-//    private LoginButton facebookLoginButton; // Log in by Facebook
+    //    private LoginButton facebookLoginButton; // Log in by Facebook
 //
 //    private CallbackManager callbackManager;
     private boolean isLoggedInFB = false;
@@ -133,7 +133,7 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     public void signUp(String username, String password) {
-        ParseUser user =  new ParseUser();
+        ParseUser user = new ParseUser();
 
         // Set core properties
         user.setUsername(username);
@@ -152,15 +152,15 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     private void getData(JSONObject object) {
-        try{
-            profilePic = new URL("https://graph.facebook.com/"+object.getString("id")+"/picture?width=500&height=500");
+        try {
+            profilePic = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?width=500&height=500");
             firstName = object.getString("first_name");
             lastName = object.getString("last_name");
             email = object.getString("email");
 
-        } catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             e.printStackTrace();
-        } catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
