@@ -2,13 +2,39 @@ package com.example.where_to_go;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
-public class MainActivity extends AppCompatActivity {
+import com.parse.ParseUser;
+
+public class MainActivity extends AppCompatActivity{
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        if (ParseUser.getCurrentUser() == null) {
+            // If someone has logged out already
+            Log.i(TAG, "goLogin");
+            goLoginActivity();
+        } else {
+            Log.i(TAG, "goHome");
+            goHomeActivity();
+        }
+        finish();
+    }
+
+    private void goHomeActivity() {
+        Intent i = new Intent(this, HomeActivity.class);
+        startActivity(i);
+    }
+
+    private void goLoginActivity() {
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivity(i);
     }
 }

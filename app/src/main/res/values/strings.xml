@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">where-to-go</string>
+    <string name="back4app_app_id">wusTD9WF9kBj9PzxfYEThlicMHYYvhWh1JZ8CrMZ</string>
+    <string name="back4app_client_key">C5wIfdEEhIZcomPoImdHKixEYUFfYEOAtf9FjqY1</string>
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+    <string name="password">password</string>
+    <string name="username">username</string>
+    <string name="login">Login</string>
+    <string name="signup">Signup</string>
+    <string name="google_maps_api_key">AIzaSyDzDP8_LD6kH7QDGWMQjK02JRSaEtfrcDw</string>
+    <string name="facebook_app_id">488384535263120</string>
+    <string name="fb_login_protocol_scheme">fb488384535263120</string>
+    <string name="facebook_client_token">5669ea79d3d278a9d5b758b83f024756</string>
 </resources>
