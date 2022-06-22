@@ -27,6 +27,10 @@ android {
     }
 }
 
+ext {
+    parseVersion = "latest.version.here"
+}
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.4.2'
@@ -40,5 +44,7 @@ dependencies {
     implementation 'com.github.parse-community.Parse-SDK-Android:parse:1.25.0'
 
     // Facebook SDK
-    implementation 'com.facebook.android:facebook-login:latest.release'
+    implementation "com.github.parse-community.Parse-SDK-Android:facebook:$parseVersion"
+
+
 }

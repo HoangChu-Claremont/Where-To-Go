@@ -10,11 +10,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class LoginActivity extends AppCompatActivity{
 
@@ -23,7 +35,12 @@ public class LoginActivity extends AppCompatActivity{
     private EditText etPassword;
     private Button btnLogin;
     private Button btnSignup;
-    private Button facebookLoginButton; // Log in by Facebook
+    private LoginButton facebookLoginButton; // Log in by Facebook
+
+    private CallbackManager callbackManager;
+    private boolean isLoggedInFB = false;
+    private String id, firstName, lastName, email;
+    private URL profilePic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +74,44 @@ public class LoginActivity extends AppCompatActivity{
             signUp(username, password);
         });
 
+        facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+                Log.d("fb", "request");
+
+                //  Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                //  String accesstoken = loginResult.getAccessToken().getToken();
+
+                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        Log.d("response", response.toString());
+                        isLoggedInFB = true;
+                        getData(object);
+                    }
+                });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,email,first_name,last_name");
+                request.setParameters(parameters);
+                request.executeAsync();
+                Log.d("fb", "request user log in now");
+//                checkUser(ParseUser.getCurrentUser(), true);
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
+
     }
+
 
     // HELPER METHODS
 
@@ -95,6 +149,20 @@ public class LoginActivity extends AppCompatActivity{
             goHomeActivity();
             Toast.makeText(LoginActivity.this, "Sign Up Succeed!", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void getData(JSONObject object) {
+        try{
+            profilePic = new URL("https://graph.facebook.com/"+object.getString("id")+"/picture?width=500&height=500");
+            firstName = object.getString("first_name");
+            lastName = object.getString("last_name");
+            email = object.getString("email");
+
+        } catch (MalformedURLException e){
+            e.printStackTrace();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 
     private void goHomeActivity() {
