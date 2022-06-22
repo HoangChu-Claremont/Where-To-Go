@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.login.widget.LoginButton;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -22,6 +23,7 @@ public class LoginActivity extends AppCompatActivity{
     private EditText etPassword;
     private Button btnLogin;
     private Button btnSignup;
+    private Button facebookLoginButton; // Log in by Facebook
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,7 @@ public class LoginActivity extends AppCompatActivity{
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
+        facebookLoginButton = findViewById(R.id.login_button);
 
         // Button clicks
         btnLogin.setOnClickListener(v -> {
