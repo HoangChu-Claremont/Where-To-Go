@@ -8,11 +8,12 @@
         <entry key="app/src/main/res/drawable/gradient_4.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/gradient_list.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/rounded_corners.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_home.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.375" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.10612968591691996" />
         <entry key="app/src/main/res/layout/activity_signup.xml" value="0.1889564336372847" />
         <entry key="app/src/main/res/menu/logout.xml" value="0.38153846153846155" />
+        <entry key="app/src/main/res/menu/menu_bottom_navigation.xml" value="0.38153846153846155" />
       </map>
     </option>
   </component>

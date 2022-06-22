@@ -11,4 +11,7 @@
     <string name="facebook_app_id">488384535263120</string>
     <string name="fb_login_protocol_scheme">fb488384535263120</string>
     <string name="facebook_client_token">5669ea79d3d278a9d5b758b83f024756</string>
+    <string name="btnHome">Home</string>
+    <string name="btnMap">Map</string>
+    <string name="btnProfile">Profile</string>
 </resources>
