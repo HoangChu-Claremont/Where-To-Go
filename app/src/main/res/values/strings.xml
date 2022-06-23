@@ -16,4 +16,7 @@
     <string name="btnProfile">Profile</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="top_rated_tours">Top Rated Tours</string>
+    <string name="bookmarked_tours">Bookmarked Tours</string>
+    <string name="welcome">Welcome!</string>
 </resources>
