@@ -1,11 +1,9 @@
 package com.example.where_to_go;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
 import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity{
@@ -29,12 +27,14 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void goHomeActivity() {
-        Intent i = new Intent(this, HomeActivity.class);
+        Intent i = new Intent(this, NavigationActivity.class);
         startActivity(i);
+        finish();
     }
 
     private void goLoginActivity() {
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
+        finish();
     }
 }

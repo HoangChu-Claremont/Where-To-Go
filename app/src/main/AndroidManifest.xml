@@ -21,7 +21,7 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".NavigationActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -19,18 +19,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.parse.ParseUser;
 
-public class HomeActivity extends AppCompatActivity {
+public class NavigationActivity extends AppCompatActivity {
 
-    private static final String TAG = "HomeActivity";
-
-    private BottomNavigationView bottomNavigationView;
+    private static final String TAG = "NavigationActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_navigation);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
         // Bottom Navigation
@@ -54,6 +52,8 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
             }
         });
+        // Set default
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
     // Logout Button
@@ -67,13 +67,11 @@ public class HomeActivity extends AppCompatActivity {
     // Button clicks
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_logout: {
-                Log.i(TAG, "onClick Logout Button");
-                ParseUser.logOutInBackground();
-                goLoginActivity();
-                return true;
-            }
+        if (item.getItemId() == R.id.action_logout) {
+            Log.i(TAG, "onClick Logout Button");
+            ParseUser.logOutInBackground();
+            goLoginActivity();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
