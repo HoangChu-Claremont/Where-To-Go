@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity{
             Log.i(TAG, "goHome");
             goHomeActivity();
         }
-        finish();
     }
 
     private void goHomeActivity() {

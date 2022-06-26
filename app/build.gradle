@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
 }
 
+def yelpPropertiesFile = rootProject.file("yelpclient.properties")
+def yelpProperties = new Properties()
+yelpProperties.load(new FileInputStream(yelpPropertiesFile))
+
 android {
     compileSdk 32
 
@@ -13,6 +17,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_KEY", yelpProperties['API_KEY'])
+        buildConfigField("String", "CLIENT_ID", yelpProperties['CLIENT_ID'])
     }
 
     buildTypes {
@@ -42,5 +49,17 @@ dependencies {
     // Facebook SDK
 //    implementation "com.github.parse-community.Parse-SDK-Android:facebook:$parseVersion"
 
+    // CodePath's Parsing Network Request
+    implementation 'com.codepath.libraries:asynchttpclient:2.2.0'
 
+    // Google Location SDK
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
+
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    // Glide v4 uses this new annotation processor -- see https://bumptech.github.io/glide/doc/generatedapi.html
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    // YELP API
+    implementation 'com.yelp.clientlib:yelp-android:3.0.0'
 }

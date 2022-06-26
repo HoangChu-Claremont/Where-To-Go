@@ -3,8 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.13179347826086957" />
         <entry key="../../.gradle/caches/transforms-3/bfec8dfcaf6c34e166a516bbd7a3f400/transformed/material-1.6.1/res/layout/design_bottom_navigation_item.xml" value="0.21822916666666667" />
+        <entry key="app/src/main/res/drawable/ic_path_placeholder.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/profile_gradient.xml" value="0.1695" />
+        <entry key="app/src/main/res/drawable/stop_gradient.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.21822916666666667" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
@@ -12,6 +15,8 @@
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.335" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/item_top_path.xml" value="0.42291666666666666" />
+        <entry key="app/src/main/res/layout/test.xml" value="0.1" />
         <entry key="app/src/main/res/menu/menu_bottom_navigation.xml" value="0.2171875" />
       </map>
     </option>

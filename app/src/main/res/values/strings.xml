@@ -20,4 +20,6 @@
     <string name="bookmarked_tours">Bookmarked Tours</string>
     <string name="welcome">Welcome!</string>
     <string name="find_perfect_toue">Let\'s find your perfect tour!</string>
+    <string name="title">title</string>
+    <string name="image">image</string>
 </resources>
