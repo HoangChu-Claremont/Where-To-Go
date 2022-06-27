@@ -17,16 +17,7 @@ import android.widget.Toast;
 //import com.facebook.GraphResponse;
 //import com.facebook.login.LoginResult;
 //import com.facebook.login.widget.LoginButton;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
 import com.parse.ParseUser;
-import com.parse.SignUpCallback;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,12 +26,12 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPassword;
     private Button btnLogin;
     private Button btnSignup;
+
     //    private LoginButton facebookLoginButton; // Log in by Facebook
-//
-//    private CallbackManager callbackManager;
-    private boolean isLoggedInFB = false;
-    private String id, firstName, lastName, email;
-    private URL profilePic;
+    //    private CallbackManager callbackManager;
+    //    private boolean isLoggedInFB = false;
+    //    private String id, firstName, lastName, email;
+    //    private URL profilePic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnSignup = findViewById(R.id.btnSignup);
-//        facebookLoginButton = findViewById(R.id.login_button);
+        // facebookLoginButton = findViewById(R.id.login_button);
 
         // Button clicks
         btnLogin.setOnClickListener(v -> {
@@ -80,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
 //
 //                Log.d("fb", "request");
 //
-//                //  Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+//                //  Intent intent = new Intent(MainActivity.this, NavigationActivity.class);
 //                //  String accesstoken = loginResult.getAccessToken().getToken();
 //
 //                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
@@ -96,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
 //                request.setParameters(parameters);
 //                request.executeAsync();
 //                Log.d("fb", "request user log in now");
-////                checkUser(ParseUser.getCurrentUser(), true);
+//                checkUser(ParseUser.getCurrentUser(), true);
 //            }
 //
 //            @Override
@@ -151,22 +142,22 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void getData(JSONObject object) {
-        try {
-            profilePic = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?width=500&height=500");
-            firstName = object.getString("first_name");
-            lastName = object.getString("last_name");
-            email = object.getString("email");
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void getData(JSONObject object) {
+//        try {
+//            profilePic = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?width=500&height=500");
+//            firstName = object.getString("first_name");
+//            lastName = object.getString("last_name");
+//            email = object.getString("email");
+//
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void goHomeActivity() {
-        Intent i = new Intent(this, HomeActivity.class);
+        Intent i = new Intent(this, NavigationActivity.class);
         startActivity(i);
         finish();
     }
