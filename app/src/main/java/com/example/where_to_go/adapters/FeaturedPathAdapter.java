@@ -1,8 +1,6 @@
 package com.example.where_to_go.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,30 +8,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
-import com.example.where_to_go.fragments.MapFragment;
-import com.example.where_to_go.models.PathType;
+import com.example.where_to_go.models.FeaturedPath;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
-import java.util.Map;
 
-public class PathTypesAdapter extends RecyclerView.Adapter<PathTypesAdapter.PathTypesViewHolder> {
+public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapter.PathTypesViewHolder> {
 
-    List<PathType> pathTypes;
+    List<FeaturedPath> featuredPaths;
     Context context;
 
-    public PathTypesAdapter(Context _context, List<PathType> _pathTypes) {
+    public FeaturedPathAdapter(Context _context, List<FeaturedPath> _featured_paths) {
         context = _context; // what does this equal?
-        pathTypes = _pathTypes;
+        featuredPaths = _featured_paths;
     }
 
     @NonNull
@@ -45,31 +37,31 @@ public class PathTypesAdapter extends RecyclerView.Adapter<PathTypesAdapter.Path
 
     @Override
     public void onBindViewHolder(@NonNull PathTypesViewHolder holder, int position) {
-        PathType pathType = pathTypes.get(position);
-        holder.bind(pathType);
+        FeaturedPath featuredPath = featuredPaths.get(position);
+        holder.bind(featuredPath);
     }
 
     @Override
     public int getItemCount() {
-        return pathTypes.size();
+        return featuredPaths.size();
     }
 
     public class PathTypesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private static final String TAG = "PathTypesViewHolder";
-        private ImageView mPathImage;
-        private TextView mPathName;
+        private ImageView ivPathImage;
+        private TextView ivPathName;
 
         public PathTypesViewHolder(@NonNull View itemView) {
             super(itemView);
-            mPathImage = itemView.findViewById(R.id.ivPathImage);
-            mPathName = itemView.findViewById(R.id.tvPathName);
+            ivPathImage = itemView.findViewById(R.id.ivPathImage);
+            ivPathName = itemView.findViewById(R.id.tvPathName);
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }
 
-        public void bind(PathType pathType) {
-            mPathName.setText(pathType.getPathTypeName());
-            Glide.with(context).load(pathType.getPathTypeImageUrl()).into(mPathImage);
+        public void bind(@NonNull FeaturedPath featuredPath) {
+            ivPathName.setText(featuredPath.getFeaturedPathName());
+            Glide.with(context).load(featuredPath.getFeaturedPathImageUrl()).into(ivPathImage);
         }
 
         @Override
@@ -79,7 +71,7 @@ public class PathTypesAdapter extends RecyclerView.Adapter<PathTypesAdapter.Path
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
                 // get the post at the position, this won't work if the class is static
-                PathType pathType = pathTypes.get(position);
+                FeaturedPath featuredPath = featuredPaths.get(position);
 
                 // Switch HomeFragment -> MapFragment
                 BottomNavigationView bottomNavigationView = ((NavigationActivity)context).bottomNavigationView;

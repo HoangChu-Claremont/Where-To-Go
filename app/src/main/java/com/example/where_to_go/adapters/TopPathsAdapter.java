@@ -1,7 +1,6 @@
 package com.example.where_to_go.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,25 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.where_to_go.R;
-import com.example.where_to_go.models.Path;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.SaveCallback;
+import com.example.where_to_go.models.Destination;
 
 import java.util.List;
 
 public class TopPathsAdapter extends RecyclerView.Adapter<TopPathsAdapter.TopPathsViewHolder> {
     private static final String TAG = "TopPathsAdapter";
     public Context context;
-    private List<Path> paths;
+    private List<Destination> destinations;
 
-    public TopPathsAdapter(Context _context, List<Path> _paths) {
+    public TopPathsAdapter(Context _context, List<Destination> _destinations) {
         context = _context;
-        paths = _paths;
+        destinations = _destinations;
     }
 
     @NonNull
@@ -42,34 +35,34 @@ public class TopPathsAdapter extends RecyclerView.Adapter<TopPathsAdapter.TopPat
 
     @Override
     public void onBindViewHolder(@NonNull TopPathsAdapter.TopPathsViewHolder holder, int position) {
-        Path path = paths.get(position);
-        holder.bind(path);
+        Destination destination = destinations.get(position);
+        holder.bind(destination);
     }
 
     @Override
     public int getItemCount() {
-        return paths.size();
+        return destinations.size();
     }
 
     public class TopPathsViewHolder extends RecyclerView.ViewHolder {
-        private ImageView mPathImage;
-        private TextView mPathName;
+        private ImageView ivPathImage;
+        private TextView tvPathName;
 
         public TopPathsViewHolder(View itemView) {
             super(itemView);
-            mPathImage = itemView.findViewById(R.id.ivPathImage);
-            mPathName = itemView.findViewById(R.id.tvPathName);
+            ivPathImage = itemView.findViewById(R.id.ivPathImage);
+            tvPathName = itemView.findViewById(R.id.tvPathName);
         }
 
-        public void bind(@NonNull Path path) {
+        public void bind(@NonNull Destination destination) {
             // Set TextView
-            mPathName.setText(path.TOP_RATED);
-            Glide.with(context).load("http://via.placeholder.com/300.png").into(mPathImage);
+//            mPathName.setText(destination.TOP_RATED);
+            Glide.with(context).load("http://via.placeholder.com/300.png").into(ivPathImage);
 
             // Set ImageView
 //            RequestOptions requestOptions = new RequestOptions();
 //            requestOptions = requestOptions.transforms(new CenterCrop()).format(DecodeFormat.PREFER_ARGB_8888).override(150, 110);
-//            ParseFile pathImage = path.getPathImage();
+//            ParseFile pathImage = destination.getPathImage();
 
 //            if (pathImage != null) {
 //                Glide.with(context)
@@ -80,7 +73,7 @@ public class TopPathsAdapter extends RecyclerView.Adapter<TopPathsAdapter.TopPat
 //                mPathImage.setImageResource(R.drawable.ic_path_placeholder);
 //            }
 
-//            path.saveInBackground(new SaveCallback() {
+//            destination.saveInBackground(new SaveCallback() {
 //                @Override
 //                public void done(ParseException e) {
 //                    Log.d(TAG, "done");
