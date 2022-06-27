@@ -19,12 +19,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
+import com.example.where_to_go.adapters.PathTypesAdapter;
 import com.example.where_to_go.adapters.TopPathsAdapter;
 import com.example.where_to_go.models.Path;
+import com.example.where_to_go.models.PathType;
 import com.example.where_to_go.models.YelpClient;
 
 import org.json.JSONArray;
@@ -34,6 +37,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,8 +47,11 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private List<Path> topPaths;
-    private TopPathsAdapter tAdapter;
+//    private List<Path> topPaths;
+    private PathTypesAdapter tAdapter;
+
+    private List<PathType> pathTypes;
+    private FrameLayout flPathType;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,19 +86,27 @@ public class HomeFragment extends Fragment {
         });
 
         // Get Data
-        getTopPaths();
+//        getTopPaths();
 
-        setUpRecyclerView();
+//        setUpRecyclerView();
+
+        getPathTypes();
+        setUpPathTypeRecyclerView();
+
+
     }
 
-    private void setUpRecyclerView() {
+    private void getPathTypes() {
+        pathTypes = new ArrayList<>();
+        String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
+        pathTypes.add(new PathType("Top 10 Rated", PATH_TYPE_IMAGE_URL));
+        pathTypes.add(new PathType("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
+    }
+
+    private void setUpPathTypeRecyclerView() {
         RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths);
 
-        // query for top 10 paths based on average
-        topPaths = new ArrayList<>();
-
-        // Create the Adapter
-        tAdapter = new TopPathsAdapter(getContext(), topPaths);
+        tAdapter = new PathTypesAdapter(getContext(), pathTypes);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -100,6 +115,7 @@ public class HomeFragment extends Fragment {
 
         // Set the Adapter on RecyclerView
         rvTopPaths.setAdapter(tAdapter);
+        tAdapter.notifyDataSetChanged();
     }
 
     // HELPER METHODS
@@ -117,39 +133,56 @@ public class HomeFragment extends Fragment {
         }
     };
 
-    private void getTopPaths() {
+//    private void getTopPaths() {
+//
+//        // query for top 10 paths based on average
+//        topPaths = new ArrayList<>();
+//        final YelpClient topPath = new YelpClient();
+//
+//        topPath.getResponse(-122.1483654685629, 37.484668049999996, 3, new Callback() {
+//
+//            @Override
+//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//                try {
+//                    String responseData = response.body().string();
+//                    JSONObject jsonData = new JSONObject(responseData);
+//                    JSONArray jsonResults = jsonData.getJSONArray("businesses");
+//                    topPaths.addAll(Path.getTopRatedPath(jsonResults));
+//
+//                    // Avoid the "Only the original thread that created a view hierarchy
+//                    // can touch its views adapter" error
+//                    ((Activity) getContext()).runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            //change View Data
+//                            tAdapter.notifyDataSetChanged();
+//                        }
+//                    });
+//
+//                } catch (IOException | JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                e.printStackTrace();
+//            }
+//        });
+//    }
 
-        final YelpClient topPath = new YelpClient();
-
-        topPath.getResponse(-122.1483654685629, 37.484668049999996, 3, new Callback() {
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
-                    String responseData = response.body().string();
-                    JSONObject jsonData = new JSONObject(responseData);
-                    JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    topPaths.addAll(Path.getTopRatedPath(jsonResults));
-
-                    // Avoid the "Only the original thread that created a view hierarchy
-                    // can touch its views adapter" error
-                    ((Activity) getContext()).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //change View Data
-                            tAdapter.notifyDataSetChanged();
-                        }
-                    });
-
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+//    private void setUpRecyclerView() {
+//        RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths);
+//
+//        // Create the Adapter
+//        tAdapter = new TopPathsAdapter(getContext(), topPaths);
+//
+//        // Set Layout Manager
+//        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+//        rvTopPaths.setLayoutManager(tLayoutManager);
+//        rvTopPaths.setHasFixedSize(true); // always get top 10 paths
+//
+//        // Set the Adapter on RecyclerView
+//        rvTopPaths.setAdapter(tAdapter);
+//    }
 }

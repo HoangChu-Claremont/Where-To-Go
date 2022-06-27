@@ -28,9 +28,9 @@ public class TopPathsAdapter extends RecyclerView.Adapter<TopPathsAdapter.TopPat
     public Context context;
     private List<Path> paths;
 
-    public TopPathsAdapter(Context context, List<Path> paths) {
-        this.context = context;
-        this.paths = paths;
+    public TopPathsAdapter(Context _context, List<Path> _paths) {
+        context = _context;
+        paths = _paths;
     }
 
     @NonNull

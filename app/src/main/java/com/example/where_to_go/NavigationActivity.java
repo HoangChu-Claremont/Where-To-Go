@@ -23,12 +23,14 @@ public class NavigationActivity extends AppCompatActivity {
 
     private static final String TAG = "NavigationActivity";
 
+    public BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
         // Bottom Navigation
@@ -52,7 +54,7 @@ public class NavigationActivity extends AppCompatActivity {
                 return true;
             }
         });
-        // Set default
+        // Set default in bottom navigation
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
