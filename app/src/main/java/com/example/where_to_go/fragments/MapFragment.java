@@ -76,7 +76,8 @@ public class MapFragment extends Fragment {
         // When Google Map is loaded, test that we captured the fragment
         assert supportMapFragment != null;
 
-        supportMapFragment.getMapAsync(googleMap -> getFilteredDestination(googleMap));
+        // Method reference: Google Map shows asynchronously with filtered data.
+        supportMapFragment.getMapAsync(this::getFilteredDestination);
 
         Log.i(TAG, "Map Created");
     }
