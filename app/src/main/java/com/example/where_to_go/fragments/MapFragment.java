@@ -1,7 +1,6 @@
 package com.example.where_to_go.fragments;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.where_to_go.MapActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.FilteredDestinationAdapter;
 import com.example.where_to_go.models.Destination;
@@ -28,7 +26,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -38,7 +35,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Call;
@@ -49,7 +45,6 @@ public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
     private FilteredDestinationAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
-//    private GoogleMap googleMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,20 +75,12 @@ public class MapFragment extends Fragment {
         SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         // When Google Map is loaded, test that we captured the fragment
         assert supportMapFragment != null;
+
         supportMapFragment.getMapAsync( googleMap -> {
             getFilteredDestination(googleMap);
-            // When clicking on map
-//            LatLng sydney = new LatLng(-33.852, 151.211);
-//            googleMap.addMarker(new MarkerOptions()
-//                    .position(sydney)
-//                    .title("Marker in Sydney"));
-//            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         });
 
         Log.i(TAG, "Map Created");
-
-
-//        setGoogleMap();
     }
 
 
@@ -101,9 +88,9 @@ public class MapFragment extends Fragment {
 
     private void getFilteredDestination(GoogleMap googleMap) {
 
-        final YelpClient topPath = new YelpClient();
+        final YelpClient yelpClient = new YelpClient();
 
-        topPath.getResponse(-122.1483654685629, 37.484668049999996, 10, new Callback() {
+        yelpClient.getResponse(-122.1483654685629, 37.484668049999996, new Callback() {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -112,28 +99,17 @@ public class MapFragment extends Fragment {
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    filteredDestinations.addAll(FilterAlgorithm.getTopRatedPath(jsonResults));
+                    List<Destination> filteredResults = FilterAlgorithm.getTopRatedPath(jsonResults);
+                    filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
                     // can touch its views adapter" error
                     ((Activity) requireContext()).runOnUiThread(() -> {
-                        //change View Data
+                        // Update the Adapter
                         filteredDestinationAdapter.notifyDataSetChanged();
+                        // Set the Map
+                        setGoogleMap(googleMap, filteredDestinations);
 
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
-                        for (Destination destination : filteredDestinations) {
-                            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
-                            MarkerOptions marker = new MarkerOptions();
-                            googleMap.addMarker(marker.position(coordinate).title(destination.getTitle()));
-                            builder.include(marker.getPosition());
-                        }
-
-                        LatLngBounds bounds = builder.build();
-                        // TODO: Calculate Padding
-                        int padding = 420; // More values = More zooming out
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                        googleMap.moveCamera(cu);
                     });
 
                 } catch (IOException | JSONException e) {
@@ -165,8 +141,20 @@ public class MapFragment extends Fragment {
         rvDestinations.setAdapter(filteredDestinationAdapter);
     }
 
-    private void setGoogleMap() {
-        startActivity(new Intent(getContext(), MapActivity.class));
-        requireActivity().finish();
+    private void setGoogleMap(GoogleMap googleMap, List<Destination> filteredDestinations) {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        int padding = 420; // More values = More zooming out. TODO: Calculate Padding
+
+        // Mark each destination on the Map
+        for (Destination destination : filteredDestinations) {
+            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
+            MarkerOptions marker = new MarkerOptions();
+            googleMap.addMarker(marker.position(coordinate).title(destination.getTitle()));
+            builder.include(marker.getPosition());
+        }
+
+        LatLngBounds bounds = builder.build();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        googleMap.moveCamera(cameraUpdate);
     }
 }
