@@ -17,12 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.FeaturedPath;
+import com.example.where_to_go.models.PathBundle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     private FeaturedPathAdapter featuredPathAdapter;
-    private List<FeaturedPath> featuredPaths;
+    private List<PathBundle> pathBundles;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,24 +61,24 @@ public class HomeFragment extends Fragment {
         });
 
         // Featured Destination
-        getFeaturedPathTypes();
+        getFeaturedPath();
         setFeaturedPathRecyclerView();
     }
 
     // HELPER METHODS
 
-    private void getFeaturedPathTypes() {
+    private void getFeaturedPath() {
         String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-        featuredPaths = new ArrayList<>();
+        pathBundles = new ArrayList<>();
 
-        featuredPaths.add(new FeaturedPath("Top 10 Rated", PATH_TYPE_IMAGE_URL));
-        featuredPaths.add(new FeaturedPath("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
+        pathBundles.add(new PathBundle("Top 10 Rated", PATH_TYPE_IMAGE_URL));
+        pathBundles.add(new PathBundle("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
     }
 
     private void setFeaturedPathRecyclerView() {
         RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths);
 
-        featuredPathAdapter = new FeaturedPathAdapter(getContext(), featuredPaths);
+        featuredPathAdapter = new FeaturedPathAdapter(getContext(), pathBundles);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -103,58 +102,4 @@ public class HomeFragment extends Fragment {
         int gps_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
         return network_permission_check != PackageManager.PERMISSION_GRANTED && gps_permission_check != PackageManager.PERMISSION_GRANTED;
     }
-
-//    private void getTopPaths() {
-//
-//        // query for top 10 paths based on average
-//        topPaths = new ArrayList<>();
-//        final YelpClient topPath = new YelpClient();
-//
-//        topPath.getResponse(-122.1483654685629, 37.484668049999996, 3, new Callback() {
-//
-//            @Override
-//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-//                try {
-//                    String responseData = response.body().string();
-//                    JSONObject jsonData = new JSONObject(responseData);
-//
-//                    JSONArray jsonResults = jsonData.getJSONArray("businesses");
-//                    topPaths.addAll(Destination.getTopRatedPath(jsonResults));
-//
-//                    // Avoid the "Only the original thread that created a view hierarchy
-//                    // can touch its views adapter" error
-//                    ((Activity) getContext()).runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            //change View Data
-//                            tAdapter.notifyDataSetChanged();
-//                        }
-//                    });
-//
-//                } catch (IOException | JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//    }
-
-//    private void setUpRecyclerView() {
-//        RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths);
-//
-//        // Create the Adapter
-//        tAdapter = new TopPathsAdapter(getContext(), topPaths);
-//
-//        // Set Layout Manager
-//        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-//        rvTopPaths.setLayoutManager(tLayoutManager);
-//        rvTopPaths.setHasFixedSize(true); // always get top 10 paths
-//
-//        // Set the Adapter on RecyclerView
-//        rvTopPaths.setAdapter(tAdapter);
-//    }
 }

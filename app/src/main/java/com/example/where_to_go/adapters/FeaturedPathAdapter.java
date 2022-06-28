@@ -13,31 +13,31 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
-import com.example.where_to_go.models.FeaturedPath;
+import com.example.where_to_go.models.PathBundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 
-public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapter.PathTypesViewHolder> {
-
-    List<FeaturedPath> featuredPaths;
+public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapter.FeaturedPathViewHolder> {
+    private static final String TAG = "FeaturedPathAdapter";
+    List<PathBundle> featuredPaths;
     Context context;
 
-    public FeaturedPathAdapter(Context _context, List<FeaturedPath> _featured_paths) {
-        context = _context; // what does this equal?
+    public FeaturedPathAdapter(Context _context, List<PathBundle> _featured_paths) {
+        context = _context;
         featuredPaths = _featured_paths;
     }
 
     @NonNull
     @Override
-    public PathTypesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public FeaturedPathViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View topPathView = LayoutInflater.from(context).inflate(R.layout.item_top_path, parent, false);
-        return new PathTypesViewHolder(topPathView);
+        return new FeaturedPathViewHolder(topPathView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PathTypesViewHolder holder, int position) {
-        FeaturedPath featuredPath = featuredPaths.get(position);
+    public void onBindViewHolder(@NonNull FeaturedPathViewHolder holder, int position) {
+        PathBundle featuredPath = featuredPaths.get(position);
         holder.bind(featuredPath);
     }
 
@@ -46,12 +46,12 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
         return featuredPaths.size();
     }
 
-    public class PathTypesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        private static final String TAG = "PathTypesViewHolder";
+    public class FeaturedPathViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private static final String TAG = "FeaturedPathViewHolder";
         private ImageView ivPathImage;
         private TextView ivPathName;
 
-        public PathTypesViewHolder(@NonNull View itemView) {
+        public FeaturedPathViewHolder(@NonNull View itemView) {
             super(itemView);
             ivPathImage = itemView.findViewById(R.id.ivPathImage);
             ivPathName = itemView.findViewById(R.id.tvPathName);
@@ -59,9 +59,9 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
             itemView.setOnClickListener(this);
         }
 
-        public void bind(@NonNull FeaturedPath featuredPath) {
-            ivPathName.setText(featuredPath.getFeaturedPathName());
-            Glide.with(context).load(featuredPath.getFeaturedPathImageUrl()).into(ivPathImage);
+        public void bind(@NonNull PathBundle featuredPath) {
+            ivPathName.setText(featuredPath.getPathName());
+            Glide.with(context).load(featuredPath.getPathImageUrl()).into(ivPathImage);
         }
 
         @Override
@@ -70,11 +70,9 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
             int position = getAdapterPosition();
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
-                // get the post at the position, this won't work if the class is static
-                FeaturedPath featuredPath = featuredPaths.get(position);
 
                 // Switch HomeFragment -> MapFragment
-                BottomNavigationView bottomNavigationView = ((NavigationActivity)context).bottomNavigationView;
+                BottomNavigationView bottomNavigationView = ((NavigationActivity) context).bottomNavigationView;
                 bottomNavigationView.setSelectedItemId(R.id.action_map);
             }
         }

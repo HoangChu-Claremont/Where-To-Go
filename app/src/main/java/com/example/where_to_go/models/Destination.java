@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class Destination {
-
+    // TODO: Add more relevant fields
     private double longitude, latitude;
-
     private double rating;
+    private String title, imageUrl;
 
     public Destination(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
@@ -24,6 +24,10 @@ public class Destination {
     }
 
     // GETTER
+
+    public double getRating() {
+        return rating;
+    }
 
     public double getLongitude() {
         return longitude;
@@ -33,20 +37,32 @@ public class Destination {
         return latitude;
     }
 
-    public double getRating() {
-        return rating;
+    public String getTitle() {
+        return title;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     // SETTER
 
-    private void setCoordinate(JSONObject jsonObject) throws JSONException {
+    private void setCoordinate(@NonNull JSONObject jsonObject) throws JSONException {
         JSONObject coordinates = jsonObject.getJSONObject("coordinates");
         longitude = coordinates.getDouble("longitude");
         latitude = coordinates.getDouble("latitude");
     }
 
-    private void setRating(JSONObject jsonObject) throws JSONException {
+    private void setRating(@NonNull JSONObject jsonObject) throws JSONException {
         rating = jsonObject.getDouble("rating");
+    }
+
+    public void setTitle(String _title) {
+        title = title;
+    }
+
+    public void setImageUrl(String _imageUrl) {
+        imageUrl = _imageUrl;
     }
 
 }
