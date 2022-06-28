@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.PathBundle;
+import com.example.where_to_go.models.DestinationCollections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     private FeaturedPathAdapter featuredPathAdapter;
-    private List<PathBundle> pathBundles;
+    private List<DestinationCollections> destinationCollections;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,16 +69,16 @@ public class HomeFragment extends Fragment {
 
     private void getFeaturedPath() {
         String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-        pathBundles = new ArrayList<>();
+        destinationCollections = new ArrayList<>();
 
-        pathBundles.add(new PathBundle("Top 10 Rated", PATH_TYPE_IMAGE_URL));
-        pathBundles.add(new PathBundle("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
+        destinationCollections.add(new DestinationCollections("Top 10 Rated", PATH_TYPE_IMAGE_URL));
+        destinationCollections.add(new DestinationCollections("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
     }
 
     private void setFeaturedPathRecyclerView() {
         RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths);
 
-        featuredPathAdapter = new FeaturedPathAdapter(getContext(), pathBundles);
+        featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);

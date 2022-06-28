@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FilteredPathAdapter;
+import com.example.where_to_go.adapters.FilteredDestinationAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
@@ -28,6 +27,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -35,8 +35,8 @@ import okhttp3.Response;
 
 public class MapFragment extends Fragment {
 
-    private FilteredPathAdapter filteredPathAdapter;
-    private List<Destination> filteredPath;
+    private FilteredDestinationAdapter filteredDestinationAdapter;
+    private List<Destination> filteredDestinations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,37 +67,34 @@ public class MapFragment extends Fragment {
 //        });
 
         // Featured Destination
-//        getFilteredPath();
-//        setFilteredPathRecyclerView();
+//        getFilteredDestination();
+//        setFilteredDestinationRecyclerView();
     }
 
     // HELPER METHODS
 
-    private void getFilteredPath() {
+    private void getFilteredDestination() {
 
         // query for top 10 paths based on average
-        filteredPath = new ArrayList<>();
+        filteredDestinations = new ArrayList<>();
         final YelpClient topPath = new YelpClient();
 
         topPath.getResponse(-122.1483654685629, 37.484668049999996, 3, new Callback() {
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
-                    String responseData = response.body().string();
+                    String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    filteredPath.addAll(FilterAlgorithm.getTopRatedPath(jsonResults));
+                    filteredDestinations.addAll(FilterAlgorithm.getTopRatedPath(jsonResults));
 
                     // Avoid the "Only the original thread that created a view hierarchy
                     // can touch its views adapter" error
-                    ((Activity) getContext()).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //change View Data
-                            filteredPathAdapter.notifyDataSetChanged();
-                        }
+                    ((Activity) requireContext()).runOnUiThread(() -> {
+                        //change View Data
+                        filteredDestinationAdapter.notifyDataSetChanged();
                     });
 
                 } catch (IOException | JSONException e) {
@@ -106,17 +103,17 @@ public class MapFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    private void setFilteredPathRecyclerView() {
-        RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths); // TODO: Need adjustment (variable name, resource id, etc.) here
+    private void setFilteredDestinationRecyclerView() {
+        RecyclerView rvTopPaths = requireView().findViewById(R.id.rvTopPaths); // TODO: Need adjustment (variable name, resource id, etc.) here
 
         // Create the Adapter
-        filteredPathAdapter = new FilteredPathAdapter(getContext(), filteredPath);
+        filteredDestinationAdapter = new FilteredDestinationAdapter(getContext(), filteredDestinations);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -124,6 +121,6 @@ public class MapFragment extends Fragment {
         rvTopPaths.setHasFixedSize(true); // always get top 10 paths
 
         // Set the Adapter on RecyclerView
-        rvTopPaths.setAdapter(filteredPathAdapter);
+        rvTopPaths.setAdapter(filteredDestinationAdapter);
     }
 }

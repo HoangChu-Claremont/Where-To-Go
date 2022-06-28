@@ -58,7 +58,7 @@ public class Destination {
     }
 
     public void setTitle(String _title) {
-        title = title;
+        title = _title;
     }
 
     public void setImageUrl(String _imageUrl) {
