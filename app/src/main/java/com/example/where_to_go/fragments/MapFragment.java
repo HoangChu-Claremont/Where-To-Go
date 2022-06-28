@@ -19,6 +19,9 @@ import com.example.where_to_go.adapters.FilteredDestinationAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +55,7 @@ public class MapFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
+
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -59,16 +63,30 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        CardView cvContinuePath = view.findViewById(R.id.cvContinuePath);
-//
-//        // TODO: Recommendation Algorithm
-//        cvContinuePath.setOnClickListener(v -> {
-//
-//        });
+        // Get a handle to the fragment and register the callback.
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        // When Google Map is loaded, test that we captured the fragment
+        assert supportMapFragment != null;
+        supportMapFragment.getMapAsync(googleMap -> {
+            // When clicking on map
+            googleMap.setOnMapClickListener(latLng -> {
+                MarkerOptions markerOptions = new MarkerOptions();
+                // Set position on Marker
+                markerOptions.position(latLng);
+                // Set title of the marker
+                markerOptions.title(latLng.latitude + " : " + latLng.longitude);
+                // Remove all marker
+                googleMap.clear();
+                // Animating to Zoom the marker
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                // Add marker on Map
+                googleMap.addMarker(markerOptions);
+            });
+        });
 
         // Featured Destination
-//        getFilteredDestination();
-//        setFilteredDestinationRecyclerView();
+        getFilteredDestination();
+        setFilteredDestinationRecyclerView();
     }
 
     // HELPER METHODS
@@ -110,7 +128,7 @@ public class MapFragment extends Fragment {
     }
 
     private void setFilteredDestinationRecyclerView() {
-        RecyclerView rvTopPaths = requireView().findViewById(R.id.rvTopPaths); // TODO: Need adjustment (variable name, resource id, etc.) here
+        RecyclerView rvTopPaths = requireView().findViewById(R.id.rvDestinations); // TODO: Need adjustment (variable name, resource id, etc.) here
 
         // Create the Adapter
         filteredDestinationAdapter = new FilteredDestinationAdapter(getContext(), filteredDestinations);

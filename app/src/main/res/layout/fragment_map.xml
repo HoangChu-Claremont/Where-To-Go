@@ -5,10 +5,15 @@
     android:layout_height="match_parent"
     tools:context=".fragments.MapFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.fragment.app.FragmentContainerView
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:id="@+id/google_map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent"/>
+
+    <!-- include bottom sheet -->
+    <include
+        android:id="@+id/bottom_sheet"
+        layout="@layout/bottom_sheet" />
 
 </FrameLayout>
