@@ -12,7 +12,7 @@
         android:layout_weight="1"
         android:autofillHints="Enter Your Path Name"
         android:ems="5"
-        android:hint="@string/enter_your_path_name"
+        android:hint="@string/enter_your_tour_name"
         android:inputType="text"
         android:minHeight="48dp"
         app:layout_constraintBottom_toTopOf="@+id/rvDestinations"

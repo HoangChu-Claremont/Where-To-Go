@@ -128,17 +128,16 @@ public class MapFragment extends Fragment {
     }
 
     private void setFilteredDestinationRecyclerView() {
-        RecyclerView rvTopPaths = requireView().findViewById(R.id.rvDestinations); // TODO: Need adjustment (variable name, resource id, etc.) here
-
+        RecyclerView rvDestinations = requireView().findViewById(R.id.rvDestinations);
         // Create the Adapter
         filteredDestinationAdapter = new FilteredDestinationAdapter(getContext(), filteredDestinations);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvTopPaths.setLayoutManager(tLayoutManager);
-        rvTopPaths.setHasFixedSize(true); // always get top 10 paths
+        rvDestinations.setLayoutManager(tLayoutManager);
+        rvDestinations.setHasFixedSize(true); // always get top 10 paths
 
         // Set the Adapter on RecyclerView
-        rvTopPaths.setAdapter(filteredDestinationAdapter);
+        rvDestinations.setAdapter(filteredDestinationAdapter);
     }
 }
