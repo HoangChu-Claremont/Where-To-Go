@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MapFragment extends Fragment {
-
+    private static final String TAG = "MapFragment";
     private FilteredDestinationAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
 
@@ -83,6 +84,7 @@ public class MapFragment extends Fragment {
                 googleMap.addMarker(markerOptions);
             });
         });
+        Log.i(TAG, "Map Created");
 
         // Featured Destination
         getFilteredDestination();
