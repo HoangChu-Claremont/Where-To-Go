@@ -1,4 +1,4 @@
-package com.example.where_to_go.models;
+package com.example.where_to_go.utilities;
 
 import com.example.where_to_go.BuildConfig;
 
