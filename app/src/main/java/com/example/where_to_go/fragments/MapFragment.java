@@ -97,7 +97,7 @@ public class MapFragment extends Fragment {
         filteredDestinations = new ArrayList<>();
         final YelpClient topPath = new YelpClient();
 
-        topPath.getResponse(-122.1483654685629, 37.484668049999996, 3, new Callback() {
+        topPath.getResponse(-122.1483654685629, 37.484668049999996, 10, new Callback() {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
