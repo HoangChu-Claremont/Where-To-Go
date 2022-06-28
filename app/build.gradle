@@ -19,7 +19,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "API_KEY", yelpProperties['API_KEY'])
+        buildConfigField("String", "YELP_API_KEY", yelpProperties['API_KEY'])
         buildConfigField("String", "CLIENT_ID", yelpProperties['CLIENT_ID'])
     }
 

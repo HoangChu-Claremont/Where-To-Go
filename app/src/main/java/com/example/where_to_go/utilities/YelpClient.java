@@ -11,8 +11,6 @@ import okhttp3.Request;
 public class YelpClient {
     private static final String TOP_PLACES_URL = "https://api.yelp.com/v3/businesses/search";
 
-    public static final String API_KEY = "Vi7ucfNTeCNfQetr9DuZ69NBhIcqgp5hI3qMLOjZbo-M4YlGIfUtbnQ10_H-7uqj6UsHQTAtxnX49Zg6f3umGRT3WEl7A6b6iXn48Rhy4VqrfRl4v2LABAmxql22YnYx";
-
     public void getResponse(double currentLongitude, double currentLatitude, int limit, Callback callback) {
         OkHttpClient client = new OkHttpClient.Builder().build();
         HttpUrl.Builder urlBuilder = HttpUrl.parse(TOP_PLACES_URL).newBuilder();
@@ -24,7 +22,7 @@ public class YelpClient {
 
         Request request= new Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer " + BuildConfig.API_KEY)
+                .header("Authorization", "Bearer " + BuildConfig.YELP_API_KEY)
                 .build();
 
         Call call = client.newCall(request);
