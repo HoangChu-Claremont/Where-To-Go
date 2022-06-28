@@ -76,9 +76,7 @@ public class MapFragment extends Fragment {
         // When Google Map is loaded, test that we captured the fragment
         assert supportMapFragment != null;
 
-        supportMapFragment.getMapAsync( googleMap -> {
-            getFilteredDestination(googleMap);
-        });
+        supportMapFragment.getMapAsync(googleMap -> getFilteredDestination(googleMap));
 
         Log.i(TAG, "Map Created");
     }
@@ -107,7 +105,7 @@ public class MapFragment extends Fragment {
                     ((Activity) requireContext()).runOnUiThread(() -> {
                         // Update the Adapter
                         filteredDestinationAdapter.notifyDataSetChanged();
-                        // Set the Map
+
                         setGoogleMap(googleMap, filteredDestinations);
 
                     });

@@ -18,13 +18,11 @@ public class Destination {
     private double rating;
     private String title, imageUrl;
 
-    String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-
     public Destination(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
         setRating(jsonObject);
         setTitle(jsonObject);
-        setImageUrl(PATH_TYPE_IMAGE_URL);
+        setImageUrl(jsonObject);
     }
 
     // GETTER
@@ -65,8 +63,8 @@ public class Destination {
         title = jsonObject.getString("name");
     }
 
-    public void setImageUrl(String _imageUrl) {
-        imageUrl = _imageUrl;
+    public void setImageUrl(JSONObject jsonObject) throws JSONException {
+        imageUrl = jsonObject.getString("image_url");
     }
 
 }
