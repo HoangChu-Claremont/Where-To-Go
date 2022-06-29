@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,6 +46,7 @@ public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
     private FilteredDestinationAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
+    RecyclerView rvDestinations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
@@ -80,8 +82,10 @@ public class MapFragment extends Fragment {
         supportMapFragment.getMapAsync(this::getFilteredDestination);
 
         Log.i(TAG, "Map Created");
-    }
 
+        // User can reorder locations
+        setDragDropDestinations(rvDestinations);
+    }
 
     // HELPER METHODS
 
@@ -127,7 +131,7 @@ public class MapFragment extends Fragment {
         // query for top 10 paths based on average
         filteredDestinations = new ArrayList<>();
 
-        RecyclerView rvDestinations = requireView().findViewById(R.id.rvDestinations);
+        rvDestinations = requireView().findViewById(R.id.rvDestinations);
         // Create the Adapter
         filteredDestinationAdapter = new FilteredDestinationAdapter(getContext(), filteredDestinations);
 
@@ -138,9 +142,11 @@ public class MapFragment extends Fragment {
 
         // Set the Adapter on RecyclerView
         rvDestinations.setAdapter(filteredDestinationAdapter);
+
+        setDragDropDestinations(rvDestinations);
     }
 
-    private void setGoogleMap(GoogleMap googleMap, List<Destination> filteredDestinations) {
+    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         int padding = 420; // More values = More zooming out. TODO: Calculate Padding
 
@@ -155,5 +161,23 @@ public class MapFragment extends Fragment {
         LatLngBounds bounds = builder.build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         googleMap.moveCamera(cameraUpdate);
+    }
+
+    private void setDragDropDestinations(RecyclerView rvDestinations) {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int fromPosition = viewHolder.getAdapterPosition();
+                int toPosition = target.getAdapterPosition();
+                filteredDestinationAdapter.onItemMove(fromPosition, toPosition);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.where_to_go.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +15,13 @@ import com.bumptech.glide.Glide;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
 
+import java.util.Collections;
 import java.util.List;
 
 public class FilteredDestinationAdapter extends RecyclerView.Adapter<FilteredDestinationAdapter.FilteredDestinationViewHolder> {
     private static final String TAG = "FilteredDestinationAdapter";
     public Context context;
-    private List<Destination> destinations;
+    private final List<Destination> destinations;
 
     public FilteredDestinationAdapter(Context _context, List<Destination> _destinations) {
         context = _context;
@@ -42,6 +44,21 @@ public class FilteredDestinationAdapter extends RecyclerView.Adapter<FilteredDes
     @Override
     public int getItemCount() {
         return destinations.size();
+    }
+
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int leftWard = fromPosition; leftWard < toPosition; ++leftWard) {
+                Collections.swap(destinations, leftWard, leftWard + 1);
+            }
+        } else {
+            for (int rightWard = fromPosition; rightWard > toPosition; --rightWard) {
+                Collections.swap(destinations, rightWard, rightWard - 1);
+            }
+        }
+
+        Log.i(TAG, "Swap item " + fromPosition + " with item " + toPosition);
+        notifyItemMoved(fromPosition, toPosition);
     }
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
