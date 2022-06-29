@@ -24,8 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private EditText etUsername;
     private EditText etPassword;
-    private Button btnLogin;
-    private Button btnSignup;
+
 
     //    private LoginButton facebookLoginButton; // Log in by Facebook
     //    private CallbackManager callbackManager;
@@ -41,8 +40,8 @@ public class LoginActivity extends AppCompatActivity {
         // Set Values
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnSignup = findViewById(R.id.btnSignup);
+        Button btnLogin = findViewById(R.id.btnLogin);
+        Button btnSignup = findViewById(R.id.btnSignup);
         // facebookLoginButton = findViewById(R.id.login_button);
 
         // Button clicks
@@ -54,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
             String password = etPassword.getText().toString();
 
             // Log in -> MainActivity
-            loginUser(username, password);
+            logIn(username, password);
         });
 
         btnSignup.setOnClickListener((View.OnClickListener) v -> {
@@ -106,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // HELPER METHODS
 
-    private void loginUser(String username, String password) {
+    private void logIn(String username, String password) {
         Log.i(TAG, "Logging in with username: " + username);
 
         // Navigate to MainActivity if successfully log in
@@ -118,6 +117,8 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
             // If logged in
+            user.setUsername(username);
+            user.setPassword(password);
             goHomeActivity();
             Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
         });
@@ -126,10 +127,6 @@ public class LoginActivity extends AppCompatActivity {
     public void signUp(String username, String password) {
         ParseUser user = new ParseUser();
 
-        // Set core properties
-        user.setUsername(username);
-        user.setPassword(password);
-
         // Invoke signUpInBackground
         user.signUpInBackground(e -> {
             // Sign up failed.
@@ -137,6 +134,9 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 return;
             }
+            // If signed up
+            user.setUsername(username);
+            user.setPassword(password);
             goHomeActivity();
             Toast.makeText(LoginActivity.this, "Sign Up Succeed!", Toast.LENGTH_SHORT).show();
         });

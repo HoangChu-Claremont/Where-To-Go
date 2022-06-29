@@ -2,157 +2,120 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintLayout4"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:isScrollContainer="true"
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/backgroundLayout"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/llProfile"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#00F5F5F5"
+        android:background="#FFFFFF"
+        android:isScrollContainer="true"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <FrameLayout
-            android:id="@+id/frameLayout"
+        <LinearLayout
+            android:id="@+id/llUserNameImage"
             android:layout_width="match_parent"
-            android:layout_height="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/profile_gradient"
+            android:orientation="horizontal"
+            android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/ivBackground"
+                android:id="@+id/account_picture"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:adjustViewBounds="false"
+                android:contentDescription="@string/username"
+                android:scaleType="fitCenter"
+                android:src="@drawable/common_full_open_on_phone"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:orientation="vertical">
 
-                android:scaleType="centerCrop"
-                app:srcCompat="@color/black" />
-        </FrameLayout>
+                <TextView
+                    android:id="@+id/account_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"
+                    tools:text="@string/username" />
 
-        <TextView
-            android:id="@+id/tvName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="8dp"
-            android:fontFamily="@font/proximanova_regular"
-            android:text="Username"
-            android:textColor="@color/offWhite"
-            android:textSize="36sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.547"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/account_twitter_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/secondary_text_light"
+                    tools:ignore="TextContrastCheck"
+                    tools:text="@string/username" />
 
-        <ImageButton
-            android:id="@+id/ivProfile"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_marginStart="85dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="80dp"
-            android:background="#00FFFFFF"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvName"
-            tools:srcCompat="@tools:sample/avatars" />
+            </LinearLayout>
+        </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:id="@+id/tvUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="24dp"
-        android:fontFamily="@font/proximanova_bold"
-        android:text="Username :"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnViewCompleted" />
-
-    <TextView
-        android:id="@+id/tvEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/proximanova_bold"
-        android:text="E-mail :"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvUsername" />
-
-    <TextView
-        android:id="@+id/tvUserName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:fontFamily="@font/proximanova_regular"
-        android:text="TextView"
-        android:textSize="18sp"
-        app:layout_constraintStart_toEndOf="@+id/tvUsername"
-        app:layout_constraintTop_toTopOf="@+id/tvUsername" />
-
-    <TextView
-        android:id="@+id/tvUserEmail"
-        android:layout_width="wrap_content"
-
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/proximanova_regular"
-        android:text="TextView"
-        android:textSize="18sp"
-        app:layout_constraintStart_toEndOf="@+id/tvEmail"
-        app:layout_constraintTop_toBottomOf="@+id/tvUserName" />
-
-    <TextView
-        android:id="@+id/tvCompletedPaths"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:fontFamily="@font/proximanova_bold"
-        android:text="You have bookmarked 0 paths!"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.574"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/backgroundLayout" />
+        <LinearLayout
+            android:id="@+id/llFriends"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
 
-    <Button
-        android:id="@+id/btnViewCompleted"
-        android:layout_width="193dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="112dp"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/proximanova_semibold"
-        android:text="View bookmarked paths"
-        android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvCompletedPaths" />
+            <TextView
+                android:id="@+id/tvFriend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/proximanova_bold"
+                android:paddingTop="8dp"
+                android:text="@string/my_connections"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@color/appBlack"
+                android:textSize="20sp" />
 
-    <Button
-        android:id="@+id/btnLogOut"
-        android:layout_width="193dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="112dp"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/proximanova_semibold"
-        android:text="Logout "
-        android:textAllCaps="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvUserEmail" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dp" />
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/llSavedTours"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSavedTour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/proximanova_bold"
+                android:includeFontPadding="true"
+                android:paddingTop="10dp"
+                android:text="@string/saved_tours"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@color/appBlack"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSavedTours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

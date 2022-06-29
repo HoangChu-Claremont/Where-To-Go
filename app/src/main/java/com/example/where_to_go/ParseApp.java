@@ -3,6 +3,7 @@ import android.app.Application;
 
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.yelp.clientlib.entities.User;
 
 public class ParseApp extends Application {
     @Override

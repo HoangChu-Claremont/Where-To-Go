@@ -76,7 +76,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setFeaturedPathRecyclerView() {
-        RecyclerView rvFeaturedPaths = getView().findViewById(R.id.rvFeaturedPaths);
+        RecyclerView rvFeaturedPaths = getView().findViewById(R.id.rvFeaturedTours);
 
         featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
 
