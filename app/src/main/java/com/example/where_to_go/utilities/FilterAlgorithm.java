@@ -22,13 +22,18 @@ public class FilterAlgorithm {
 
     @NonNull
     public static List<Destination> getTopRatedPath(@NonNull JSONArray businesses) throws JSONException {
-        List<Destination> destinations = new ArrayList<>();
+        List<Destination> outputDestinations = new ArrayList<>();
+        List<Destination> inputDestinations = new ArrayList<>();
         for (int pos = 0; pos < businesses.length(); ++pos) {
-            destinations.add(new Destination(businesses.getJSONObject(pos)));
+            inputDestinations.add(new Destination(businesses.getJSONObject(pos)));
         }
 
-        Collections.sort(destinations, new RatingComparator());
+        Collections.sort(inputDestinations, new RatingComparator());
 
-        return destinations;
+        for (int pos = 0; pos < 10; ++pos) {
+            outputDestinations.add(inputDestinations.get(pos));
+        }
+
+        return outputDestinations;
     }
 }

@@ -6,9 +6,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,13 @@ import com.example.where_to_go.adapters.FilteredDestinationAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,9 +43,10 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MapFragment extends Fragment {
-
+    private static final String TAG = "MapFragment";
     private FilteredDestinationAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
+    RecyclerView rvDestinations;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,10 +58,11 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
+
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -59,27 +70,30 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        CardView cvContinuePath = view.findViewById(R.id.cvContinuePath);
-//
-//        // TODO: Recommendation Algorithm
-//        cvContinuePath.setOnClickListener(v -> {
-//
-//        });
-
         // Featured Destination
-//        getFilteredDestination();
-//        setFilteredDestinationRecyclerView();
+        setFilteredDestinationRecyclerView();
+
+        // Get a handle to the fragment and register the callback.
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        // When Google Map is loaded, test that we captured the fragment
+        assert supportMapFragment != null;
+
+        // Method reference: Google Map shows asynchronously with filtered data.
+        supportMapFragment.getMapAsync(this::getFilteredDestination);
+
+        Log.i(TAG, "Map Created");
+
+        // User can reorder locations
+        setDragDropDestinations(rvDestinations);
     }
 
     // HELPER METHODS
 
-    private void getFilteredDestination() {
+    private void getFilteredDestination(GoogleMap googleMap) {
 
-        // query for top 10 paths based on average
-        filteredDestinations = new ArrayList<>();
-        final YelpClient topPath = new YelpClient();
+        final YelpClient yelpClient = new YelpClient();
 
-        topPath.getResponse(-122.1483654685629, 37.484668049999996, 3, new Callback() {
+        yelpClient.getResponse(-122.1483654685629, 37.484668049999996, new Callback() {
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -88,13 +102,17 @@ public class MapFragment extends Fragment {
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    filteredDestinations.addAll(FilterAlgorithm.getTopRatedPath(jsonResults));
+                    List<Destination> filteredResults = FilterAlgorithm.getTopRatedPath(jsonResults);
+                    filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
                     // can touch its views adapter" error
                     ((Activity) requireContext()).runOnUiThread(() -> {
-                        //change View Data
+                        // Update the Adapter
                         filteredDestinationAdapter.notifyDataSetChanged();
+
+                        setGoogleMap(googleMap, filteredDestinations);
+
                     });
 
                 } catch (IOException | JSONException e) {
@@ -110,17 +128,56 @@ public class MapFragment extends Fragment {
     }
 
     private void setFilteredDestinationRecyclerView() {
-        RecyclerView rvTopPaths = requireView().findViewById(R.id.rvTopPaths); // TODO: Need adjustment (variable name, resource id, etc.) here
+        // query for top 10 paths based on average
+        filteredDestinations = new ArrayList<>();
 
+        rvDestinations = requireView().findViewById(R.id.rvDestinations);
         // Create the Adapter
         filteredDestinationAdapter = new FilteredDestinationAdapter(getContext(), filteredDestinations);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvTopPaths.setLayoutManager(tLayoutManager);
-        rvTopPaths.setHasFixedSize(true); // always get top 10 paths
+        rvDestinations.setLayoutManager(tLayoutManager);
+        rvDestinations.setHasFixedSize(true); // always get top 10 paths
 
         // Set the Adapter on RecyclerView
-        rvTopPaths.setAdapter(filteredDestinationAdapter);
+        rvDestinations.setAdapter(filteredDestinationAdapter);
+
+        setDragDropDestinations(rvDestinations);
+    }
+
+    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        int padding = 420; // More values = More zooming out. TODO: Calculate Padding
+
+        // Mark each destination on the Map
+        for (Destination destination : filteredDestinations) {
+            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
+            MarkerOptions marker = new MarkerOptions();
+            googleMap.addMarker(marker.position(coordinate).title(destination.getTitle()));
+            builder.include(marker.getPosition());
+        }
+
+        LatLngBounds bounds = builder.build();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        googleMap.moveCamera(cameraUpdate);
+    }
+
+    private void setDragDropDestinations(RecyclerView rvDestinations) {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int fromPosition = viewHolder.getAdapterPosition();
+                int toPosition = target.getAdapterPosition();
+                filteredDestinationAdapter.onItemMove(fromPosition, toPosition);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 }

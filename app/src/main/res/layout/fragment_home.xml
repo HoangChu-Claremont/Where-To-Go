@@ -88,25 +88,26 @@
 
 
             <LinearLayout
-                android:id="@+id/llTopPaths"
+                android:id="@+id/llFeaturedPaths"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvFeaturedPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/proximanova_bold"
                     android:includeFontPadding="true"
                     android:paddingTop="10dp"
-                    android:text="@string/top_rated_tours"
+                    android:text="@string/featured_path"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large"
                     android:textColor="@color/appBlack"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvTopPaths"
+                    android:id="@+id/rvFeaturedPaths"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -121,7 +122,7 @@
 
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/tvBookmarkedPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/proximanova_bold"

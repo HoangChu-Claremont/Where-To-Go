@@ -18,10 +18,12 @@
         android:ems="10"
         android:hint="@string/username"
         android:inputType="text"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TextContrastCheck" />
 
     <EditText
         android:id="@+id/etPassword"
@@ -32,36 +34,40 @@
         android:autofillHints="@string/password"
         android:hint="@string/password"
         android:inputType="textPassword"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etUsername" />
+        app:layout_constraintTop_toBottomOf="@+id/etUsername"
+        tools:ignore="TextContrastCheck" />
 
     <Button
         android:id="@+id/btnLogin"
-        android:text="@string/login"
-        tools:text="Login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_weight="1"
+        android:text="@string/login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/etPassword"
+        tools:ignore="TextContrastCheck"
+        tools:text="Login" />
 
     <Button
         android:id="@+id/btnSignup"
-        android:text="@string/signup"
-        tools:text="Sign Up"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_weight="1"
+        android:text="@string/signup"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
+        app:layout_constraintTop_toBottomOf="@+id/btnLogin"
+        tools:ignore="TextContrastCheck"
+        tools:text="Sign Up" />
 
 <!--    <com.facebook.login.widget.LoginButton-->
 <!--        android:id="@+id/login_button"-->

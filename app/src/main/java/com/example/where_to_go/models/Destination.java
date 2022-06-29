@@ -21,6 +21,8 @@ public class Destination {
     public Destination(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
         setRating(jsonObject);
+        setTitle(jsonObject);
+        setImageUrl(jsonObject);
     }
 
     // GETTER
@@ -57,12 +59,12 @@ public class Destination {
         rating = jsonObject.getDouble("rating");
     }
 
-    public void setTitle(String _title) {
-        title = _title;
+    public void setTitle(JSONObject jsonObject) throws JSONException {
+        title = jsonObject.getString("name");
     }
 
-    public void setImageUrl(String _imageUrl) {
-        imageUrl = _imageUrl;
+    public void setImageUrl(JSONObject jsonObject) throws JSONException {
+        imageUrl = jsonObject.getString("image_url");
     }
 
 }

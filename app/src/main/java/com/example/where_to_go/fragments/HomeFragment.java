@@ -76,17 +76,17 @@ public class HomeFragment extends Fragment {
     }
 
     private void setFeaturedPathRecyclerView() {
-        RecyclerView rvTopPaths = getView().findViewById(R.id.rvTopPaths);
+        RecyclerView rvFeaturedPaths = getView().findViewById(R.id.rvFeaturedPaths);
 
         featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvTopPaths.setLayoutManager(tLayoutManager);
-        rvTopPaths.setHasFixedSize(true); // always get top 10 paths
+        rvFeaturedPaths.setLayoutManager(tLayoutManager);
+        rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
 
         // Set the Adapter on RecyclerView
-        rvTopPaths.setAdapter(featuredPathAdapter);
+        rvFeaturedPaths.setAdapter(featuredPathAdapter);
         featuredPathAdapter.notifyDataSetChanged();
     }
 
