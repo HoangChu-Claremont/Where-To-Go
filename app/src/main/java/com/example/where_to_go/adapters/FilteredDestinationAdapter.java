@@ -31,7 +31,7 @@ public class FilteredDestinationAdapter extends RecyclerView.Adapter<FilteredDes
     @NonNull
     @Override
     public FilteredDestinationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View topPathView = LayoutInflater.from(context).inflate(R.layout.item_top_path, parent, false);
+        View topPathView = LayoutInflater.from(context).inflate(R.layout.collection, parent, false);
         return new FilteredDestinationViewHolder(topPathView);
     }
 

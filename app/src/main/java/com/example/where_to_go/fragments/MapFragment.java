@@ -163,7 +163,7 @@ public class MapFragment extends Fragment {
         // Set the Adapter on RecyclerView
         rvDestinations.setAdapter(filteredDestinationAdapter);
 
-        setDragDropDestinations(rvDestinations);
+//        setDragDropDestinations(rvDestinations);
     }
 
     private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destinations> filteredDestinations) {

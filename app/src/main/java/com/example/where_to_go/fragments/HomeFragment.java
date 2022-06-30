@@ -63,9 +63,12 @@ public class HomeFragment extends Fragment {
 
         });
 
-        // Featured Destinations
+        // Featured Tours
         setFeaturedPathRecyclerView();
         getFeaturedPath();
+
+        // Recent Tours
+        getRecentPathRecyclerView();
         getRecentPath();
     }
 
@@ -83,6 +86,20 @@ public class HomeFragment extends Fragment {
         rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
         // Set the Adapter on RecyclerView
         rvFeaturedPaths.setAdapter(featuredPathAdapter);
+    }
+
+    private void getRecentPathRecyclerView() {
+        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
+
+        mostRecentTours = new ArrayList<>();
+        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
+
+        // Set Layout Manager
+        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rvRecentTours.setLayoutManager(tLayoutManager);
+        rvRecentTours.setHasFixedSize(true); // always get top 10 paths
+        // Set the Adapter on RecyclerView
+        rvRecentTours.setAdapter(recentPathAdapter);
     }
 
     private void getFeaturedPath() {
@@ -104,21 +121,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void getRecentPath() {
-        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
-
-        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
-
-        mostRecentTours = new ArrayList<>();
-        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
-
-        // Set Layout Manager
-        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvRecentTours.setLayoutManager(tLayoutManager);
-        rvRecentTours.setHasFixedSize(true); // always get top 10 paths
-        // Set the Adapter on RecyclerView
-        rvRecentTours.setAdapter(recentPathAdapter);
-
-
         ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
         final int LIMIT = 5;
         destinationCollectionsParseQuery.include(DestinationCollections.USER_ID)

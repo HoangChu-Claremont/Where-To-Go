@@ -1,13 +1,17 @@
 package com.example.where_to_go.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -15,6 +19,8 @@ import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.DestinationCollections;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -31,7 +37,7 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
     @NonNull
     @Override
     public FeaturedPathViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View topPathView = LayoutInflater.from(context).inflate(R.layout.item_top_path, parent, false);
+        View topPathView = LayoutInflater.from(context).inflate(R.layout.collection, parent, false);
         return new FeaturedPathViewHolder(topPathView);
     }
 
@@ -50,11 +56,14 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
         private static final String TAG = "FeaturedPathViewHolder";
         private ImageView ivPathImage;
         private TextView ivPathName;
+        private ImageButton ibPathBookmark;
 
         public FeaturedPathViewHolder(@NonNull View itemView) {
             super(itemView);
             ivPathImage = itemView.findViewById(R.id.ivPathImage);
             ivPathName = itemView.findViewById(R.id.tvPathName);
+            ibPathBookmark = itemView.findViewById(R.id.ibBookmark);
+
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }
@@ -62,6 +71,16 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
         public void bind(@NonNull DestinationCollections featuredPath) {
             ivPathName.setText(featuredPath.getTourName());
             Glide.with(context).load("http://via.placeholder.com/300.png").into(ivPathImage);
+            showSavedStatus(featuredPath.getSaved());
+
+            ibPathBookmark.setOnClickListener(v -> {
+                Log.i(TAG, String.valueOf(featuredPath.getSaved()));
+                featuredPath.setIsSaved(!featuredPath.getSaved());
+                Log.i(TAG, String.valueOf(featuredPath.getSaved()));
+
+                featuredPath.saveInBackground();
+                showSavedStatus(featuredPath.getSaved());
+            });
         }
 
         @Override
@@ -74,6 +93,15 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
                 // Switch HomeFragment -> MapFragment
                 BottomNavigationView bottomNavigationView = ((NavigationActivity) context).bottomNavigationView;
                 bottomNavigationView.setSelectedItemId(R.id.action_map);
+            }
+        }
+
+        // HELPER METHODS
+        private void showSavedStatus(boolean isSaved) {
+            if (isSaved) {
+                ibPathBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark_filled));
+            } else {
+                ibPathBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark));
             }
         }
     }
