@@ -2,7 +2,7 @@ package com.example.where_to_go.utilities;
 
 import android.app.Application;
 import com.example.where_to_go.R;
-import com.example.where_to_go.models.Destinations;
+import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tours;
 import com.example.where_to_go.models.Users;
 import com.parse.Parse;
@@ -15,7 +15,7 @@ public class ParseApp extends Application {
 
         ParseObject.registerSubclass(Users.class);
         ParseObject.registerSubclass(Tours.class);
-        ParseObject.registerSubclass(Destinations.class);
+        ParseObject.registerSubclass(Destination.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId(getString(R.string.back4app_app_id))

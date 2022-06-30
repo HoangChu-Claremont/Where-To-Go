@@ -16,21 +16,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@ParseClassName("Destinations")
-public class Destinations extends ParseObject {
+@ParseClassName("Destination")
+public class Destination extends ParseObject {
     private static final String LOCATION_NAME = "location_name";
     private static final String LONGITUDE = "longitude";
     private static final String LATITUDE = "latitude";
     private static final String RATING = "rating";
     private static final String IMAGE_URL = "location_image_url";
-    private static final String TAG = "Destinations";
+    private static final String TAG = "Destination";
 
     // TODO: Add more relevant fields
     private double longitude, latitude;
     private double rating;
     private String title, imageUrl;
 
-    public Destinations() {}
+    public Destination() {}
 
     public void setData(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);

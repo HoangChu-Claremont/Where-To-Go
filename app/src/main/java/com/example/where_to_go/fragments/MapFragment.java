@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
-import com.example.where_to_go.models.Destinations;
+import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tours;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
@@ -53,7 +53,7 @@ import okhttp3.Response;
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
     private DestinationsAdapter filteredDestinationAdapter;
-    private List<Destinations> filteredDestinations;
+    private List<Destination> filteredDestinations;
 
     RecyclerView rvDestinations;
     Button btnStartSaveTour;
@@ -81,7 +81,7 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Featured Destinations
+        // Featured Destination
         setFilteredDestinationRecyclerView();
 
         // Get a handle to the fragment and register the callback.
@@ -127,7 +127,7 @@ public class MapFragment extends Fragment {
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    List<Destinations> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+                    List<Destination> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
                     filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
@@ -172,12 +172,12 @@ public class MapFragment extends Fragment {
         rvDestinations.setAdapter(filteredDestinationAdapter);
     }
 
-    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destinations> filteredDestinations) {
+    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         int padding = 420; // More values = More zooming out. TODO: Calculate Padding
 
         // Mark each destination on the Map
-        for (Destinations destination : filteredDestinations) {
+        for (Destination destination : filteredDestinations) {
             LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
             MarkerOptions marker = new MarkerOptions();
             googleMap.addMarker(marker.position(coordinate).title(destination.getTitle()));
@@ -209,7 +209,7 @@ public class MapFragment extends Fragment {
 
     private void saveTourToParseDB(String tourName, ParseUser currentUser) throws ParseException {
         saveToToursDB(tourName, currentUser);
-        for (Destinations filteredDestination : filteredDestinations) {
+        for (Destination filteredDestination : filteredDestinations) {
           saveToDestinationsDB(filteredDestination);
         }
     }
@@ -232,7 +232,7 @@ public class MapFragment extends Fragment {
         });
     }
 
-    private void saveToDestinationsDB(@NonNull Destinations filteredDestination) throws ParseException {
+    private void saveToDestinationsDB(@NonNull Destination filteredDestination) throws ParseException {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
         String objectId = query.addDescendingOrder("created_at").find().get(0).getObjectId();
 
