@@ -22,10 +22,7 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.DestinationCollections;
-import com.parse.FindCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
@@ -35,8 +32,9 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private FeaturedPathAdapter featuredPathAdapter;
+    private FeaturedPathAdapter featuredPathAdapter, recentPathAdapter;
     private List<DestinationCollections> destinationCollections;
+    private List<DestinationCollections> mostRecentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,21 +63,13 @@ public class HomeFragment extends Fragment {
 
         });
 
-        // Featured Destination
+        // Featured Destinations
         setFeaturedPathRecyclerView();
         getFeaturedPath();
-
+        getRecentPath();
     }
 
     // HELPER METHODS
-
-//    private void getFeaturedPath() {
-//        String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-//        destinationCollections = new ArrayList<>();
-//
-//        destinationCollections.add(new DestinationCollections("Top 10 Rated"));
-//        destinationCollections.add(new DestinationCollections("Top 10 Foodie"));
-//    }
 
     private void setFeaturedPathRecyclerView() {
         RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
@@ -96,10 +86,13 @@ public class HomeFragment extends Fragment {
     }
 
     private void getFeaturedPath() {
+        // Create a Query
         ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
 
+        // Include information we want to query
         destinationCollectionsParseQuery.include(DestinationCollections.USER_ID);
 
+        // Query
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
             if (e != null) {
                 Log.e(TAG, "Issues with getting tours from DB", e);
@@ -107,6 +100,38 @@ public class HomeFragment extends Fragment {
             }
             destinationCollections.addAll(_destinationCollections);
             featuredPathAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private void getRecentPath() {
+        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
+
+        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
+
+        mostRecentTours = new ArrayList<>();
+        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
+
+        // Set Layout Manager
+        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rvRecentTours.setLayoutManager(tLayoutManager);
+        rvRecentTours.setHasFixedSize(true); // always get top 10 paths
+        // Set the Adapter on RecyclerView
+        rvRecentTours.setAdapter(recentPathAdapter);
+
+
+        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
+        final int LIMIT = 5;
+        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID)
+                .addDescendingOrder(DestinationCollections.KEY_UPDATED_AT)
+                .setLimit(LIMIT);
+
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            mostRecentTours.addAll(_destinationCollections);
+            recentPathAdapter.notifyDataSetChanged();
         });
     }
 

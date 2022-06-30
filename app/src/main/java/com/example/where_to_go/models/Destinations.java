@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Destination {
+public class Destinations {
     // TODO: Add more relevant fields
     private double longitude, latitude;
     private double rating;
     private String title, imageUrl;
 
-    public Destination(@NonNull JSONObject jsonObject) throws JSONException {
+    public Destinations(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
         setRating(jsonObject);
         setTitle(jsonObject);
