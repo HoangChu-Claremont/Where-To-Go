@@ -12,7 +12,6 @@ public class ParseApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        ParseObject.registerSubclass(Users.class);
         ParseObject.registerSubclass(Tour.class);
         ParseObject.registerSubclass(Destination.class);
 

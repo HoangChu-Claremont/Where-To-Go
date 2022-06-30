@@ -233,7 +233,7 @@ public class MapFragment extends Fragment {
     }
 
     private void saveToDestinationsDB(@NonNull Destination filteredDestination) throws ParseException {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tour");
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
         String objectId = query.addDescendingOrder("created_at").find().get(0).getObjectId();
 
         filteredDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));
