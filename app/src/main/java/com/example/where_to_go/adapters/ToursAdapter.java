@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -17,19 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
-import com.example.where_to_go.models.DestinationCollections;
+import com.example.where_to_go.models.Tours;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.ParseException;
-import com.parse.SaveCallback;
 
 import java.util.List;
 
-public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapter.FeaturedPathViewHolder> {
-    private static final String TAG = "FeaturedPathAdapter";
-    private List<DestinationCollections> featuredPaths;
+public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedPathViewHolder> {
+    private static final String TAG = "ToursAdapter";
+    private List<Tours> featuredPaths;
     private Context context;
 
-    public FeaturedPathAdapter(Context _context, List<DestinationCollections> _featured_paths) {
+    public ToursAdapter(Context _context, List<Tours> _featured_paths) {
         context = _context;
         featuredPaths = _featured_paths;
     }
@@ -43,7 +40,7 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
 
     @Override
     public void onBindViewHolder(@NonNull FeaturedPathViewHolder holder, int position) {
-        DestinationCollections featuredPath = featuredPaths.get(position);
+        Tours featuredPath = featuredPaths.get(position);
         holder.bind(featuredPath);
     }
 
@@ -68,7 +65,7 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
             itemView.setOnClickListener(this);
         }
 
-        public void bind(@NonNull DestinationCollections featuredPath) {
+        public void bind(@NonNull Tours featuredPath) {
             ivPathName.setText(featuredPath.getTourName());
             Glide.with(context).load("http://via.placeholder.com/300.png").into(ivPathImage);
             showSavedStatus(featuredPath.getSaved());

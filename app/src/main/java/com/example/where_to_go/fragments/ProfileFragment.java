@@ -16,9 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.DestinationCollections;
-import com.example.where_to_go.models.Destinations;
+import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Tours;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -30,8 +29,8 @@ public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private TextView tvAccountName;
     private TextView tvAccountTwitterName;
-    private List<DestinationCollections> savedTours;
-    private FeaturedPathAdapter profileAdapter;
+    private List<Tours> savedTours;
+    private ToursAdapter profileAdapter;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -67,12 +66,12 @@ public class ProfileFragment extends Fragment {
     // HELPER METHODS
 
     private void setSavedPathRecyclerView() {
-        profileAdapter = new FeaturedPathAdapter(getContext(), savedTours);
+        profileAdapter = new ToursAdapter(getContext(), savedTours);
 
         RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
 
         savedTours = new ArrayList<>();
-        profileAdapter = new FeaturedPathAdapter(getContext(), savedTours);
+        profileAdapter = new ToursAdapter(getContext(), savedTours);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -83,8 +82,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getSavedPath() {
-        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
-        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID)
+        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
+        destinationCollectionsParseQuery.include(Tours.USER_ID)
                         .whereEqualTo("isSaved", true);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {

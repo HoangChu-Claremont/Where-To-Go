@@ -43,8 +43,8 @@
 
         <ImageButton
             android:id="@+id/ibBookmark"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="29dp"
+            android:layout_height="25dp"
             android:layout_marginStart="4dp"
             android:layout_marginTop="12dp"
             android:background="#00FFFFFF"

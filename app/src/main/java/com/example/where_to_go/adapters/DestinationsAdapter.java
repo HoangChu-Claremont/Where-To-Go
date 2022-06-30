@@ -18,12 +18,12 @@ import com.example.where_to_go.models.Destinations;
 import java.util.Collections;
 import java.util.List;
 
-public class FilteredDestinationAdapter extends RecyclerView.Adapter<FilteredDestinationAdapter.FilteredDestinationViewHolder> {
-    private static final String TAG = "FilteredDestinationAdapter";
+public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.FilteredDestinationViewHolder> {
+    private static final String TAG = "DestinationsAdapter";
     public Context context;
     private final List<Destinations> destinations;
 
-    public FilteredDestinationAdapter(Context _context, List<Destinations> _destinations) {
+    public DestinationsAdapter(Context _context, List<Destinations> _destinations) {
         context = _context;
         destinations = _destinations;
     }

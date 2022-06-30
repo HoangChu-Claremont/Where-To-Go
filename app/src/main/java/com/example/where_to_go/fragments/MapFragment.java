@@ -19,9 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FilteredDestinationAdapter;
+import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destinations;
-import com.example.where_to_go.models.DestinationCollections;
+import com.example.where_to_go.models.Tours;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
 import com.google.android.gms.maps.CameraUpdate;
@@ -49,7 +49,7 @@ import okhttp3.Response;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
-    private FilteredDestinationAdapter filteredDestinationAdapter;
+    private DestinationsAdapter filteredDestinationAdapter;
     private List<Destinations> filteredDestinations;
     RecyclerView rvDestinations;
     Button btnStartSaveTour;
@@ -153,7 +153,7 @@ public class MapFragment extends Fragment {
 
         rvDestinations = requireView().findViewById(R.id.rvDestinations);
         // Create the Adapter
-        filteredDestinationAdapter = new FilteredDestinationAdapter(getContext(), filteredDestinations);
+        filteredDestinationAdapter = new DestinationsAdapter(getContext(), filteredDestinations);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -162,8 +162,6 @@ public class MapFragment extends Fragment {
 
         // Set the Adapter on RecyclerView
         rvDestinations.setAdapter(filteredDestinationAdapter);
-
-//        setDragDropDestinations(rvDestinations);
     }
 
     private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destinations> filteredDestinations) {
@@ -207,7 +205,7 @@ public class MapFragment extends Fragment {
     }
 
     private void saveToToursDB(String pathName, ParseUser currentUser) {
-        DestinationCollections destinationCollections = new DestinationCollections();
+        Tours destinationCollections = new Tours();
 
         // Getting information to set up the POST query
         destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));

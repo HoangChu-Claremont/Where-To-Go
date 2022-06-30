@@ -5,7 +5,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 @ParseClassName("Tours")
-public class DestinationCollections extends ParseObject {
+public class Tours extends ParseObject {
 
     public static final String TOUR_NAME = "tour_name";
     public static final String TRANSPORTATION_SECONDS = "transportation_seconds";

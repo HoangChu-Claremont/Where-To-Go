@@ -21,8 +21,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.DestinationCollections;
+import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Tours;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
@@ -32,9 +32,9 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private FeaturedPathAdapter featuredPathAdapter, recentPathAdapter;
-    private List<DestinationCollections> destinationCollections;
-    private List<DestinationCollections> mostRecentTours;
+    private ToursAdapter featuredPathAdapter, recentPathAdapter;
+    private List<Tours> featuredTours;
+    private List<Tours> recentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,46 +68,45 @@ public class HomeFragment extends Fragment {
         getFeaturedPath();
 
         // Recent Tours
-        getRecentPathRecyclerView();
+        setRecentPathRecyclerView();
         getRecentPath();
     }
 
     // HELPER METHODS
 
+    private void setRecyclerView(RecyclerView recyclerView, ToursAdapter toursAdapter) {
+        // Set Layout Manager
+        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(tLayoutManager);
+        recyclerView.setHasFixedSize(true); // always get top 10 paths
+        // Set the Adapter on RecyclerView
+        recyclerView.setAdapter(toursAdapter);
+    }
+
     private void setFeaturedPathRecyclerView() {
         RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
 
-        destinationCollections = new ArrayList<>();
-        featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
+        featuredTours = new ArrayList<>();
+        featuredPathAdapter = new ToursAdapter(getContext(), featuredTours);
 
-        // Set Layout Manager
-        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvFeaturedPaths.setLayoutManager(tLayoutManager);
-        rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
-        // Set the Adapter on RecyclerView
-        rvFeaturedPaths.setAdapter(featuredPathAdapter);
+        setRecyclerView(rvFeaturedPaths, featuredPathAdapter);
     }
 
-    private void getRecentPathRecyclerView() {
+    private void setRecentPathRecyclerView() {
         RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
 
-        mostRecentTours = new ArrayList<>();
-        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
+        recentTours = new ArrayList<>();
+        recentPathAdapter = new ToursAdapter(getContext(), recentTours);
 
-        // Set Layout Manager
-        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvRecentTours.setLayoutManager(tLayoutManager);
-        rvRecentTours.setHasFixedSize(true); // always get top 10 paths
-        // Set the Adapter on RecyclerView
-        rvRecentTours.setAdapter(recentPathAdapter);
+        setRecyclerView(rvRecentTours, recentPathAdapter);
     }
 
     private void getFeaturedPath() {
         // Create a Query
-        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
+        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
 
         // Include information we want to query
-        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID);
+        destinationCollectionsParseQuery.include(Tours.USER_ID);
 
         // Query
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
@@ -115,16 +114,16 @@ public class HomeFragment extends Fragment {
                 Log.e(TAG, "Issues with getting tours from DB", e);
                 return;
             }
-            destinationCollections.addAll(_destinationCollections);
+            featuredTours.addAll(_destinationCollections);
             featuredPathAdapter.notifyDataSetChanged();
         });
     }
 
     private void getRecentPath() {
-        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
+        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
         final int LIMIT = 5;
-        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID)
-                .addDescendingOrder(DestinationCollections.KEY_UPDATED_AT)
+        destinationCollectionsParseQuery.include(Tours.USER_ID)
+                .addDescendingOrder(Tours.KEY_UPDATED_AT)
                 .setLimit(LIMIT);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
@@ -132,7 +131,7 @@ public class HomeFragment extends Fragment {
                 Log.e(TAG, "Issues with getting tours from DB", e);
                 return;
             }
-            mostRecentTours.addAll(_destinationCollections);
+            recentTours.addAll(_destinationCollections);
             recentPathAdapter.notifyDataSetChanged();
         });
     }
