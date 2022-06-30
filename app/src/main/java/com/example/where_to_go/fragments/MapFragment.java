@@ -14,11 +14,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.FilteredDestinationAdapter;
 import com.example.where_to_go.models.Destination;
+import com.example.where_to_go.models.DestinationCollections;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
 import com.google.android.gms.maps.CameraUpdate;
@@ -28,6 +31,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +52,8 @@ public class MapFragment extends Fragment {
     private FilteredDestinationAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
     RecyclerView rvDestinations;
+    Button btnStartSaveTour;
+    TextView etPathName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,8 +90,18 @@ public class MapFragment extends Fragment {
 
         Log.i(TAG, "Map Created");
 
-        // User can reorder locations
-        setDragDropDestinations(rvDestinations);
+        btnStartSaveTour = view.findViewById(R.id.btnStartSave);
+        btnStartSaveTour.setOnClickListener(v -> {
+            // Set up required variables for querying the DB
+            etPathName = view.findViewById(R.id.etPathName);
+            String pathName = etPathName.getText().toString();
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            if (pathName.isEmpty()) {
+                Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
+            }
+
+            savePathToParseDB(pathName, currentUser);
+        });
     }
 
     // HELPER METHODS
@@ -112,6 +129,9 @@ public class MapFragment extends Fragment {
                         filteredDestinationAdapter.notifyDataSetChanged();
 
                         setGoogleMap(googleMap, filteredDestinations);
+
+                        // Users can reorder locations
+                        setDragDropDestinations(rvDestinations);
 
                     });
 
@@ -179,5 +199,24 @@ public class MapFragment extends Fragment {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rvDestinations);
+    }
+
+    private void savePathToParseDB(String pathName, ParseUser currentUser) {
+        DestinationCollections destinationCollections = new DestinationCollections();
+
+        // Getting information to set up the POST query
+        destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
+        destinationCollections.setTourName(pathName);
+        destinationCollections.setTransportationSeconds(0); // TODO: Create an algorithm to calculate this
+
+        destinationCollections.saveInBackground(e -> {
+            if (e != null) {
+                Log.e(TAG, "Error while saving a new tour", e);
+                Toast.makeText(getContext(), "Error while saving your tour :(", Toast.LENGTH_SHORT).show();
+            }
+            Log.i(TAG, "Saved a new tour successfully!");
+            etPathName.setText("");
+            Toast.makeText(getContext(), "Your tour was saved successfully!", Toast.LENGTH_SHORT).show();
+        });
     }
 }

@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,11 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.FeaturedPathAdapter;
+import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.DestinationCollections;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,33 +66,48 @@ public class HomeFragment extends Fragment {
         });
 
         // Featured Destination
-        getFeaturedPath();
         setFeaturedPathRecyclerView();
+        getFeaturedPath();
+
     }
 
     // HELPER METHODS
 
-    private void getFeaturedPath() {
-        String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-        destinationCollections = new ArrayList<>();
-
-        destinationCollections.add(new DestinationCollections("Top 10 Rated", PATH_TYPE_IMAGE_URL));
-        destinationCollections.add(new DestinationCollections("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
-    }
+//    private void getFeaturedPath() {
+//        String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
+//        destinationCollections = new ArrayList<>();
+//
+//        destinationCollections.add(new DestinationCollections("Top 10 Rated"));
+//        destinationCollections.add(new DestinationCollections("Top 10 Foodie"));
+//    }
 
     private void setFeaturedPathRecyclerView() {
-        RecyclerView rvFeaturedPaths = getView().findViewById(R.id.rvFeaturedTours);
+        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
 
+        destinationCollections = new ArrayList<>();
         featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rvFeaturedPaths.setLayoutManager(tLayoutManager);
         rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
-
         // Set the Adapter on RecyclerView
         rvFeaturedPaths.setAdapter(featuredPathAdapter);
-        featuredPathAdapter.notifyDataSetChanged();
+    }
+
+    private void getFeaturedPath() {
+        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
+
+        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID);
+
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            destinationCollections.addAll(_destinationCollections);
+            featuredPathAdapter.notifyDataSetChanged();
+        });
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
@@ -98,8 +118,8 @@ public class HomeFragment extends Fragment {
     };
 
     private boolean hasPermission() {
-        int network_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-        int gps_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
+        int network_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        int gps_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
         return network_permission_check != PackageManager.PERMISSION_GRANTED && gps_permission_check != PackageManager.PERMISSION_GRANTED;
     }
 }

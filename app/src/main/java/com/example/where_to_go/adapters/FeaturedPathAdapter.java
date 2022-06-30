@@ -60,8 +60,8 @@ public class FeaturedPathAdapter extends RecyclerView.Adapter<FeaturedPathAdapte
         }
 
         public void bind(@NonNull DestinationCollections featuredPath) {
-            ivPathName.setText(featuredPath.getPathName());
-            Glide.with(context).load(featuredPath.getPathImageUrl()).into(ivPathImage);
+            ivPathName.setText(featuredPath.getTourName());
+            Glide.with(context).load("http://via.placeholder.com/300.png").into(ivPathImage);
         }
 
         @Override
