@@ -5,11 +5,13 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 @ParseClassName("Tours")
-public class DestinationCollections extends ParseObject {
+public class Tour extends ParseObject {
 
     public static final String TOUR_NAME = "tour_name";
     public static final String TRANSPORTATION_SECONDS = "transportation_seconds";
     public static final String USER_ID = "user_id";
+    public static final String IS_SAVED = "isSaved";
+    public static final String OBJECT_ID = "objectId";
 
     // GETTER
     public String getTourName() {
@@ -24,6 +26,10 @@ public class DestinationCollections extends ParseObject {
         return getParseUser(USER_ID);
     }
 
+    public boolean getSaved() {
+        return getBoolean(IS_SAVED);
+    }
+
     // SETTER
     public void setTourName(String tourName) {
         put(TOUR_NAME, tourName);
@@ -33,7 +39,7 @@ public class DestinationCollections extends ParseObject {
         put(TRANSPORTATION_SECONDS, transportationSeconds);
     }
 
-    public void setUserId(String user) {
-        put(USER_ID, user);
+    public void setIsSaved(boolean isSaved) {
+        put(IS_SAVED, isSaved);
     }
 }

@@ -2,7 +2,6 @@ package com.example.where_to_go.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 
@@ -21,8 +20,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.DestinationCollections;
+import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
@@ -32,9 +31,9 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private FeaturedPathAdapter featuredPathAdapter, recentPathAdapter;
-    private List<DestinationCollections> destinationCollections;
-    private List<DestinationCollections> mostRecentTours;
+    private ToursAdapter featuredTourAdapter, recentTourAdapter;
+    private List<Tour> featuredTours;
+    private List<Tour> recentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,41 +55,57 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        CardView cvContinuePath = view.findViewById(R.id.cvContinuePath);
+        CardView cvContinueTour = view.findViewById(R.id.cvContinuePath);
 
         // TODO: Recommendation Algorithm
-        cvContinuePath.setOnClickListener(v -> {
+        cvContinueTour.setOnClickListener(v -> {
 
         });
 
-        // Featured Destinations
-        setFeaturedPathRecyclerView();
-        getFeaturedPath();
-        getRecentPath();
+        // Setting up RecyclerView
+        setFeaturedToursRecyclerView();
+        setRecentToursRecyclerView();
+
+        // Get Tour
+        getFeaturedTours();
+        getRecentTours();
     }
 
     // HELPER METHODS
 
-    private void setFeaturedPathRecyclerView() {
-        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
-
-        destinationCollections = new ArrayList<>();
-        featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
-
+    private void setRecyclerView(RecyclerView recyclerView, ToursAdapter toursAdapter) {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvFeaturedPaths.setLayoutManager(tLayoutManager);
-        rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
+        recyclerView.setLayoutManager(tLayoutManager);
+        recyclerView.setHasFixedSize(true);
         // Set the Adapter on RecyclerView
-        rvFeaturedPaths.setAdapter(featuredPathAdapter);
+        recyclerView.setAdapter(toursAdapter);
     }
 
-    private void getFeaturedPath() {
+    private void setFeaturedToursRecyclerView() {
+        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
+
+        featuredTours = new ArrayList<>();
+        featuredTourAdapter = new ToursAdapter(getContext(), featuredTours);
+
+        setRecyclerView(rvFeaturedPaths, featuredTourAdapter);
+    }
+
+    private void setRecentToursRecyclerView() {
+        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
+
+        recentTours = new ArrayList<>();
+        recentTourAdapter = new ToursAdapter(getContext(), recentTours);
+
+        setRecyclerView(rvRecentTours, recentTourAdapter);
+    }
+
+    private void getFeaturedTours() {
         // Create a Query
-        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
 
         // Include information we want to query
-        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID);
+        destinationCollectionsParseQuery.include(Tour.USER_ID);
 
         // Query
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
@@ -98,31 +113,16 @@ public class HomeFragment extends Fragment {
                 Log.e(TAG, "Issues with getting tours from DB", e);
                 return;
             }
-            destinationCollections.addAll(_destinationCollections);
-            featuredPathAdapter.notifyDataSetChanged();
+            featuredTours.addAll(_destinationCollections);
+            featuredTourAdapter.notifyDataSetChanged();
         });
     }
 
-    private void getRecentPath() {
-        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
-
-        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
-
-        mostRecentTours = new ArrayList<>();
-        recentPathAdapter = new FeaturedPathAdapter(getContext(), mostRecentTours);
-
-        // Set Layout Manager
-        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvRecentTours.setLayoutManager(tLayoutManager);
-        rvRecentTours.setHasFixedSize(true); // always get top 10 paths
-        // Set the Adapter on RecyclerView
-        rvRecentTours.setAdapter(recentPathAdapter);
-
-
-        ParseQuery<DestinationCollections> destinationCollectionsParseQuery = ParseQuery.getQuery(DestinationCollections.class);
+    private void getRecentTours() {
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
         final int LIMIT = 5;
-        destinationCollectionsParseQuery.include(DestinationCollections.USER_ID)
-                .addDescendingOrder(DestinationCollections.KEY_UPDATED_AT)
+        destinationCollectionsParseQuery.include(Tour.USER_ID)
+                .addDescendingOrder(Tour.KEY_UPDATED_AT)
                 .setLimit(LIMIT);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
@@ -130,16 +130,13 @@ public class HomeFragment extends Fragment {
                 Log.e(TAG, "Issues with getting tours from DB", e);
                 return;
             }
-            mostRecentTours.addAll(_destinationCollections);
-            recentPathAdapter.notifyDataSetChanged();
+            recentTours.addAll(_destinationCollections);
+            recentTourAdapter.notifyDataSetChanged();
         });
     }
 
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //your code here
-        }
+    private final LocationListener mLocationListener = location -> {
+        //your code here
     };
 
     private boolean hasPermission() {

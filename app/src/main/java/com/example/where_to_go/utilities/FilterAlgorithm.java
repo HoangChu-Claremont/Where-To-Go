@@ -2,7 +2,7 @@ package com.example.where_to_go.utilities;
 
 import androidx.annotation.NonNull;
 
-import com.example.where_to_go.models.Destinations;
+import com.example.where_to_go.models.Destination;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,11 +19,13 @@ public class FilterAlgorithm {
     }
 
     @NonNull
-    public static List<Destinations> getTopRatedPath(@NonNull JSONArray businesses) throws JSONException {
-        List<Destinations> outputDestinations = new ArrayList<>();
-        List<Destinations> inputDestinations = new ArrayList<>();
+    public static List<Destination> getTopRatedTour(@NonNull JSONArray businesses) throws JSONException {
+        List<Destination> outputDestinations = new ArrayList<>();
+        List<Destination> inputDestinations = new ArrayList<>();
         for (int pos = 0; pos < businesses.length(); ++pos) {
-            inputDestinations.add(new Destinations(businesses.getJSONObject(pos)));
+            Destination destinations = new Destination();
+            destinations.setData(businesses.getJSONObject(pos));
+            inputDestinations.add(destinations);
         }
 
         Collections.sort(inputDestinations, new RatingComparator());
