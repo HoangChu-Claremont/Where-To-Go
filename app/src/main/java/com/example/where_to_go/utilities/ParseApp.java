@@ -4,7 +4,6 @@ import android.app.Application;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tours;
-import com.example.where_to_go.models.Users;
 import com.parse.Parse;
 import com.parse.ParseObject;
 
