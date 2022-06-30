@@ -1,24 +1,30 @@
 package com.example.where_to_go.models;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
-
-import com.example.where_to_go.utilities.RatingComparator;
-
-import org.json.JSONArray;
+import com.parse.ParseClassName;
+import com.parse.ParseObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+@ParseClassName("Destinations")
+public class Destination extends ParseObject {
+    private static final String LOCATION_NAME = "location_name";
+    private static final String LONGITUDE = "longitude";
+    private static final String LATITUDE = "latitude";
+    private static final String RATING = "rating";
+    private static final String IMAGE_URL = "location_image_url";
+    private static final String TAG = "Destination";
 
-public class Destination {
     // TODO: Add more relevant fields
     private double longitude, latitude;
     private double rating;
     private String title, imageUrl;
 
-    public Destination(@NonNull JSONObject jsonObject) throws JSONException {
+    public Destination() {}
+
+    public void setData(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
         setRating(jsonObject);
         setTitle(jsonObject);
@@ -59,12 +65,20 @@ public class Destination {
         rating = jsonObject.getDouble("rating");
     }
 
-    public void setTitle(JSONObject jsonObject) throws JSONException {
+    private void setTitle(JSONObject jsonObject) throws JSONException {
         title = jsonObject.getString("name");
     }
 
-    public void setImageUrl(JSONObject jsonObject) throws JSONException {
+    private void setImageUrl(JSONObject jsonObject) throws JSONException {
         imageUrl = jsonObject.getString("image_url");
     }
 
+    public void putToDB() {
+        put(LONGITUDE, longitude);
+        put(LATITUDE, latitude);
+        put(RATING, rating);
+        put(LOCATION_NAME, title);
+        put(IMAGE_URL, imageUrl);
+        Log.i(TAG, "Finish putting into DestinationsDB");
+    }
 }

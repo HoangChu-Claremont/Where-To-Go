@@ -1,7 +1,5 @@
 package com.example.where_to_go.utilities;
 
-import android.app.Activity;
-
 import androidx.annotation.NonNull;
 
 import com.example.where_to_go.models.Destination;
@@ -21,11 +19,13 @@ public class FilterAlgorithm {
     }
 
     @NonNull
-    public static List<Destination> getTopRatedPath(@NonNull JSONArray businesses) throws JSONException {
+    public static List<Destination> getTopRatedTour(@NonNull JSONArray businesses) throws JSONException {
         List<Destination> outputDestinations = new ArrayList<>();
         List<Destination> inputDestinations = new ArrayList<>();
         for (int pos = 0; pos < businesses.length(); ++pos) {
-            inputDestinations.add(new Destination(businesses.getJSONObject(pos)));
+            Destination destinations = new Destination();
+            destinations.setData(businesses.getJSONObject(pos));
+            inputDestinations.add(destinations);
         }
 
         Collections.sort(inputDestinations, new RatingComparator());

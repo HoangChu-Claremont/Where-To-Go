@@ -2,7 +2,6 @@ package com.example.where_to_go.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 
@@ -14,14 +13,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.DestinationCollections;
+import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Tour;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,9 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private FeaturedPathAdapter featuredPathAdapter;
-    private List<DestinationCollections> destinationCollections;
+    private ToursAdapter featuredTourAdapter, recentTourAdapter;
+    private List<Tour> featuredTours;
+    private List<Tour> recentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,53 +55,93 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        CardView cvContinuePath = view.findViewById(R.id.cvContinuePath);
+        CardView cvContinueTour = view.findViewById(R.id.cvContinuePath);
 
         // TODO: Recommendation Algorithm
-        cvContinuePath.setOnClickListener(v -> {
+        cvContinueTour.setOnClickListener(v -> {
 
         });
 
-        // Featured Destination
-        getFeaturedPath();
-        setFeaturedPathRecyclerView();
+        // Setting up RecyclerView
+        setFeaturedToursRecyclerView();
+        setRecentToursRecyclerView();
+
+        // Get Tour
+        getFeaturedTours();
+        getRecentTours();
     }
 
     // HELPER METHODS
 
-    private void getFeaturedPath() {
-        String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-        destinationCollections = new ArrayList<>();
-
-        destinationCollections.add(new DestinationCollections("Top 10 Rated", PATH_TYPE_IMAGE_URL));
-        destinationCollections.add(new DestinationCollections("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
-    }
-
-    private void setFeaturedPathRecyclerView() {
-        RecyclerView rvFeaturedPaths = getView().findViewById(R.id.rvFeaturedPaths);
-
-        featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
-
+    private void setRecyclerView(RecyclerView recyclerView, ToursAdapter toursAdapter) {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvFeaturedPaths.setLayoutManager(tLayoutManager);
-        rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
-
+        recyclerView.setLayoutManager(tLayoutManager);
+        recyclerView.setHasFixedSize(true);
         // Set the Adapter on RecyclerView
-        rvFeaturedPaths.setAdapter(featuredPathAdapter);
-        featuredPathAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(toursAdapter);
     }
 
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //your code here
-        }
+    private void setFeaturedToursRecyclerView() {
+        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
+
+        featuredTours = new ArrayList<>();
+        featuredTourAdapter = new ToursAdapter(getContext(), featuredTours);
+
+        setRecyclerView(rvFeaturedPaths, featuredTourAdapter);
+    }
+
+    private void setRecentToursRecyclerView() {
+        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
+
+        recentTours = new ArrayList<>();
+        recentTourAdapter = new ToursAdapter(getContext(), recentTours);
+
+        setRecyclerView(rvRecentTours, recentTourAdapter);
+    }
+
+    private void getFeaturedTours() {
+        // Create a Query
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
+
+        // Include information we want to query
+        destinationCollectionsParseQuery.include(Tour.USER_ID);
+
+        // Query
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            featuredTours.addAll(_destinationCollections);
+            featuredTourAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private void getRecentTours() {
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
+        final int LIMIT = 5;
+        destinationCollectionsParseQuery.include(Tour.USER_ID)
+                .addDescendingOrder(Tour.KEY_UPDATED_AT)
+                .setLimit(LIMIT);
+
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            recentTours.addAll(_destinationCollections);
+            recentTourAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private final LocationListener mLocationListener = location -> {
+        //your code here
     };
 
     private boolean hasPermission() {
-        int network_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-        int gps_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
+        int network_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        int gps_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
         return network_permission_check != PackageManager.PERMISSION_GRANTED && gps_permission_check != PackageManager.PERMISSION_GRANTED;
     }
 }

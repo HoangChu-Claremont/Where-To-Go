@@ -17,10 +17,14 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="featured_path">Featured Tours</string>
-    <string name="bookmarked_tours">Bookmarked Tours</string>
+    <string name="bookmarked_tours">Saved Tours</string>
     <string name="welcome">Welcome!</string>
     <string name="find_perfect_toue">Let\'s find your perfect tour!</string>
     <string name="title">title</string>
     <string name="image">image</string>
     <string name="enter_your_tour_name">Enter Your Tour Name</string>
+    <string name="recent_tours">Recently Seen Tours (Top 5)</string>
+    <string name="my_connections">My Connections</string>
+    <string name="saved_tours">Saved Tours</string>
+    <string name="start_save">Start/Save</string>
 </resources>
