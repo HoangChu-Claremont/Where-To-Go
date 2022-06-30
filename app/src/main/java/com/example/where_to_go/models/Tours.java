@@ -11,6 +11,7 @@ public class Tours extends ParseObject {
     public static final String TRANSPORTATION_SECONDS = "transportation_seconds";
     public static final String USER_ID = "user_id";
     public static final String IS_SAVED = "isSaved";
+    public static final String OBJECT_ID = "objectId";
 
     // GETTER
     public String getTourName() {

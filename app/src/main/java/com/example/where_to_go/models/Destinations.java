@@ -1,8 +1,12 @@
 package com.example.where_to_go.models;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.where_to_go.utilities.RatingComparator;
+import com.parse.ParseClassName;
+import com.parse.ParseObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,13 +16,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Destinations {
+@ParseClassName("Destinations")
+public class Destinations extends ParseObject {
+    private static final String LOCATION_NAME = "location_name";
+    private static final String LONGITUDE = "longitude";
+    private static final String LATITUDE = "latitude";
+    private static final String RATING = "rating";
+    private static final String IMAGE_URL = "location_image_url";
+    private static final String TAG = "Destinations";
+
     // TODO: Add more relevant fields
     private double longitude, latitude;
     private double rating;
     private String title, imageUrl;
 
-    public Destinations(@NonNull JSONObject jsonObject) throws JSONException {
+    public Destinations() {}
+
+    public void setData(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
         setRating(jsonObject);
         setTitle(jsonObject);
@@ -59,12 +73,19 @@ public class Destinations {
         rating = jsonObject.getDouble("rating");
     }
 
-    public void setTitle(JSONObject jsonObject) throws JSONException {
+    private void setTitle(JSONObject jsonObject) throws JSONException {
         title = jsonObject.getString("name");
     }
 
-    public void setImageUrl(JSONObject jsonObject) throws JSONException {
+    private void setImageUrl(JSONObject jsonObject) throws JSONException {
         imageUrl = jsonObject.getString("image_url");
     }
 
+    public void putToDB() {
+        put(LONGITUDE, longitude);
+        put(LATITUDE, latitude);
+        put(RATING, rating);
+        put(LOCATION_NAME, title);
+        put(IMAGE_URL, imageUrl);
+    }
 }

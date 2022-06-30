@@ -23,7 +23,9 @@ public class FilterAlgorithm {
         List<Destinations> outputDestinations = new ArrayList<>();
         List<Destinations> inputDestinations = new ArrayList<>();
         for (int pos = 0; pos < businesses.length(); ++pos) {
-            inputDestinations.add(new Destinations(businesses.getJSONObject(pos)));
+            Destinations destinations = new Destinations();
+            destinations.setData(businesses.getJSONObject(pos));
+            inputDestinations.add(destinations);
         }
 
         Collections.sort(inputDestinations, new RatingComparator());

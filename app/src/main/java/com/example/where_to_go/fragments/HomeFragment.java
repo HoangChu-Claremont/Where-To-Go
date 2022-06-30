@@ -64,12 +64,12 @@ public class HomeFragment extends Fragment {
         });
 
         // Setting up RecyclerView
-        setFeaturedPathRecyclerView();
-        setRecentPathRecyclerView();
+        setFeaturedToursRecyclerView();
+        setRecentToursRecyclerView();
 
         // Get Tours
-        getFeaturedPath();
-        getRecentPath();
+        getFeaturedTours();
+        getRecentTours();
     }
 
     // HELPER METHODS
@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(toursAdapter);
     }
 
-    private void setFeaturedPathRecyclerView() {
+    private void setFeaturedToursRecyclerView() {
         RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
 
         featuredTours = new ArrayList<>();
@@ -92,7 +92,7 @@ public class HomeFragment extends Fragment {
         setRecyclerView(rvFeaturedPaths, featuredPathAdapter);
     }
 
-    private void setRecentPathRecyclerView() {
+    private void setRecentToursRecyclerView() {
         RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
 
         recentTours = new ArrayList<>();
@@ -101,7 +101,7 @@ public class HomeFragment extends Fragment {
         setRecyclerView(rvRecentTours, recentPathAdapter);
     }
 
-    private void getFeaturedPath() {
+    private void getFeaturedTours() {
         // Create a Query
         ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
 
@@ -119,7 +119,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void getRecentPath() {
+    private void getRecentTours() {
         ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
         final int LIMIT = 5;
         destinationCollectionsParseQuery.include(Tours.USER_ID)
@@ -136,11 +136,8 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //your code here
-        }
+    private final LocationListener mLocationListener = location -> {
+        //your code here
     };
 
     private boolean hasPermission() {

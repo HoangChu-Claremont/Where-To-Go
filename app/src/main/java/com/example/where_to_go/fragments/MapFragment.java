@@ -31,7 +31,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -51,6 +54,7 @@ public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
     private DestinationsAdapter filteredDestinationAdapter;
     private List<Destinations> filteredDestinations;
+
     RecyclerView rvDestinations;
     Button btnStartSaveTour;
     TextView etPathName;
@@ -100,7 +104,11 @@ public class MapFragment extends Fragment {
                 Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
             }
 
-            savePathToParseDB(pathName, currentUser);
+            try {
+                savePathToParseDB(pathName, currentUser);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -199,14 +207,15 @@ public class MapFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void savePathToParseDB(String pathName, ParseUser currentUser) {
+    private void savePathToParseDB(String pathName, ParseUser currentUser) throws ParseException {
         saveToToursDB(pathName, currentUser);
-        saveToDestinationsDB();
+        for (Destinations filteredDestination : filteredDestinations) {
+          saveToDestinationsDB(filteredDestination);
+        }
     }
 
-    private void saveToToursDB(String pathName, ParseUser currentUser) {
+    private void saveToToursDB(String pathName, @NonNull ParseUser currentUser) {
         Tours destinationCollections = new Tours();
-
         // Getting information to set up the POST query
         destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
         destinationCollections.setTourName(pathName);
@@ -223,6 +232,18 @@ public class MapFragment extends Fragment {
         });
     }
 
-    private void saveToDestinationsDB() {
+    private void saveToDestinationsDB(@NonNull Destinations filteredDestination) throws ParseException {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
+        String objectId = query.addDescendingOrder("created_at").find().get(0).getObjectId();
+
+        filteredDestination.put("tour_id", ParseObject.createWithoutData(Tours.class, objectId));
+        filteredDestination.putToDB();
+        filteredDestination.saveInBackground(e -> {
+            if (e != null) {
+                Log.i(TAG, "Problem saving this destination");
+            } else {
+                Log.i(TAG, "Saved a new destination successfully!");
+            }
+        });
     }
 }
