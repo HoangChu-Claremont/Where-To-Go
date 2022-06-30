@@ -16,17 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Tour;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
-    private List<Tours> featuredTours;
+    private List<Tour> featuredTours;
     private Context context;
 
-    public ToursAdapter(Context _context, List<Tours> _featured_tours) {
+    public ToursAdapter(Context _context, List<Tour> _featured_tours) {
         context = _context;
         featuredTours = _featured_tours;
     }
@@ -40,7 +40,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
     @Override
     public void onBindViewHolder(@NonNull FeaturedTourViewHolder holder, int position) {
-        Tours featuredTour = featuredTours.get(position);
+        Tour featuredTour = featuredTours.get(position);
         holder.bind(featuredTour);
     }
 
@@ -65,7 +65,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             itemView.setOnClickListener(this);
         }
 
-        public void bind(@NonNull Tours featuredTour) {
+        public void bind(@NonNull Tour featuredTour) {
             ivTourName.setText(featuredTour.getTourName());
             Glide.with(context).load("http://via.placeholder.com/300.png").into(ivTourImage);
             showSavedStatus(featuredTour.getSaved());

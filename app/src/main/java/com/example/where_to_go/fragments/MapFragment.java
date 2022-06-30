@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
 import com.google.android.gms.maps.CameraUpdate;
@@ -215,7 +215,7 @@ public class MapFragment extends Fragment {
     }
 
     private void saveToToursDB(String pathName, @NonNull ParseUser currentUser) {
-        Tours destinationCollections = new Tours();
+        Tour destinationCollections = new Tour();
         // Getting information to set up the POST query
         destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
         destinationCollections.setTourName(pathName);
@@ -233,10 +233,10 @@ public class MapFragment extends Fragment {
     }
 
     private void saveToDestinationsDB(@NonNull Destination filteredDestination) throws ParseException {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tour");
         String objectId = query.addDescendingOrder("created_at").find().get(0).getObjectId();
 
-        filteredDestination.put("tour_id", ParseObject.createWithoutData(Tours.class, objectId));
+        filteredDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));
         filteredDestination.putToDB();
         filteredDestination.saveInBackground(e -> {
             if (e != null) {

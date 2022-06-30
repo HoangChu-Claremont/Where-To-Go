@@ -3,7 +3,7 @@ package com.example.where_to_go.utilities;
 import android.app.Application;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Tour;
 import com.parse.Parse;
 import com.parse.ParseObject;
 
@@ -13,7 +13,7 @@ public class ParseApp extends Application {
         super.onCreate();
 
         ParseObject.registerSubclass(Users.class);
-        ParseObject.registerSubclass(Tours.class);
+        ParseObject.registerSubclass(Tour.class);
         ParseObject.registerSubclass(Destination.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)

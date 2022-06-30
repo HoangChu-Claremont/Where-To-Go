@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@ParseClassName("Destination")
+@ParseClassName("Destinations")
 public class Destination extends ParseObject {
     private static final String LOCATION_NAME = "location_name";
     private static final String LONGITUDE = "longitude";

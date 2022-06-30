@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -29,7 +29,7 @@ public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private TextView tvAccountName;
     private TextView tvAccountTwitterName;
-    private List<Tours> savedTours;
+    private List<Tour> savedTours;
     private ToursAdapter profileAdapter;
 
     public ProfileFragment() {
@@ -82,8 +82,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getSavedTour() {
-        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
-        destinationCollectionsParseQuery.include(Tours.USER_ID)
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
+        destinationCollectionsParseQuery.include(Tour.USER_ID)
                         .whereEqualTo("isSaved", true);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
