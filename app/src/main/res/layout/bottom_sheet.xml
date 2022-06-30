@@ -13,21 +13,37 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/white">
 
-        <EditText
-            android:id="@+id/etPathName"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:autofillHints="Enter Your Path Name"
-            android:ems="5"
-            android:hint="@string/enter_your_tour_name"
-            android:inputType="text"
-            android:minHeight="48dp"
             app:layout_constraintBottom_toTopOf="@+id/rvDestinations"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="TextContrastCheck" />
+            tools:ignore="TextContrastCheck" >
+
+            <EditText
+                android:id="@+id/etPathName"
+                android:layout_width="251dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autofillHints="Enter Your Path Name"
+                android:ems="5"
+                android:hint="@string/enter_your_tour_name"
+                android:inputType="text"
+                android:minHeight="48dp"
+                tools:ignore="TextContrastCheck" />
+
+            <Button
+                android:id="@+id/btnStartSave"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:adjustViewBounds="false"
+                android:scaleType="fitCenter"
+                android:text="@string/start_save" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvDestinations"

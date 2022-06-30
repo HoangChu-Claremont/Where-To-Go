@@ -5,7 +5,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +16,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
+import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Tours;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
     private TextView tvAccountName;
     private TextView tvAccountTwitterName;
+    private List<Tours> savedTours;
+    private ToursAdapter profileAdapter;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -47,5 +58,42 @@ public class ProfileFragment extends Fragment {
 
         tvAccountName.setText(accountName);
         tvAccountTwitterName.setText(accountTwitterName);
+
+        setSavedPathRecyclerView();
+        getSavedPath();
+    }
+
+    // HELPER METHODS
+
+    private void setSavedPathRecyclerView() {
+        profileAdapter = new ToursAdapter(getContext(), savedTours);
+
+        RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
+
+        savedTours = new ArrayList<>();
+        profileAdapter = new ToursAdapter(getContext(), savedTours);
+
+        // Set Layout Manager
+        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rvSavedTours.setLayoutManager(tLayoutManager);
+        rvSavedTours.setHasFixedSize(true); // always get top 10 paths
+        // Set the Adapter on RecyclerView
+        rvSavedTours.setAdapter(profileAdapter);
+    }
+
+    private void getSavedPath() {
+        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
+        destinationCollectionsParseQuery.include(Tours.USER_ID)
+                        .whereEqualTo("isSaved", true);
+
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            savedTours.addAll(_destinationCollections);
+            Log.i(TAG, String.valueOf(savedTours.size()));
+            profileAdapter.notifyDataSetChanged();
+        });
     }
 }

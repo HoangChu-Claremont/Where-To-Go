@@ -14,14 +14,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.where_to_go.R;
-import com.example.where_to_go.adapters.FeaturedPathAdapter;
-import com.example.where_to_go.models.DestinationCollections;
+import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Tours;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +32,9 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private FeaturedPathAdapter featuredPathAdapter;
-    private List<DestinationCollections> destinationCollections;
+    private ToursAdapter featuredPathAdapter, recentPathAdapter;
+    private List<Tours> featuredTours;
+    private List<Tours> recentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,34 +63,77 @@ public class HomeFragment extends Fragment {
 
         });
 
-        // Featured Destination
-        getFeaturedPath();
+        // Featured Tours
         setFeaturedPathRecyclerView();
+        getFeaturedPath();
+
+        // Recent Tours
+        setRecentPathRecyclerView();
+        getRecentPath();
     }
 
     // HELPER METHODS
 
-    private void getFeaturedPath() {
-        String PATH_TYPE_IMAGE_URL = "http://via.placeholder.com/300.png";
-        destinationCollections = new ArrayList<>();
-
-        destinationCollections.add(new DestinationCollections("Top 10 Rated", PATH_TYPE_IMAGE_URL));
-        destinationCollections.add(new DestinationCollections("Top 10 Foodie", PATH_TYPE_IMAGE_URL));
+    private void setRecyclerView(RecyclerView recyclerView, ToursAdapter toursAdapter) {
+        // Set Layout Manager
+        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(tLayoutManager);
+        recyclerView.setHasFixedSize(true); // always get top 10 paths
+        // Set the Adapter on RecyclerView
+        recyclerView.setAdapter(toursAdapter);
     }
 
     private void setFeaturedPathRecyclerView() {
-        RecyclerView rvFeaturedPaths = getView().findViewById(R.id.rvFeaturedTours);
+        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
 
-        featuredPathAdapter = new FeaturedPathAdapter(getContext(), destinationCollections);
+        featuredTours = new ArrayList<>();
+        featuredPathAdapter = new ToursAdapter(getContext(), featuredTours);
 
-        // Set Layout Manager
-        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        rvFeaturedPaths.setLayoutManager(tLayoutManager);
-        rvFeaturedPaths.setHasFixedSize(true); // always get top 10 paths
+        setRecyclerView(rvFeaturedPaths, featuredPathAdapter);
+    }
 
-        // Set the Adapter on RecyclerView
-        rvFeaturedPaths.setAdapter(featuredPathAdapter);
-        featuredPathAdapter.notifyDataSetChanged();
+    private void setRecentPathRecyclerView() {
+        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
+
+        recentTours = new ArrayList<>();
+        recentPathAdapter = new ToursAdapter(getContext(), recentTours);
+
+        setRecyclerView(rvRecentTours, recentPathAdapter);
+    }
+
+    private void getFeaturedPath() {
+        // Create a Query
+        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
+
+        // Include information we want to query
+        destinationCollectionsParseQuery.include(Tours.USER_ID);
+
+        // Query
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            featuredTours.addAll(_destinationCollections);
+            featuredPathAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private void getRecentPath() {
+        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
+        final int LIMIT = 5;
+        destinationCollectionsParseQuery.include(Tours.USER_ID)
+                .addDescendingOrder(Tours.KEY_UPDATED_AT)
+                .setLimit(LIMIT);
+
+        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Issues with getting tours from DB", e);
+                return;
+            }
+            recentTours.addAll(_destinationCollections);
+            recentPathAdapter.notifyDataSetChanged();
+        });
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
@@ -98,8 +144,8 @@ public class HomeFragment extends Fragment {
     };
 
     private boolean hasPermission() {
-        int network_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-        int gps_permission_check = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
+        int network_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        int gps_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
         return network_permission_check != PackageManager.PERMISSION_GRANTED && gps_permission_check != PackageManager.PERMISSION_GRANTED;
     }
 }

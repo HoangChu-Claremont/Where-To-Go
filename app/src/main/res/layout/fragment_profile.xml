@@ -63,6 +63,7 @@
                     tools:text="@string/username" />
 
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout

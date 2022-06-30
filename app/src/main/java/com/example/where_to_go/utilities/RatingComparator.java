@@ -1,13 +1,13 @@
 package com.example.where_to_go.utilities;
 
-import com.example.where_to_go.models.Destination;
+import com.example.where_to_go.models.Destinations;
 
 import java.util.Comparator;
 
-public class RatingComparator implements Comparator<Destination> {
+public class RatingComparator implements Comparator<Destinations> {
 
     @Override
-    public int compare(Destination destination1, Destination destination2) {
+    public int compare(Destinations destination1, Destinations destination2) {
         double rating1 = destination1.getRating();
         double rating2 = destination2.getRating();
 
