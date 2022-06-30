@@ -88,7 +88,7 @@
                 android:fontFamily="@font/proximanova_bold"
                 android:includeFontPadding="true"
                 android:paddingTop="10dp"
-                android:text="@string/featured_path"
+                android:text="@string/featured_tour"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="@color/appBlack"
                 android:textSize="20sp"

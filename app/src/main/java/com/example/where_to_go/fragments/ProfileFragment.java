@@ -30,7 +30,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvAccountName;
     private TextView tvAccountTwitterName;
     private List<Tours> savedTours;
-    private ToursAdapter profileAdapter;
+    private ToursAdapter toursAdapter;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -66,19 +66,18 @@ public class ProfileFragment extends Fragment {
     // HELPER METHODS
 
     private void setSavedPathRecyclerView() {
-        profileAdapter = new ToursAdapter(getContext(), savedTours);
+        toursAdapter = new ToursAdapter(getContext(), savedTours);
 
         RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
 
         savedTours = new ArrayList<>();
-        profileAdapter = new ToursAdapter(getContext(), savedTours);
+        toursAdapter = new ToursAdapter(getContext(), savedTours);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rvSavedTours.setLayoutManager(tLayoutManager);
-        rvSavedTours.setHasFixedSize(true); // always get top 10 paths
         // Set the Adapter on RecyclerView
-        rvSavedTours.setAdapter(profileAdapter);
+        rvSavedTours.setAdapter(toursAdapter);
     }
 
     private void getSavedPath() {
@@ -93,7 +92,7 @@ public class ProfileFragment extends Fragment {
             }
             savedTours.addAll(_destinationCollections);
             Log.i(TAG, String.valueOf(savedTours.size()));
-            profileAdapter.notifyDataSetChanged();
+            toursAdapter.notifyDataSetChanged();
         });
     }
 }

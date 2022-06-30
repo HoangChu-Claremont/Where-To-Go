@@ -26,9 +26,9 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedPath
     private List<Tours> featuredPaths;
     private Context context;
 
-    public ToursAdapter(Context _context, List<Tours> _featured_paths) {
+    public ToursAdapter(Context _context, List<Tours> _featured_tours) {
         context = _context;
-        featuredPaths = _featured_paths;
+        featuredPaths = _featured_tours;
     }
 
     @NonNull

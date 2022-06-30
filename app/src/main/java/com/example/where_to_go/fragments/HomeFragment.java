@@ -78,7 +78,7 @@ public class HomeFragment extends Fragment {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(tLayoutManager);
-        recyclerView.setHasFixedSize(true); // always get top 10 paths
+        recyclerView.setHasFixedSize(true);
         // Set the Adapter on RecyclerView
         recyclerView.setAdapter(toursAdapter);
     }
