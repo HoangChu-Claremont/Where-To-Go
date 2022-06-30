@@ -59,13 +59,13 @@ public class ProfileFragment extends Fragment {
         tvAccountName.setText(accountName);
         tvAccountTwitterName.setText(accountTwitterName);
 
-        setSavedPathRecyclerView();
-        getSavedPath();
+        setSavedTourRecyclerView();
+        getSavedTour();
     }
 
     // HELPER METHODS
 
-    private void setSavedPathRecyclerView() {
+    private void setSavedTourRecyclerView() {
         profileAdapter = new ToursAdapter(getContext(), savedTours);
 
         RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
@@ -76,12 +76,12 @@ public class ProfileFragment extends Fragment {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rvSavedTours.setLayoutManager(tLayoutManager);
-        rvSavedTours.setHasFixedSize(true); // always get top 10 paths
+        rvSavedTours.setHasFixedSize(true);
         // Set the Adapter on RecyclerView
         rvSavedTours.setAdapter(profileAdapter);
     }
 
-    private void getSavedPath() {
+    private void getSavedTour() {
         ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
         destinationCollectionsParseQuery.include(Tours.USER_ID)
                         .whereEqualTo("isSaved", true);

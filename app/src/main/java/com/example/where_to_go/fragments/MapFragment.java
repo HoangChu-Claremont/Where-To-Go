@@ -57,7 +57,7 @@ public class MapFragment extends Fragment {
 
     RecyclerView rvDestinations;
     Button btnStartSaveTour;
-    TextView etPathName;
+    TextView etTourName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,15 +97,15 @@ public class MapFragment extends Fragment {
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
             // Set up required variables for querying the DB
-            etPathName = view.findViewById(R.id.etPathName);
-            String pathName = etPathName.getText().toString();
+            etTourName = view.findViewById(R.id.etPathName);
+            String tourName = etTourName.getText().toString();
             ParseUser currentUser = ParseUser.getCurrentUser();
-            if (pathName.isEmpty()) {
+            if (tourName.isEmpty()) {
                 Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
             }
 
             try {
-                savePathToParseDB(pathName, currentUser);
+                saveTourToParseDB(tourName, currentUser);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -127,7 +127,7 @@ public class MapFragment extends Fragment {
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    List<Destinations> filteredResults = FilterAlgorithm.getTopRatedPath(jsonResults);
+                    List<Destinations> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
                     filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
@@ -166,7 +166,7 @@ public class MapFragment extends Fragment {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rvDestinations.setLayoutManager(tLayoutManager);
-        rvDestinations.setHasFixedSize(true); // always get top 10 paths
+        rvDestinations.setHasFixedSize(true); // always get 10 tours maximum
 
         // Set the Adapter on RecyclerView
         rvDestinations.setAdapter(filteredDestinationAdapter);
@@ -207,8 +207,8 @@ public class MapFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void savePathToParseDB(String pathName, ParseUser currentUser) throws ParseException {
-        saveToToursDB(pathName, currentUser);
+    private void saveTourToParseDB(String tourName, ParseUser currentUser) throws ParseException {
+        saveToToursDB(tourName, currentUser);
         for (Destinations filteredDestination : filteredDestinations) {
           saveToDestinationsDB(filteredDestination);
         }
@@ -227,7 +227,7 @@ public class MapFragment extends Fragment {
                 Toast.makeText(getContext(), "Error while saving your tour :(", Toast.LENGTH_SHORT).show();
             }
             Log.i(TAG, "Saved a new tour successfully!");
-            etPathName.setText("");
+            etTourName.setText("");
             Toast.makeText(getContext(), "Your tour was saved successfully!", Toast.LENGTH_SHORT).show();
         });
     }

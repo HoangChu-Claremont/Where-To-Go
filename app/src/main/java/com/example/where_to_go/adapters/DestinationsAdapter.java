@@ -31,8 +31,8 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
     @NonNull
     @Override
     public FilteredDestinationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View topPathView = LayoutInflater.from(context).inflate(R.layout.collection, parent, false);
-        return new FilteredDestinationViewHolder(topPathView);
+        View topTourView = LayoutInflater.from(context).inflate(R.layout.collection, parent, false);
+        return new FilteredDestinationViewHolder(topTourView);
     }
 
     @Override
@@ -62,21 +62,21 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
     }
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private static final String TAG = "FeaturedPathViewHolder";
-        private ImageView ivPathImage;
-        private TextView tvPathName;
+        private static final String TAG = "FeaturedTourViewHolder";
+        private ImageView ivTourImage;
+        private TextView tvTourName;
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
-            ivPathImage = itemView.findViewById(R.id.ivPathImage);
-            tvPathName = itemView.findViewById(R.id.tvPathName);
+            ivTourImage = itemView.findViewById(R.id.ivPathImage);
+            tvTourName = itemView.findViewById(R.id.tvPathName);
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }
 
         public void bind(@NonNull Destinations filteredDestination) {
-            tvPathName.setText(filteredDestination.getTitle());
-            Glide.with(context).load(filteredDestination.getImageUrl()).into(ivPathImage);
+            tvTourName.setText(filteredDestination.getTitle());
+            Glide.with(context).load(filteredDestination.getImageUrl()).into(ivTourImage);
         }
 
         @Override
