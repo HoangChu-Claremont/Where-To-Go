@@ -63,12 +63,12 @@ public class HomeFragment extends Fragment {
 
         });
 
-        // Featured Tours
+        // Setting up RecyclerView
         setFeaturedPathRecyclerView();
-        getFeaturedPath();
-
-        // Recent Tours
         setRecentPathRecyclerView();
+
+        // Get Tours
+        getFeaturedPath();
         getRecentPath();
     }
 
