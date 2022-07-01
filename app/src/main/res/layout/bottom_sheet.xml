@@ -23,11 +23,11 @@
             tools:ignore="TextContrastCheck" >
 
             <EditText
-                android:id="@+id/etPathName"
+                android:id="@+id/etTourName"
                 android:layout_width="251dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:autofillHints="Enter Your Path Name"
+                android:autofillHints="Enter Tour Name"
                 android:ems="5"
                 android:hint="@string/enter_your_tour_name"
                 android:inputType="text"

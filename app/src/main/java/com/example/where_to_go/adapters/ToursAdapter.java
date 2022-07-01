@@ -57,8 +57,8 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
         public FeaturedTourViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivTourImage = itemView.findViewById(R.id.ivPathImage);
-            ivTourName = itemView.findViewById(R.id.tvPathName);
+            ivTourImage = itemView.findViewById(R.id.ivTourImage);
+            ivTourName = itemView.findViewById(R.id.tvTourName);
             ibTourBookmark = itemView.findViewById(R.id.ibBookmark);
 
             // add this as the itemView's OnClickListener

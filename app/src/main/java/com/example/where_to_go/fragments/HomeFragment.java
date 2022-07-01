@@ -55,7 +55,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        CardView cvContinueTour = view.findViewById(R.id.cvContinuePath);
+        CardView cvContinueTour = view.findViewById(R.id.cvContinueTour);
 
         // TODO: Recommendation Algorithm
         cvContinueTour.setOnClickListener(v -> {
@@ -82,13 +82,13 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(toursAdapter);
     }
 
-    private void setFeaturedToursRecyclerView() {
-        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
+    private void setFeaturedTourRecyclerView() {
+        RecyclerView rvFeaturedTours = requireView().findViewById(R.id.rvFeaturedTours);
 
         featuredTours = new ArrayList<>();
         featuredTourAdapter = new ToursAdapter(getContext(), featuredTours);
 
-        setRecyclerView(rvFeaturedPaths, featuredTourAdapter);
+        setRecyclerView(rvFeaturedTours, featuredTourAdapter);
     }
 
     private void setRecentToursRecyclerView() {

@@ -27,10 +27,8 @@ import java.util.List;
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
-    private TextView tvAccountName;
-    private TextView tvAccountTwitterName;
     private List<Tour> savedTours;
-    private ToursAdapter profileAdapter;
+    private ToursAdapter toursAdapter;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -48,8 +46,8 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvAccountName = view.findViewById(R.id.account_name);
-        tvAccountTwitterName = view.findViewById(R.id.account_twitter_name);
+        TextView tvAccountName = view.findViewById(R.id.account_name);
+        TextView tvAccountTwitterName = view.findViewById(R.id.account_twitter_name);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
 
@@ -60,28 +58,27 @@ public class ProfileFragment extends Fragment {
         tvAccountTwitterName.setText(accountTwitterName);
 
         setSavedTourRecyclerView();
-        getSavedTour();
+        getSavedTours();
     }
 
     // HELPER METHODS
 
     private void setSavedTourRecyclerView() {
-        profileAdapter = new ToursAdapter(getContext(), savedTours);
+        toursAdapter = new ToursAdapter(getContext(), savedTours);
 
         RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
 
         savedTours = new ArrayList<>();
-        profileAdapter = new ToursAdapter(getContext(), savedTours);
+        toursAdapter = new ToursAdapter(getContext(), savedTours);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rvSavedTours.setLayoutManager(tLayoutManager);
-        rvSavedTours.setHasFixedSize(true);
         // Set the Adapter on RecyclerView
-        rvSavedTours.setAdapter(profileAdapter);
+        rvSavedTours.setAdapter(toursAdapter);
     }
 
-    private void getSavedTour() {
+    private void getSavedTours() {
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
         destinationCollectionsParseQuery.include(Tour.USER_ID)
                         .whereEqualTo("isSaved", true);
@@ -93,7 +90,7 @@ public class ProfileFragment extends Fragment {
             }
             savedTours.addAll(_destinationCollections);
             Log.i(TAG, String.valueOf(savedTours.size()));
-            profileAdapter.notifyDataSetChanged();
+            toursAdapter.notifyDataSetChanged();
         });
     }
 }

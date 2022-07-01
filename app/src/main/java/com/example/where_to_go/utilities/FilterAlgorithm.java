@@ -12,10 +12,10 @@ import java.util.List;
 
 public class FilterAlgorithm {
 
-    private String intent;
+    private final String INTENT;
 
     public FilterAlgorithm(String _intent) {
-        intent = _intent;
+        INTENT = _intent;
     }
 
     @NonNull
@@ -23,9 +23,9 @@ public class FilterAlgorithm {
         List<Destination> outputDestinations = new ArrayList<>();
         List<Destination> inputDestinations = new ArrayList<>();
         for (int pos = 0; pos < businesses.length(); ++pos) {
-            Destination destinations = new Destination();
-            destinations.setData(businesses.getJSONObject(pos));
-            inputDestinations.add(destinations);
+            Destination destination = new Destination();
+            destination.setData(businesses.getJSONObject(pos));
+            inputDestinations.add(destination);
         }
 
         Collections.sort(inputDestinations, new RatingComparator());

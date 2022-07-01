@@ -1,8 +1,8 @@
 package com.example.where_to_go.models;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
+
+import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import org.json.JSONException;
@@ -13,21 +13,17 @@ public class Destination extends ParseObject {
     private static final String LOCATION_NAME = "location_name";
     private static final String LONGITUDE = "longitude";
     private static final String LATITUDE = "latitude";
-    private static final String RATING = "rating";
     private static final String IMAGE_URL = "location_image_url";
-    private static final String TAG = "Destination";
+    private static final String RATING = "rating";
 
-    // TODO: Add more relevant fields
     private double longitude, latitude;
     private double rating;
-    private String title, imageUrl;
-
-    public Destination() {}
+    private String locationName, imageUrl;
 
     public void setData(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);
         setRating(jsonObject);
-        setTitle(jsonObject);
+        setLocationName(jsonObject);
         setImageUrl(jsonObject);
     }
 
@@ -45,8 +41,8 @@ public class Destination extends ParseObject {
         return latitude;
     }
 
-    public String getTitle() {
-        return title;
+    public String getLocationName() {
+        return locationName;
     }
 
     public String getImageUrl() {
@@ -65,20 +61,19 @@ public class Destination extends ParseObject {
         rating = jsonObject.getDouble("rating");
     }
 
-    private void setTitle(JSONObject jsonObject) throws JSONException {
-        title = jsonObject.getString("name");
+    public void setLocationName(@NonNull JSONObject jsonObject) throws JSONException {
+        locationName = jsonObject.getString("name");
     }
 
-    private void setImageUrl(JSONObject jsonObject) throws JSONException {
+    public void setImageUrl(@NonNull JSONObject jsonObject) throws JSONException {
         imageUrl = jsonObject.getString("image_url");
     }
 
     public void putToDB() {
+        put(LOCATION_NAME, locationName);
         put(LONGITUDE, longitude);
         put(LATITUDE, latitude);
-        put(RATING, rating);
-        put(LOCATION_NAME, title);
         put(IMAGE_URL, imageUrl);
-        Log.i(TAG, "Finish putting into DestinationsDB");
+        put(RATING, rating);
     }
 }

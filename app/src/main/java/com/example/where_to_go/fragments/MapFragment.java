@@ -52,6 +52,7 @@ import okhttp3.Response;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
+    private static final Object LOCK = new Object();
     private DestinationsAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
 
@@ -97,7 +98,8 @@ public class MapFragment extends Fragment {
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
             // Set up required variables for querying the DB
-            etTourName = view.findViewById(R.id.etPathName);
+            etTourName = view.findViewById(R.id.etTourName);
+
             String tourName = etTourName.getText().toString();
             ParseUser currentUser = ParseUser.getCurrentUser();
             if (tourName.isEmpty()) {
@@ -105,8 +107,8 @@ public class MapFragment extends Fragment {
             }
 
             try {
-                saveTourToParseDB(tourName, currentUser);
-            } catch (ParseException e) {
+                saveToursToParseDB(tourName, currentUser);
+            } catch (ParseException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
@@ -156,17 +158,15 @@ public class MapFragment extends Fragment {
     }
 
     private void setFilteredDestinationRecyclerView() {
-        // query for top 10 paths based on average
         filteredDestinations = new ArrayList<>();
-
         rvDestinations = requireView().findViewById(R.id.rvDestinations);
+
         // Create the Adapter
         filteredDestinationAdapter = new DestinationsAdapter(getContext(), filteredDestinations);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         rvDestinations.setLayoutManager(tLayoutManager);
-        rvDestinations.setHasFixedSize(true); // always get 10 tours maximum
 
         // Set the Adapter on RecyclerView
         rvDestinations.setAdapter(filteredDestinationAdapter);
@@ -180,7 +180,7 @@ public class MapFragment extends Fragment {
         for (Destination destination : filteredDestinations) {
             LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
             MarkerOptions marker = new MarkerOptions();
-            googleMap.addMarker(marker.position(coordinate).title(destination.getTitle()));
+            googleMap.addMarker(marker.position(coordinate).title(destination.getLocationName()));
             builder.include(marker.getPosition());
         }
 
@@ -207,18 +207,25 @@ public class MapFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void saveTourToParseDB(String tourName, ParseUser currentUser) throws ParseException {
-        saveToToursDB(tourName, currentUser);
-        for (Destination filteredDestination : filteredDestinations) {
-          saveToDestinationsDB(filteredDestination);
+    private void saveToursToParseDB(String tourName, ParseUser currentUser) throws ParseException, InterruptedException {
+        Tour destinationCollections = saveToToursDB(tourName, currentUser);
+
+        // Wait for 3 seconds for TourDB adding a new row.
+        synchronized (LOCK) {
+            LOCK.wait(3000);
+        }
+
+        for (Destination destination : filteredDestinations) {
+            saveToDestinationsDB(destination, destinationCollections);
         }
     }
 
-    private void saveToToursDB(String pathName, @NonNull ParseUser currentUser) {
+    private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
         Tour destinationCollections = new Tour();
+				
         // Getting information to set up the POST query
         destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
-        destinationCollections.setTourName(pathName);
+        destinationCollections.setTourName(tourName);
         destinationCollections.setTransportationSeconds(0); // TODO: Create an algorithm to calculate this
 
         destinationCollections.saveInBackground(e -> {
@@ -230,19 +237,21 @@ public class MapFragment extends Fragment {
             etTourName.setText("");
             Toast.makeText(getContext(), "Your tour was saved successfully!", Toast.LENGTH_SHORT).show();
         });
+
+        return destinationCollections;
     }
 
-    private void saveToDestinationsDB(@NonNull Destination filteredDestination) throws ParseException {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
-        String objectId = query.addDescendingOrder("created_at").find().get(0).getObjectId();
+    private void saveToDestinationsDB(Destination currentDestination, Tour currentTour) {
+        String objectId = currentTour.getObjectId();
+        Log.i(TAG, objectId);
 
-        filteredDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));
-        filteredDestination.putToDB();
-        filteredDestination.saveInBackground(e -> {
+        // Getting information to set up the POST query
+        currentDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));
+        currentDestination.putToDB();
+
+        currentDestination.saveInBackground(e -> {
             if (e != null) {
-                Log.i(TAG, "Problem saving this destination");
-            } else {
-                Log.i(TAG, "Saved a new destination successfully!");
+                Log.e(TAG, "Error while saving a new destination", e);
             }
         });
     }

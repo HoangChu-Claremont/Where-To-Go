@@ -68,14 +68,16 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
-            ivTourImage = itemView.findViewById(R.id.ivPathImage);
-            tvTourName = itemView.findViewById(R.id.tvPathName);
+
+            ivTourImage = itemView.findViewById(R.id.ivTourImage);
+            tvTourName = itemView.findViewById(R.id.tvTourName);
+            
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }
 
         public void bind(@NonNull Destination filteredDestination) {
-            tvTourName.setText(filteredDestination.getTitle());
+            tvTourName.setText(filteredDestination.getLocationName());
             Glide.with(context).load(filteredDestination.getImageUrl()).into(ivTourImage);
         }
 
