@@ -32,7 +32,7 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private ToursAdapter featuredPathAdapter, recentPathAdapter;
+    private ToursAdapter featuredTourAdapter, recentTourAdapter;
     private List<Tours> featuredTours;
     private List<Tours> recentTours;
 
@@ -56,20 +56,20 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        CardView cvContinuePath = view.findViewById(R.id.cvContinuePath);
+        CardView cvContinueTour = view.findViewById(R.id.cvContinueTour);
 
         // TODO: Recommendation Algorithm
-        cvContinuePath.setOnClickListener(v -> {
+        cvContinueTour.setOnClickListener(v -> {
 
         });
 
-        // Featured Tours
-        setFeaturedPathRecyclerView();
-        getFeaturedPath();
+        // Set up RecyclerView
+        setFeaturedTourRecyclerView();
+        setRecentTourRecyclerView();
 
-        // Recent Tours
-        setRecentPathRecyclerView();
-        getRecentPath();
+        // Get Tours
+        getFeaturedTour();
+        getRecentTour();
     }
 
     // HELPER METHODS
@@ -83,25 +83,25 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(toursAdapter);
     }
 
-    private void setFeaturedPathRecyclerView() {
-        RecyclerView rvFeaturedPaths = requireView().findViewById(R.id.rvFeaturedTours);
+    private void setFeaturedTourRecyclerView() {
+        RecyclerView rvFeaturedTours = requireView().findViewById(R.id.rvFeaturedTours);
 
         featuredTours = new ArrayList<>();
-        featuredPathAdapter = new ToursAdapter(getContext(), featuredTours);
+        featuredTourAdapter = new ToursAdapter(getContext(), featuredTours);
 
-        setRecyclerView(rvFeaturedPaths, featuredPathAdapter);
+        setRecyclerView(rvFeaturedTours, featuredTourAdapter);
     }
 
-    private void setRecentPathRecyclerView() {
+    private void setRecentTourRecyclerView() {
         RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
 
         recentTours = new ArrayList<>();
-        recentPathAdapter = new ToursAdapter(getContext(), recentTours);
+        recentTourAdapter = new ToursAdapter(getContext(), recentTours);
 
-        setRecyclerView(rvRecentTours, recentPathAdapter);
+        setRecyclerView(rvRecentTours, recentTourAdapter);
     }
 
-    private void getFeaturedPath() {
+    private void getFeaturedTour() {
         // Create a Query
         ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
 
@@ -115,11 +115,11 @@ public class HomeFragment extends Fragment {
                 return;
             }
             featuredTours.addAll(_destinationCollections);
-            featuredPathAdapter.notifyDataSetChanged();
+            featuredTourAdapter.notifyDataSetChanged();
         });
     }
 
-    private void getRecentPath() {
+    private void getRecentTour() {
         ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
         final int LIMIT = 5;
         destinationCollectionsParseQuery.include(Tours.USER_ID)
@@ -132,7 +132,7 @@ public class HomeFragment extends Fragment {
                 return;
             }
             recentTours.addAll(_destinationCollections);
-            recentPathAdapter.notifyDataSetChanged();
+            recentTourAdapter.notifyDataSetChanged();
         });
     }
 

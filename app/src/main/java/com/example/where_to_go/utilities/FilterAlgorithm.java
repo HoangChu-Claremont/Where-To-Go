@@ -19,7 +19,7 @@ public class FilterAlgorithm {
     }
 
     @NonNull
-    public static List<Destinations> getTopRatedPath(@NonNull JSONArray businesses) throws JSONException {
+    public static List<Destinations> getTopRatedTour(@NonNull JSONArray businesses) throws JSONException {
         List<Destinations> outputDestinations = new ArrayList<>();
         List<Destinations> inputDestinations = new ArrayList<>();
         for (int pos = 0; pos < businesses.length(); ++pos) {

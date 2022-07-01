@@ -59,13 +59,13 @@ public class ProfileFragment extends Fragment {
         tvAccountName.setText(accountName);
         tvAccountTwitterName.setText(accountTwitterName);
 
-        setSavedPathRecyclerView();
-        getSavedPath();
+        setSavedTourRecyclerView();
+        getSavedTours();
     }
 
     // HELPER METHODS
 
-    private void setSavedPathRecyclerView() {
+    private void setSavedTourRecyclerView() {
         toursAdapter = new ToursAdapter(getContext(), savedTours);
 
         RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
@@ -80,7 +80,7 @@ public class ProfileFragment extends Fragment {
         rvSavedTours.setAdapter(toursAdapter);
     }
 
-    private void getSavedPath() {
+    private void getSavedTours() {
         ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
         destinationCollectionsParseQuery.include(Tours.USER_ID)
                         .whereEqualTo("isSaved", true);

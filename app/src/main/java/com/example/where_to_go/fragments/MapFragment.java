@@ -93,14 +93,14 @@ public class MapFragment extends Fragment {
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
             // Set up required variables for querying the DB
-            etTourName = view.findViewById(R.id.etPathName);
+            etTourName = view.findViewById(R.id.etTourName);
             String tourName = etTourName.getText().toString();
             ParseUser currentUser = ParseUser.getCurrentUser();
             if (tourName.isEmpty()) {
                 Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
             }
 
-            savePathToParseDB(tourName, currentUser);
+            saveToursToParseDB(tourName, currentUser);
         });
     }
 
@@ -119,7 +119,7 @@ public class MapFragment extends Fragment {
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    List<Destinations> filteredResults = FilterAlgorithm.getTopRatedPath(jsonResults);
+                    List<Destinations> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
                     filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
@@ -197,7 +197,7 @@ public class MapFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void savePathToParseDB(String tourName, ParseUser currentUser) {
+    private void saveToursToParseDB(String tourName, ParseUser currentUser) {
         saveToToursDB(tourName, currentUser);
         saveToDestinationsDB();
     }

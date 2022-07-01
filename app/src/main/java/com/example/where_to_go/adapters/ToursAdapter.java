@@ -21,62 +21,62 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 
-public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedPathViewHolder> {
+public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
-    private List<Tours> featuredPaths;
+    private List<Tours> featuredTours;
     private Context context;
 
     public ToursAdapter(Context _context, List<Tours> _featured_tours) {
         context = _context;
-        featuredPaths = _featured_tours;
+        featuredTours = _featured_tours;
     }
 
     @NonNull
     @Override
-    public FeaturedPathViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View topPathView = LayoutInflater.from(context).inflate(R.layout.collection, parent, false);
-        return new FeaturedPathViewHolder(topPathView);
+    public FeaturedTourViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View topTourView = LayoutInflater.from(context).inflate(R.layout.collection, parent, false);
+        return new FeaturedTourViewHolder(topTourView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FeaturedPathViewHolder holder, int position) {
-        Tours featuredPath = featuredPaths.get(position);
-        holder.bind(featuredPath);
+    public void onBindViewHolder(@NonNull FeaturedTourViewHolder holder, int position) {
+        Tours featuredTour = featuredTours.get(position);
+        holder.bind(featuredTour);
     }
 
     @Override
     public int getItemCount() {
-        return featuredPaths.size();
+        return featuredTours.size();
     }
 
-    public class FeaturedPathViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private static final String TAG = "FeaturedPathViewHolder";
-        private ImageView ivPathImage;
-        private TextView ivPathName;
-        private ImageButton ibPathBookmark;
+    public class FeaturedTourViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private static final String TAG = "FeaturedTourViewHolder";
+        private ImageView ivTourImage;
+        private TextView ivTourName;
+        private ImageButton ibTourBookmark;
 
-        public FeaturedPathViewHolder(@NonNull View itemView) {
+        public FeaturedTourViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivPathImage = itemView.findViewById(R.id.ivPathImage);
-            ivPathName = itemView.findViewById(R.id.tvPathName);
-            ibPathBookmark = itemView.findViewById(R.id.ibBookmark);
+            ivTourImage = itemView.findViewById(R.id.ivTourImage);
+            ivTourName = itemView.findViewById(R.id.tvTourName);
+            ibTourBookmark = itemView.findViewById(R.id.ibBookmark);
 
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }
 
-        public void bind(@NonNull Tours featuredPath) {
-            ivPathName.setText(featuredPath.getTourName());
-            Glide.with(context).load("http://via.placeholder.com/300.png").into(ivPathImage);
-            showSavedStatus(featuredPath.getSaved());
+        public void bind(@NonNull Tours featuredTour) {
+            ivTourName.setText(featuredTour.getTourName());
+            Glide.with(context).load("http://via.placeholder.com/300.png").into(ivTourImage);
+            showSavedStatus(featuredTour.getSaved());
 
-            ibPathBookmark.setOnClickListener(v -> {
-                Log.i(TAG, String.valueOf(featuredPath.getSaved()));
-                featuredPath.setIsSaved(!featuredPath.getSaved());
-                Log.i(TAG, String.valueOf(featuredPath.getSaved()));
+            ibTourBookmark.setOnClickListener(v -> {
+                Log.i(TAG, String.valueOf(featuredTour.getSaved()));
+                featuredTour.setIsSaved(!featuredTour.getSaved());
+                Log.i(TAG, String.valueOf(featuredTour.getSaved()));
 
-                featuredPath.saveInBackground();
-                showSavedStatus(featuredPath.getSaved());
+                featuredTour.saveInBackground();
+                showSavedStatus(featuredTour.getSaved());
             });
         }
 
@@ -96,9 +96,9 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedPath
         // HELPER METHODS
         private void showSavedStatus(boolean isSaved) {
             if (isSaved) {
-                ibPathBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark_filled));
+                ibTourBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark_filled));
             } else {
-                ibPathBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark));
+                ibTourBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark));
             }
         }
     }
