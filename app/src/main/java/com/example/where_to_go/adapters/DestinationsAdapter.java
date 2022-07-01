@@ -1,6 +1,7 @@
 package com.example.where_to_go.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.where_to_go.DestinationDetailsActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
+
+import org.parceler.Parcels;
 
 import java.util.Collections;
 import java.util.List;
@@ -83,7 +87,18 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         @Override
         public void onClick(View v) {
-
+            // gets item position
+            int position = getAdapterPosition();
+            // make sure the position is valid, i.e. actually exists in the view
+            if (position != RecyclerView.NO_POSITION) {
+                // get the post at the position, this won't work if the class is static
+                Destination destination = destinations.get(position);
+                // create intent for the new activity
+                Intent intent = new Intent(context, DestinationDetailsActivity.class);
+                intent.putExtra(Destination.class.getSimpleName(), Parcels.wrap(destination));
+                // show the activity
+                context.startActivity(intent);
+            }
         }
     }
 }

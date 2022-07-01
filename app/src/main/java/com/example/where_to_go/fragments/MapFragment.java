@@ -111,11 +111,6 @@ public class MapFragment extends Fragment {
                 e.printStackTrace();
             }
         });
-
-        CardView ivTourImage = view.findViewById(R.id.ivTourImage);
-        ivTourImage.setOnClickListener(v -> {
-            Log.i(TAG, "Image clicked");
-        });
     }
 
     // HELPER METHODS

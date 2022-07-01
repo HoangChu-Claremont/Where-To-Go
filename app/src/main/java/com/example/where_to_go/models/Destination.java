@@ -2,13 +2,14 @@ package com.example.where_to_go.models;
 
 import androidx.annotation.NonNull;
 
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
 @ParseClassName("Destinations")
+@Parcel(analyze = Destination.class)
 public class Destination extends ParseObject {
     private static final String LOCATION_NAME = "location_name";
     private static final String LONGITUDE = "longitude";
@@ -16,9 +17,13 @@ public class Destination extends ParseObject {
     private static final String IMAGE_URL = "location_image_url";
     private static final String RATING = "rating";
 
-    private double longitude, latitude;
-    private double rating;
-    private String locationName, imageUrl;
+    public double longitude, latitude;
+    public double rating;
+    public String locationName, imageUrl;
+
+    public Destination() {
+        // empty constructor required by the Parceler library
+    };
 
     public void setData(@NonNull JSONObject jsonObject) throws JSONException {
         setCoordinate(jsonObject);

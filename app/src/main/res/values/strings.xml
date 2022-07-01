@@ -26,4 +26,5 @@
     <string name="my_connections">My Connections</string>
     <string name="saved_tours">Saved Tours</string>
     <string name="start_save">Start/Save</string>
+    <string name="back">Back</string>
 </resources>
