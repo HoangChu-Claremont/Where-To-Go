@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.example.where_to_go.DestinationDetailsActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
+import com.google.gson.Gson;
 
 import org.parceler.Parcels;
 
@@ -94,8 +95,11 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
                 // get the post at the position, this won't work if the class is static
                 Destination destination = destinations.get(position);
                 // create intent for the new activity
+                Gson gson = new Gson();
+                String str_destination = gson.toJson(destination);
+
                 Intent intent = new Intent(context, DestinationDetailsActivity.class);
-                intent.putExtra(Destination.class.getSimpleName(), Parcels.wrap(destination));
+                intent.putExtra(Destination.class.getSimpleName(), str_destination);
                 // show the activity
                 context.startActivity(intent);
             }
