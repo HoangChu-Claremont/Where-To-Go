@@ -2,7 +2,6 @@ package com.example.where_to_go.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 
@@ -63,13 +62,13 @@ public class HomeFragment extends Fragment {
 
         });
 
-        // Set up RecyclerView
-        setFeaturedTourRecyclerView();
-        setRecentTourRecyclerView();
+        // Setting up RecyclerView
+        setFeaturedToursRecyclerView();
+        setRecentToursRecyclerView();
 
-        // Get Tours
-        getFeaturedTour();
-        getRecentTour();
+        // Get Tour
+        getFeaturedTours();
+        getRecentTours();
     }
 
     // HELPER METHODS
@@ -92,7 +91,7 @@ public class HomeFragment extends Fragment {
         setRecyclerView(rvFeaturedTours, featuredTourAdapter);
     }
 
-    private void setRecentTourRecyclerView() {
+    private void setRecentToursRecyclerView() {
         RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
 
         recentTours = new ArrayList<>();
@@ -101,7 +100,7 @@ public class HomeFragment extends Fragment {
         setRecyclerView(rvRecentTours, recentTourAdapter);
     }
 
-    private void getFeaturedTour() {
+    private void getFeaturedTours() {
         // Create a Query
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
 
@@ -119,7 +118,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void getRecentTour() {
+    private void getRecentTours() {
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
         final int LIMIT = 5;
         destinationCollectionsParseQuery.include(Tour.USER_ID)
@@ -136,11 +135,8 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //your code here
-        }
+    private final LocationListener mLocationListener = location -> {
+        //your code here
     };
 
     private boolean hasPermission() {

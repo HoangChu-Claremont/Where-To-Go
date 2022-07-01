@@ -1,6 +1,6 @@
 package com.example.where_to_go.utilities;
-import android.app.Application;
 
+import android.app.Application;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;

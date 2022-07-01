@@ -68,8 +68,10 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
+
             ivTourImage = itemView.findViewById(R.id.ivTourImage);
             tvTourName = itemView.findViewById(R.id.tvTourName);
+            
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }

@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,5 +76,4 @@ public class Destination extends ParseObject {
         put(IMAGE_URL, imageUrl);
         put(RATING, rating);
     }
-
 }

@@ -31,6 +31,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -54,6 +55,7 @@ public class MapFragment extends Fragment {
     private static final Object LOCK = new Object();
     private DestinationsAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
+
     RecyclerView rvDestinations;
     Button btnStartSaveTour;
     TextView etTourName;
@@ -80,7 +82,7 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Featured Destinations
+        // Featured Destination
         setFilteredDestinationRecyclerView();
 
         // Get a handle to the fragment and register the callback.
@@ -97,6 +99,7 @@ public class MapFragment extends Fragment {
         btnStartSaveTour.setOnClickListener(v -> {
             // Set up required variables for querying the DB
             etTourName = view.findViewById(R.id.etTourName);
+
             String tourName = etTourName.getText().toString();
             ParseUser currentUser = ParseUser.getCurrentUser();
             if (tourName.isEmpty()) {
@@ -219,7 +222,7 @@ public class MapFragment extends Fragment {
 
     private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
         Tour destinationCollections = new Tour();
-
+				
         // Getting information to set up the POST query
         destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
         destinationCollections.setTourName(tourName);
@@ -239,10 +242,6 @@ public class MapFragment extends Fragment {
     }
 
     private void saveToDestinationsDB(Destination currentDestination, Tour currentTour) {
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
-
-        query.addDescendingOrder("created_at");
-
         String objectId = currentTour.getObjectId();
         Log.i(TAG, objectId);
 
