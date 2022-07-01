@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     private ToursAdapter featuredTourAdapter, recentTourAdapter;
-    private List<Tours> featuredTours;
-    private List<Tours> recentTours;
+    private List<Tour> featuredTours;
+    private List<Tour> recentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,10 +103,10 @@ public class HomeFragment extends Fragment {
 
     private void getFeaturedTour() {
         // Create a Query
-        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
 
         // Include information we want to query
-        destinationCollectionsParseQuery.include(Tours.USER_ID);
+        destinationCollectionsParseQuery.include(Tour.USER_ID);
 
         // Query
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
@@ -120,10 +120,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void getRecentTour() {
-        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
         final int LIMIT = 5;
-        destinationCollectionsParseQuery.include(Tours.USER_ID)
-                .addDescendingOrder(Tours.KEY_UPDATED_AT)
+        destinationCollectionsParseQuery.include(Tour.USER_ID)
+                .addDescendingOrder(Tour.KEY_UPDATED_AT)
                 .setLimit(LIMIT);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {

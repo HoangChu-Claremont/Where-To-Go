@@ -2,6 +2,8 @@ package com.example.where_to_go.utilities;
 
 import com.example.where_to_go.BuildConfig;
 
+import java.util.Objects;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -14,7 +16,7 @@ public class YelpClient {
 
     public void getResponse(double currentLongitude, double currentLatitude, Callback callback) {
         OkHttpClient client = new OkHttpClient.Builder().build();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(TOP_PLACES_URL).newBuilder();
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(TOP_PLACES_URL))).newBuilder();
 
         urlBuilder.addQueryParameter("longitude", String.valueOf(currentLongitude));
         urlBuilder.addQueryParameter("latitude", String.valueOf(currentLatitude));

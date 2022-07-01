@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.R;
-import com.example.where_to_go.models.Destinations;
+import com.example.where_to_go.models.Destination;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +21,9 @@ import java.util.List;
 public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.FilteredDestinationViewHolder> {
     private static final String TAG = "DestinationsAdapter";
     public Context context;
-    private final List<Destinations> destinations;
+    private final List<Destination> destinations;
 
-    public DestinationsAdapter(Context _context, List<Destinations> _destinations) {
+    public DestinationsAdapter(Context _context, List<Destination> _destinations) {
         context = _context;
         destinations = _destinations;
     }
@@ -37,7 +37,7 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
     @Override
     public void onBindViewHolder(@NonNull FilteredDestinationViewHolder holder, int position) {
-        Destinations destination = destinations.get(position);
+        Destination destination = destinations.get(position);
         holder.bind(destination);
     }
 
@@ -74,8 +74,8 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             itemView.setOnClickListener(this);
         }
 
-        public void bind(@NonNull Destinations filteredDestination) {
-            tvTourName.setText(filteredDestination.getTitle());
+        public void bind(@NonNull Destination filteredDestination) {
+            tvTourName.setText(filteredDestination.getLocationName());
             Glide.with(context).load(filteredDestination.getImageUrl()).into(ivTourImage);
         }
 

@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
-import com.example.where_to_go.models.Destinations;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Destination;
+import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.YelpClient;
 import com.google.android.gms.maps.CameraUpdate;
@@ -31,7 +31,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -49,8 +51,9 @@ import okhttp3.Response;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
+    private static final Object LOCK = new Object();
     private DestinationsAdapter filteredDestinationAdapter;
-    private List<Destinations> filteredDestinations;
+    private List<Destination> filteredDestinations;
     RecyclerView rvDestinations;
     Button btnStartSaveTour;
     TextView etTourName;
@@ -100,7 +103,11 @@ public class MapFragment extends Fragment {
                 Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
             }
 
-            saveToursToParseDB(tourName, currentUser);
+            try {
+                saveToursToParseDB(tourName, currentUser);
+            } catch (ParseException | InterruptedException e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -119,7 +126,7 @@ public class MapFragment extends Fragment {
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    List<Destinations> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+                    List<Destination> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
                     filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
@@ -162,15 +169,15 @@ public class MapFragment extends Fragment {
         rvDestinations.setAdapter(filteredDestinationAdapter);
     }
 
-    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destinations> filteredDestinations) {
+    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         int padding = 420; // More values = More zooming out. TODO: Calculate Padding
 
         // Mark each destination on the Map
-        for (Destinations destination : filteredDestinations) {
+        for (Destination destination : filteredDestinations) {
             LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
             MarkerOptions marker = new MarkerOptions();
-            googleMap.addMarker(marker.position(coordinate).title(destination.getTitle()));
+            googleMap.addMarker(marker.position(coordinate).title(destination.getLocationName()));
             builder.include(marker.getPosition());
         }
 
@@ -197,13 +204,21 @@ public class MapFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void saveToursToParseDB(String tourName, ParseUser currentUser) {
-        saveToToursDB(tourName, currentUser);
-        saveToDestinationsDB();
+    private void saveToursToParseDB(String tourName, ParseUser currentUser) throws ParseException, InterruptedException {
+        Tour destinationCollections = saveToToursDB(tourName, currentUser);
+
+        // Wait for 3 seconds for TourDB adding a new row.
+        synchronized (LOCK) {
+            LOCK.wait(3000);
+        }
+
+        for (Destination destination : filteredDestinations) {
+            saveToDestinationsDB(destination, destinationCollections);
+        }
     }
 
-    private void saveToToursDB(String tourName, ParseUser currentUser) {
-        Tours destinationCollections = new Tours();
+    private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
+        Tour destinationCollections = new Tour();
 
         // Getting information to set up the POST query
         destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
@@ -219,8 +234,26 @@ public class MapFragment extends Fragment {
             etTourName.setText("");
             Toast.makeText(getContext(), "Your tour was saved successfully!", Toast.LENGTH_SHORT).show();
         });
+
+        return destinationCollections;
     }
 
-    private void saveToDestinationsDB() {
+    private void saveToDestinationsDB(Destination currentDestination, Tour currentTour) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tours");
+
+        query.addDescendingOrder("created_at");
+
+        String objectId = currentTour.getObjectId();
+        Log.i(TAG, objectId);
+
+        // Getting information to set up the POST query
+        currentDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));
+        currentDestination.putToDB();
+
+        currentDestination.saveInBackground(e -> {
+            if (e != null) {
+                Log.e(TAG, "Error while saving a new destination", e);
+            }
+        });
     }
 }

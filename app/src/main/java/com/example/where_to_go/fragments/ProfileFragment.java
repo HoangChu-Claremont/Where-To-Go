@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
-import com.example.where_to_go.models.Tours;
+import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -27,9 +27,7 @@ import java.util.List;
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
-    private TextView tvAccountName;
-    private TextView tvAccountTwitterName;
-    private List<Tours> savedTours;
+    private List<Tour> savedTours;
     private ToursAdapter toursAdapter;
 
     public ProfileFragment() {
@@ -48,8 +46,8 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvAccountName = view.findViewById(R.id.account_name);
-        tvAccountTwitterName = view.findViewById(R.id.account_twitter_name);
+        TextView tvAccountName = view.findViewById(R.id.account_name);
+        TextView tvAccountTwitterName = view.findViewById(R.id.account_twitter_name);
 
         ParseUser currentUser = ParseUser.getCurrentUser();
 
@@ -81,8 +79,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getSavedTours() {
-        ParseQuery<Tours> destinationCollectionsParseQuery = ParseQuery.getQuery(Tours.class);
-        destinationCollectionsParseQuery.include(Tours.USER_ID)
+        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
+        destinationCollectionsParseQuery.include(Tour.USER_ID)
                         .whereEqualTo("isSaved", true);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
