@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(toursAdapter);
     }
 
-    private void setFeaturedTourRecyclerView() {
+    private void setFeaturedToursRecyclerView() {
         RecyclerView rvFeaturedTours = requireView().findViewById(R.id.rvFeaturedTours);
 
         featuredTours = new ArrayList<>();

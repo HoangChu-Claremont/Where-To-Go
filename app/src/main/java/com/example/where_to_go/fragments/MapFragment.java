@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,7 +35,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -92,7 +92,6 @@ public class MapFragment extends Fragment {
 
         // Method reference: Google Map shows asynchronously with filtered data.
         supportMapFragment.getMapAsync(this::getFilteredDestination);
-
         Log.i(TAG, "Map Created");
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
@@ -111,6 +110,11 @@ public class MapFragment extends Fragment {
             } catch (ParseException | InterruptedException e) {
                 e.printStackTrace();
             }
+        });
+
+        CardView ivTourImage = view.findViewById(R.id.ivTourImage);
+        ivTourImage.setOnClickListener(v -> {
+            Log.i(TAG, "Image clicked");
         });
     }
 
@@ -220,6 +224,7 @@ public class MapFragment extends Fragment {
         }
     }
 
+    @NonNull
     private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
         Tour destinationCollections = new Tour();
 				
@@ -241,7 +246,7 @@ public class MapFragment extends Fragment {
         return destinationCollections;
     }
 
-    private void saveToDestinationsDB(Destination currentDestination, Tour currentTour) {
+    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) {
         String objectId = currentTour.getObjectId();
         Log.i(TAG, objectId);
 
