@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-
+    // TODO: Work on moving between fragments
     private static final String TAG = "HomeFragment";
 
     private ToursAdapter featuredTourAdapter, recentTourAdapter;
@@ -73,7 +73,7 @@ public class HomeFragment extends Fragment {
 
     // HELPER METHODS
 
-    private void setRecyclerView(RecyclerView recyclerView, ToursAdapter toursAdapter) {
+    private void setRecyclerView(@NonNull RecyclerView recyclerView, ToursAdapter toursAdapter) {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(tLayoutManager);

@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,12 +12,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
@@ -33,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -60,13 +64,20 @@ public class MapFragment extends Fragment {
     Button btnStartSaveTour;
     TextView etTourName;
 
+    String intent;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     public MapFragment() {
         // Required empty public constructor
+    }
+
+    public MapFragment(String _intent) {
+        intent = _intent;
     }
 
     @Override
@@ -74,7 +85,6 @@ public class MapFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
-
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -113,13 +123,35 @@ public class MapFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.back, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    // Button clicks
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_back) {
+            Log.i(TAG, "onClick Back Button");
+            goHomeActivity();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     // HELPER METHODS
+
+    private void goHomeActivity() {
+        BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
+    }
 
     private void getFilteredDestination(GoogleMap googleMap) {
 
         final YelpClient yelpClient = new YelpClient();
 
-        yelpClient.getResponse(-122.1483654685629, 37.484668049999996, new Callback() {
+        yelpClient.getResponse(-122.1483654685629, 37.484668049999996, new Callback() { // TODO: Get user's current location
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -127,6 +159,7 @@ public class MapFragment extends Fragment {
                     String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 
+                    // TODO: Modify this based on intent
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
                     List<Destination> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
                     filteredDestinations.addAll(filteredResults);

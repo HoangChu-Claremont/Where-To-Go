@@ -26,6 +26,7 @@
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.25" />
         <entry key="app/src/main/res/layout/google_map.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_top_path.xml" value="0.18342391304347827" />
+        <entry key="app/src/main/res/menu/back.xml" value="0.1" />
         <entry key="app/src/main/res/menu/logout.xml" value="0.38153846153846155" />
         <entry key="app/src/main/res/menu/menu_bottom_navigation.xml" value="0.38153846153846155" />
       </map>

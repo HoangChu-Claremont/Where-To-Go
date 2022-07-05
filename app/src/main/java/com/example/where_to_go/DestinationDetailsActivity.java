@@ -1,7 +1,6 @@
 package com.example.where_to_go;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
@@ -32,7 +31,7 @@ public class DestinationDetailsActivity extends AppCompatActivity {
         TextView tvDestinationDetails = findViewById(R.id.tvDestinationDetails); // TODO: Get this
         TextView tvHours = findViewById(R.id.tvHours); // TODO: Calculate this
         RatingBar rbPathRating = (RatingBar) findViewById(R.id.rbPathRating);
-        Button btnStopInfo = findViewById(R.id.btnStopInfo);
+        Button btnBack = findViewById(R.id.btnBack);
 
         // Un-pack the object transferred here.
         // TODO: Input object isn't null, but output is null. FIX IT!
@@ -58,10 +57,9 @@ public class DestinationDetailsActivity extends AppCompatActivity {
         tvHours.setText("0");
         rbPathRating.setRating((float) destination.getRating());
 
-        btnStopInfo.setOnClickListener(v -> {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            Fragment mapFragment = new MapFragment();
-            fragmentManager.beginTransaction().replace(R.id.clDestinationDetails, mapFragment).commit();
+        btnBack.setOnClickListener(v -> {
+            final FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.clDestinationDetails, new MapFragment()).commit();
         });
     }
 }

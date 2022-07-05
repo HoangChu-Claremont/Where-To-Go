@@ -37,7 +37,6 @@
             android:layout_marginLeft="15dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/proximanova_semibold"
-            android:text="DestinationName"
             android:textSize="20sp" />
 
 
@@ -49,7 +48,6 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="3dp"
             android:fontFamily="@font/proximanova_regular"
-            android:text="DestinationDetails"
             android:textSize="16sp" />
 
         <TextView
@@ -60,7 +58,6 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="3dp"
             android:fontFamily="@font/proximanova_regular"
-            android:text="123 km"
             android:textSize="16sp" />
 
         <TextView
@@ -86,7 +83,7 @@
             android:numStars="5" />
 
         <Button
-            android:id="@+id/btnStopInfo"
+            android:id="@+id/btnBack"
             android:layout_width="193dp"
             android:layout_height="60dp"
             android:layout_below="@id/tvHours"
