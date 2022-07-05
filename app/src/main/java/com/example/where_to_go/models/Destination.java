@@ -1,5 +1,7 @@
 package com.example.where_to_go.models;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.parse.ParseClassName;
@@ -16,6 +18,7 @@ public class Destination extends ParseObject {
     private static final String LATITUDE = "latitude";
     private static final String IMAGE_URL = "location_image_url";
     private static final String RATING = "rating";
+    private static final String TAG = "Destination";
 
     public double longitude, latitude;
     public double rating;
@@ -57,9 +60,14 @@ public class Destination extends ParseObject {
     // SETTER
 
     private void setCoordinate(@NonNull JSONObject jsonObject) throws JSONException {
-        JSONObject coordinates = jsonObject.getJSONObject("coordinates");
-        longitude = coordinates.getDouble("longitude");
-        latitude = coordinates.getDouble("latitude");
+        try {
+            JSONObject coordinates = jsonObject.getJSONObject("coordinates");
+            longitude = coordinates.getDouble("longitude");
+            latitude = coordinates.getDouble("latitude");
+        } catch (Exception e) {
+            longitude = jsonObject.getDouble("longitude");
+            latitude = jsonObject.getDouble("latitude");
+        }
     }
 
     private void setRating(@NonNull JSONObject jsonObject) throws JSONException {
@@ -67,11 +75,19 @@ public class Destination extends ParseObject {
     }
 
     public void setLocationName(@NonNull JSONObject jsonObject) throws JSONException {
-        locationName = jsonObject.getString("name");
+        try {
+            locationName = jsonObject.getString("name");
+        } catch (Exception e) {
+            locationName = jsonObject.getString("locationName");
+        }
     }
 
     public void setImageUrl(@NonNull JSONObject jsonObject) throws JSONException {
-        imageUrl = jsonObject.getString("image_url");
+        try {
+            imageUrl = jsonObject.getString("image_url");
+        } catch (Exception e) {
+            imageUrl = jsonObject.getString("imageUrl");
+        }
     }
 
     public void putToDB() {

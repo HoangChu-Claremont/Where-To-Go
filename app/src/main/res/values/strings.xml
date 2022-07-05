@@ -27,4 +27,6 @@
     <string name="saved_tours">Saved Tours</string>
     <string name="start_save">Start/Save</string>
     <string name="back">Back</string>
+    <string name="logout">Logout</string>
+    <string name="btn_back">Back</string>
 </resources>

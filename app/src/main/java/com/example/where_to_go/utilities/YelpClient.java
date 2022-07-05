@@ -21,6 +21,7 @@ public class YelpClient {
         urlBuilder.addQueryParameter("longitude", String.valueOf(currentLongitude));
         urlBuilder.addQueryParameter("latitude", String.valueOf(currentLatitude));
         urlBuilder.addQueryParameter("limit", String.valueOf(YELP_LIMIT_PER_REQUEST));
+        urlBuilder.addQueryParameter("categories", String.valueOf("mattresses"));
         String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()

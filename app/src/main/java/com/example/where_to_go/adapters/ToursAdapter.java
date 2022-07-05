@@ -86,7 +86,6 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             int position = getAdapterPosition();
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
-
                 // Switch HomeFragment -> MapFragment
                 BottomNavigationView bottomNavigationView = ((NavigationActivity) context).bottomNavigationView;
                 bottomNavigationView.setSelectedItemId(R.id.action_map);
