@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -149,6 +151,14 @@ public class MapFragment extends Fragment {
     // HELPER METHODS
 
     private void goHomeActivity() {
+        // Switch between MapFragment -> HomeFragment
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.map_fragment, new HomeFragment());
+        fragmentManager.popBackStack();
+        transaction.commit();
+
+        // Reset bottom navigation bar
         BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
@@ -165,7 +175,6 @@ public class MapFragment extends Fragment {
                     String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 
-                    // TODO: Modify this based on intent
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
 
                     if (intent == "Default") {

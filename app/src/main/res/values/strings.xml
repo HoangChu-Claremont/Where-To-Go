@@ -34,6 +34,7 @@
     <string name="price_under">Price Under</string>
     <string name="submit">Submit</string>
     <string name="usd">USD</string>
+    <string name="transportation">Transportation Options</string>
 
     <string-array name="filter_list">
         <item>Any Categories</item>
@@ -44,5 +45,12 @@
 
     <string-array name="currency">
         <item>USD</item>
+    </string-array>
+
+    <string-array name="transportation_options">
+        <item>Car</item>
+        <item>Bike</item>
+        <item>Walk</item>
+        <item>Public Transit</item>
     </string-array>
 </resources>

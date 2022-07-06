@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-    // TODO: Work on moving between fragments
+
     private static final String TAG = "HomeFragment";
 
     private ToursAdapter featuredTourAdapter, recentTourAdapter;

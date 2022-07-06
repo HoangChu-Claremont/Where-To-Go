@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 
 import org.json.JSONException;
@@ -30,24 +31,37 @@ public class FilterActivity extends AppCompatActivity {
 
         EditText tvNoDays = findViewById(R.id.tvCountDays);
         EditText tvPriceUnder = findViewById(R.id.tvPriceUnder);
-        Spinner spDestinationType = (Spinner) findViewById(R.id.spDestinationType);
+        Spinner spDestinationType = findViewById(R.id.spDestinationType);
+        Spinner spTransportation = findViewById(R.id.spTransportation);
         Button btnSubmit = findViewById(R.id.btnSubmit);
+        Button btnReturn = findViewById(R.id.btnReturn);
 
         btnSubmit.setOnClickListener(v -> {
-            receiveFilterResult(v, tvNoDays, tvPriceUnder, spDestinationType);
+            receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation);
+        });
+
+        btnReturn.setOnClickListener(v -> {
+            final FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.llFilter, new HomeFragment()).commit();
+            finish();
         });
     }
 
     // HELPER METHODS
 
-    private void receiveFilterResult(View v, EditText _tvNoDays, EditText _tvPriceUnder, Spinner _spDestinationType) {
+    private void receiveFilterResult(EditText _tvNoDays, EditText _tvPriceUnder, Spinner _spDestinationType, Spinner _spTransportation) {
         String tvNoDays_str = _tvNoDays.getText().toString();
         String tvPriceUnder_str = _tvPriceUnder.getText().toString();
         String spDestinationType = _spDestinationType.getSelectedItem().toString();
-
+        String spTransportationType = _spTransportation.getSelectedItem().toString();
 
         if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty() && !spDestinationType.isEmpty()) {
-            Log.i(TAG, "Retrieved result: " + tvNoDays_str + " " + tvPriceUnder_str);
+            Log.i(TAG, "Retrieved result: ");
+            Log.i(TAG, "Number of days: " + tvNoDays_str);
+            Log.i(TAG, "Price Under: " + tvPriceUnder_str);
+            Log.i(TAG, "Destination Type: " + spDestinationType);
+            Log.i(TAG, "Transportation Type: " + spTransportationType);
+
             int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
             int priceUnder = Integer.parseInt(tvPriceUnder_str);
 
@@ -56,6 +70,7 @@ public class FilterActivity extends AppCompatActivity {
                 jsonResult.put("no_hours", noHours);
                 jsonResult.put("price_under", priceUnder);
                 jsonResult.put("destination_type", spDestinationType);
+                jsonResult.put("transportation_option", spTransportationType);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
