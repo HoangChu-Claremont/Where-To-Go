@@ -1,6 +1,7 @@
 package com.example.where_to_go.fragments;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Tour;
@@ -59,7 +61,7 @@ public class HomeFragment extends Fragment {
 
         // TODO: Recommendation Algorithm
         cvContinueTour.setOnClickListener(v -> {
-
+            goFilterActivity();
         });
 
         // Setting up RecyclerView
@@ -69,6 +71,11 @@ public class HomeFragment extends Fragment {
         // Get Tour
         getFeaturedTours();
         getRecentTours();
+    }
+
+    private void goFilterActivity() {
+        Intent intent = new Intent(getActivity(), FilterActivity.class);
+        startActivity(intent);
     }
 
     // HELPER METHODS

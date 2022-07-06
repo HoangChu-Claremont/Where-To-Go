@@ -29,4 +29,20 @@
     <string name="back">Back</string>
     <string name="logout">Logout</string>
     <string name="btn_back">Back</string>
+    <string name="number_of_days">Number Of Days</string>
+    <string name="destination_type">Destination Type</string>
+    <string name="price_under">Price Under</string>
+    <string name="submit">Submit</string>
+    <string name="usd">USD</string>
+
+    <string-array name="filter_list">
+        <item>Any Categories</item>
+        <item>Category 1</item>
+        <item>Category 2</item>
+        <item>Category 3</item>
+    </string-array>
+
+    <string-array name="currency">
+        <item>USD</item>
+    </string-array>
 </resources>
