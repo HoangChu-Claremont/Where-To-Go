@@ -47,7 +47,7 @@ public class FilterActivity extends AppCompatActivity {
 
 
         if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty() && !spDestinationType.isEmpty()) {
-            Log.i(TAG, "Retrieved result: " + _tvNoDays + " " + _tvPriceUnder);
+            Log.i(TAG, "Retrieved result: " + tvNoDays_str + " " + tvPriceUnder_str);
             int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
             int priceUnder = Integer.parseInt(tvPriceUnder_str);
 
