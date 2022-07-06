@@ -35,10 +35,10 @@
     <string name="submit">Submit</string>
     <string name="usd">USD</string>
     <string name="transportation">Transportation Options</string>
-    <string name="add_categories">Add Categories</string>
+    <string name="add_types_max_10">Add Types (Max 10)</string>
 
     <string-array name="filter_list">
-        <item>All Categories</item>
+        <item>All</item>
         <item>Food</item>
         <item>Nightlife</item>
         <item>Restaurants</item>
