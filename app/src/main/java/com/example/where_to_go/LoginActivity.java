@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
             // If logged in
             user.setUsername(username);
             user.setPassword(password);
-            goHomeActivity();
+            goNavigationActivity();
             Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
         });
     }
@@ -137,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
             // If signed up
             user.setUsername(username);
             user.setPassword(password);
-            goHomeActivity();
+            goNavigationActivity();
             Toast.makeText(LoginActivity.this, "Sign Up Succeed!", Toast.LENGTH_SHORT).show();
         });
     }
@@ -156,7 +156,7 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //    }
 
-    private void goHomeActivity() {
+    private void goNavigationActivity() {
         Intent i = new Intent(this, NavigationActivity.class);
         startActivity(i);
         finish();

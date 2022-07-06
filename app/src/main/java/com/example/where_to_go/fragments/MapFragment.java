@@ -64,7 +64,10 @@ public class MapFragment extends Fragment {
     Button btnStartSaveTour;
     TextView etTourName;
 
-    String intent;
+    JSONObject filterResult;
+    String intent = "Default";
+
+    private List<Destination> filteredResults;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,8 +79,11 @@ public class MapFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public MapFragment(String _intent) {
+    public MapFragment(String _intent, JSONObject _filterResult) {
         intent = _intent;
+        filterResult = _filterResult;
+        Log.i(TAG, intent);
+        Log.i(TAG, filterResult.toString());
     }
 
     @Override
@@ -161,21 +167,24 @@ public class MapFragment extends Fragment {
 
                     // TODO: Modify this based on intent
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    List<Destination> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
-                    filteredDestinations.addAll(filteredResults);
 
-                    // Avoid the "Only the original thread that created a view hierarchy
-                    // can touch its views adapter" error
-                    ((Activity) requireContext()).runOnUiThread(() -> {
-                        // Update the Adapter
-                        filteredDestinationAdapter.notifyDataSetChanged();
+                    if (intent == "Default") {
+                        filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+                        filteredDestinations.addAll(filteredResults);
 
-                        setGoogleMap(googleMap, filteredDestinations);
+                        // Avoid the "Only the original thread that created a view hierarchy
+                        // can touch its views adapter" error
+                        ((Activity) requireContext()).runOnUiThread(() -> {
+                            // Update the Adapter
+                            filteredDestinationAdapter.notifyDataSetChanged();
 
-                        // Users can reorder locations
-                        setDragDropDestinations(rvDestinations);
+                            setGoogleMap(googleMap, filteredDestinations);
 
-                    });
+                            // Users can reorder locations
+                            setDragDropDestinations(rvDestinations);
+
+                        });
+                    }
 
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();

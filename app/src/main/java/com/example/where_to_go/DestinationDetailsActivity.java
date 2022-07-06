@@ -60,6 +60,7 @@ public class DestinationDetailsActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> {
             final FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.clDestinationDetails, new MapFragment()).commit();
+            finish();
         });
     }
 }
