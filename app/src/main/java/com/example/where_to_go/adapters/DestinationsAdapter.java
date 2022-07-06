@@ -18,8 +18,6 @@ import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
 import com.google.gson.Gson;
 
-import org.parceler.Parcels;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -68,22 +66,22 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private static final String TAG = "FeaturedTourViewHolder";
-        private ImageView ivTourImage;
-        private TextView tvTourName;
+        private ImageView ivDestinationImage;
+        private TextView tvDestinationName;
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
 
-            ivTourImage = itemView.findViewById(R.id.ivTourImage);
-            tvTourName = itemView.findViewById(R.id.tvTourName);
+            ivDestinationImage = itemView.findViewById(R.id.ivTourImage);
+            tvDestinationName = itemView.findViewById(R.id.tvTourName);
             
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
         }
 
         public void bind(@NonNull Destination filteredDestination) {
-            tvTourName.setText(filteredDestination.getLocationName());
-            Glide.with(context).load(filteredDestination.getImageUrl()).into(ivTourImage);
+            tvDestinationName.setText(filteredDestination.getLocationName());
+            Glide.with(context).load(filteredDestination.getImageUrl()).into(ivDestinationImage);
         }
 
         @Override

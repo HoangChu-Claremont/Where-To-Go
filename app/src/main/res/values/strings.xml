@@ -35,12 +35,23 @@
     <string name="submit">Submit</string>
     <string name="usd">USD</string>
     <string name="transportation">Transportation Options</string>
+    <string name="add_categories">Add Categories</string>
 
     <string-array name="filter_list">
-        <item>Any Categories</item>
-        <item>Category 1</item>
-        <item>Category 2</item>
-        <item>Category 3</item>
+        <item>All Categories</item>
+        <item>Food</item>
+        <item>Nightlife</item>
+        <item>Restaurants</item>
+        <item>Shopping</item>
+        <item>Religious</item>
+        <item>Landmarks</item>
+        <item>Hotels</item>
+        <item>Natural</item>
+        <item>Arts and Entertainment</item>
+        <item>Beauty and Spas</item>
+        <item>Public Event</item>
+        <item>Financial Services</item>
+        <item>Healthcare</item>
     </string-array>
 
     <string-array name="currency">

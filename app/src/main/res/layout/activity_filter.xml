@@ -20,30 +20,27 @@
             android:id="@+id/llFilterList"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight=".5"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/llNoDays"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.3333"
-                android:gravity="center"
+                android:layout_height="50dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvNoDays"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.72"
                     android:gravity="center"
                     android:text="@string/number_of_days" />
 
                 <EditText
                     android:id="@+id/tvCountDays"
-                    android:layout_width="0dp"
+                    android:layout_width="200dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_marginStart="100dp"
                     android:autofillHints=""
                     android:gravity="center" />
             </LinearLayout>
@@ -51,8 +48,7 @@
             <LinearLayout
                 android:id="@+id/llPriceUnder"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.333"
+                android:layout_height="50dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -61,48 +57,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:layout_marginEnd="20dp"
+
+                    android:gravity="start | center"
                     android:text="@string/price_under" />
 
                 <EditText
                     android:id="@+id/tvPriceUnder"
-                    android:layout_width="wrap_content"
+                    android:layout_width="114dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:autofillHints=""
                     android:gravity="center" />
 
-                <TextView
-                    android:id="@+id/tvCurrency"
+                <Spinner
+                    android:id="@+id/spCurrency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/usd" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/llDestinationType"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.333"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvDestinationType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.001"
-                    android:gravity="center"
-                    android:text="@string/destination_type" />
-
-                <Spinner
-                    android:id="@+id/spDestinationType"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="10"
                     android:drawSelectorOnTop="true"
-                    android:entries="@array/filter_list"
+                    android:entries="@array/currency"
                     android:gravity="center"
                     android:spinnerMode="dropdown" />
 
@@ -111,8 +83,7 @@
             <LinearLayout
                 android:id="@+id/llTransportation"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.333"
+                android:layout_height="50dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -120,7 +91,7 @@
                     android:id="@+id/tvTransportation"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.001"
+                    android:layout_marginEnd="81dp"
                     android:gravity="center"
                     android:text="@string/transportation" />
 
@@ -128,28 +99,70 @@
                     android:id="@+id/spTransportation"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="10"
                     android:drawSelectorOnTop="true"
                     android:entries="@array/transportation_options"
                     android:gravity="center"
                     android:spinnerMode="dropdown" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/llDestinationType"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvDestinationType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:layout_marginEnd="120dp"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnSubmit"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:text="@string/submit" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnReturn"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:text="@string/back" />
+            <Button
+                android:id="@+id/btnAddCategory"
+                android:layout_width="match_parent"
+                android:layout_margin="5dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.1"
+                android:text="@string/add_categories" />
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:layout_weight="0.1"
+                android:text="@string/submit" />
+
+            <Button
+                android:id="@+id/btnReturn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:layout_weight="0.1"
+                android:text="@string/back" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

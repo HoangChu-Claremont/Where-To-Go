@@ -6,8 +6,9 @@ import com.example.where_to_go.models.Destination;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class FilterAlgorithm {
@@ -22,17 +23,29 @@ public class FilterAlgorithm {
     public static List<Destination> getTopRatedTour(@NonNull JSONArray businesses) throws JSONException {
         List<Destination> outputDestinations = new ArrayList<>();
         List<Destination> inputDestinations = new ArrayList<>();
+
         for (int pos = 0; pos < businesses.length(); ++pos) {
             Destination destination = new Destination();
             destination.setData(businesses.getJSONObject(pos));
             inputDestinations.add(destination);
         }
 
-        Collections.sort(inputDestinations, new RatingComparator());
+        inputDestinations.sort(new RatingComparator());
 
         for (int pos = 0; pos < 10; ++pos) {
             outputDestinations.add(inputDestinations.get(pos));
         }
+
+        return outputDestinations;
+    }
+
+    public static List<Destination> getFilteredTour(JSONObject jsonFilteredResult, JSONArray businesses) throws JSONException {
+        List<Destination> outputDestinations = new ArrayList<>();
+        List<Destination> inputDestinations = new ArrayList<>();
+
+        // Call YelpAPI with business id for each business in businesses
+
+        // Do fun stuff
 
         return outputDestinations;
     }

@@ -1,15 +1,14 @@
 package com.example.where_to_go;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
@@ -17,11 +16,12 @@ import com.example.where_to_go.fragments.MapFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 public class FilterActivity extends AppCompatActivity {
 
-
     private static final float HOURS_PER_DAY = 24;
-    private static final String INTENT = "filter";
+    private static final String INTENT = "Filter";
     private static final String TAG = "FilterActivity";
 
     @Override
@@ -36,9 +36,7 @@ public class FilterActivity extends AppCompatActivity {
         Button btnSubmit = findViewById(R.id.btnSubmit);
         Button btnReturn = findViewById(R.id.btnReturn);
 
-        btnSubmit.setOnClickListener(v -> {
-            receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation);
-        });
+        btnSubmit.setOnClickListener(v -> receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation));
 
         btnReturn.setOnClickListener(v -> {
             final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -49,11 +47,28 @@ public class FilterActivity extends AppCompatActivity {
 
     // HELPER METHODS
 
-    private void receiveFilterResult(EditText _tvNoDays, EditText _tvPriceUnder, Spinner _spDestinationType, Spinner _spTransportation) {
+    private void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull EditText _tvPriceUnder, @NonNull Spinner _spDestinationType, @NonNull Spinner _spTransportation) {
         String tvNoDays_str = _tvNoDays.getText().toString();
         String tvPriceUnder_str = _tvPriceUnder.getText().toString();
-        String spDestinationType = _spDestinationType.getSelectedItem().toString();
         String spTransportationType = _spTransportation.getSelectedItem().toString();
+
+        String spDestinationType = _spDestinationType.getSelectedItem().toString(); // TODO: Should be made from a list
+
+        Map<String, String> categories = null;
+
+        categories.put("Food", "food");
+        categories.put("Nightlife", "nightlife");
+        categories.put("Restaurants", "restaurants");
+        categories.put("Shopping", "shopping");
+        categories.put("Religious", "religiousorgs");
+        categories.put("Landmarks", "landmarks");
+        categories.put("Hotels", "hotelstravel");
+        categories.put("Natural", "active");
+        categories.put("Arts & Entertainment", "arts");
+        categories.put("Beauty & Spas", "beautysvc");
+        categories.put("Public Event", "eventservices");
+        categories.put("Financial Services", "financialservices");
+        categories.put("Healthcare", "health");
 
         if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty() && !spDestinationType.isEmpty()) {
             Log.i(TAG, "Retrieved result: ");
@@ -64,12 +79,13 @@ public class FilterActivity extends AppCompatActivity {
 
             int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
             int priceUnder = Integer.parseInt(tvPriceUnder_str);
+            String category = categories.get(spDestinationType);
 
             JSONObject jsonResult = new JSONObject();
             try {
                 jsonResult.put("no_hours", noHours);
                 jsonResult.put("price_under", priceUnder);
-                jsonResult.put("destination_type", spDestinationType);
+                jsonResult.put("destination_type", category);
                 jsonResult.put("transportation_option", spTransportationType);
             } catch (JSONException e) {
                 e.printStackTrace();

@@ -66,7 +66,7 @@ public class MapFragment extends Fragment {
     Button btnStartSaveTour;
     TextView etTourName;
 
-    JSONObject filterResult;
+    JSONObject jsonFilteredResult;
     String intent = "Default";
 
     private List<Destination> filteredResults;
@@ -83,9 +83,9 @@ public class MapFragment extends Fragment {
 
     public MapFragment(String _intent, JSONObject _filterResult) {
         intent = _intent;
-        filterResult = _filterResult;
+        jsonFilteredResult = _filterResult;
         Log.i(TAG, intent);
-        Log.i(TAG, filterResult.toString());
+        Log.i(TAG, jsonFilteredResult.toString());
     }
 
     @Override
@@ -109,7 +109,13 @@ public class MapFragment extends Fragment {
         assert supportMapFragment != null;
 
         // Method reference: Google Map shows asynchronously with filtered data.
-        supportMapFragment.getMapAsync(this::getFilteredDestination);
+        supportMapFragment.getMapAsync(googleMap -> {
+            try {
+                getFilteredDestination(googleMap);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
         Log.i(TAG, "Map Created");
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
@@ -132,7 +138,7 @@ public class MapFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, @NonNull MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.back, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -152,7 +158,7 @@ public class MapFragment extends Fragment {
 
     private void goHomeActivity() {
         // Switch between MapFragment -> HomeFragment
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.map_fragment, new HomeFragment());
         fragmentManager.popBackStack();
@@ -163,37 +169,48 @@ public class MapFragment extends Fragment {
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
-    private void getFilteredDestination(GoogleMap googleMap) {
+    private void getFilteredDestination(GoogleMap googleMap) throws JSONException {
 
         final YelpClient yelpClient = new YelpClient();
+        String categories;
 
-        yelpClient.getResponse(-122.1483654685629, 37.484668049999996, new Callback() { // TODO: Get user's current location
+        if (intent.equals("Default")) {
+            categories = "";
+        } else {
+            categories = jsonFilteredResult.getString("destination_type");
+        }
+
+        yelpClient.getBusinesses(-122.1483654685629, 37.484668049999996, categories, new Callback() { // TODO: Get user's current location
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
+
                     String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
 
-                    if (intent == "Default") {
+                    if (intent.equals("Default")) {
                         filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
-                        filteredDestinations.addAll(filteredResults);
-
-                        // Avoid the "Only the original thread that created a view hierarchy
-                        // can touch its views adapter" error
-                        ((Activity) requireContext()).runOnUiThread(() -> {
-                            // Update the Adapter
-                            filteredDestinationAdapter.notifyDataSetChanged();
-
-                            setGoogleMap(googleMap, filteredDestinations);
-
-                            // Users can reorder locations
-                            setDragDropDestinations(rvDestinations);
-
-                        });
+                    } else {
+                        filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, jsonResults);
                     }
+
+                    filteredDestinations.addAll(filteredResults);
+
+                    // Avoid the "Only the original thread that created a view hierarchy
+                    // can touch its views adapter" error
+                    ((Activity) requireContext()).runOnUiThread(() -> {
+                        // Update the Adapter
+                        filteredDestinationAdapter.notifyDataSetChanged();
+
+                        setGoogleMap(googleMap, filteredDestinations);
+
+                        // Users can reorder locations
+                        setDragDropDestinations(rvDestinations);
+
+                    });
 
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
