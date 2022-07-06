@@ -61,7 +61,11 @@ public class HomeFragment extends Fragment {
 
         // TODO: Recommendation Algorithm
         cvContinueTour.setOnClickListener(v -> {
-            goFilterActivity();
+            try {
+                goFilterActivity();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         });
 
         // Setting up RecyclerView
@@ -73,9 +77,10 @@ public class HomeFragment extends Fragment {
         getRecentTours();
     }
 
-    private void goFilterActivity() {
+    private void goFilterActivity() throws Throwable {
         Intent intent = new Intent(getActivity(), FilterActivity.class);
         startActivity(intent);
+        finalize();
     }
 
     // HELPER METHODS
