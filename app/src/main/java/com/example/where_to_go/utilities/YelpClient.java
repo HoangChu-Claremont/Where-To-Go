@@ -1,5 +1,7 @@
 package com.example.where_to_go.utilities;
 
+import android.util.Log;
+
 import com.example.where_to_go.BuildConfig;
 
 import java.util.Objects;
@@ -14,8 +16,9 @@ public class YelpClient {
     private static final String BUSINESS_SEARCH_URL = "https://api.yelp.com/v3/businesses/search";
     private static final String BUSINESS_DETAILS_URL = "https://api.yelp.com/v3/businesses";
     private static final int YELP_LIMIT_PER_REQUEST = 50;
+    private static final String TAG = "YelpClient";
 
-    public void getBusinesses(double currentLongitude, double currentLatitude, String categories, Callback callback) {
+    public void getBusinesses (double currentLongitude, double currentLatitude, String categories, Callback callback) {
         OkHttpClient client = new OkHttpClient.Builder().build();
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(BUSINESS_SEARCH_URL))).newBuilder();
 
@@ -24,6 +27,8 @@ public class YelpClient {
         urlBuilder.addQueryParameter("limit", String.valueOf(YELP_LIMIT_PER_REQUEST));
         urlBuilder.addQueryParameter("categories", categories);
         String url = urlBuilder.build().toString();
+
+        Log.i(TAG, url);
 
         Request request = new Request.Builder()
                 .url(url)

@@ -4,14 +4,14 @@ import com.example.where_to_go.models.Destination;
 
 import java.util.Comparator;
 
-public class RatingComparator implements Comparator<Destination> {
+public class DestinationComparator implements Comparator<Destination> {
 
     @Override
     public int compare(Destination destination1, Destination destination2) {
         double rating1 = destination1.getRating();
         double rating2 = destination2.getRating();
 
-        if (rating1 < rating2) { // Reverse order
+        if (rating1 < rating2) { // Descending Order
             return 1;
         } else if (rating1 > rating2) {
             return -1;

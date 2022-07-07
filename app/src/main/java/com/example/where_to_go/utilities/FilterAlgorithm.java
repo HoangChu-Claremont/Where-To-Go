@@ -30,7 +30,7 @@ public class FilterAlgorithm {
             inputDestinations.add(destination);
         }
 
-        inputDestinations.sort(new RatingComparator());
+        inputDestinations.sort(new DestinationComparator());
 
         for (int pos = 0; pos < 10; ++pos) {
             outputDestinations.add(inputDestinations.get(pos));
@@ -39,13 +39,24 @@ public class FilterAlgorithm {
         return outputDestinations;
     }
 
+    @NonNull
     public static List<Destination> getFilteredTour(JSONObject jsonFilteredResult, JSONArray businesses) throws JSONException {
         List<Destination> outputDestinations = new ArrayList<>();
         List<Destination> inputDestinations = new ArrayList<>();
 
-        // Call YelpAPI with business id for each business in businesses
+        // TODO: Algorithms!
 
-        // Do fun stuff
+        for (int pos = 0; pos < businesses.length(); ++pos) {
+            Destination destination = new Destination();
+            destination.setData(businesses.getJSONObject(pos));
+            inputDestinations.add(destination);
+        }
+
+        inputDestinations.sort(new DestinationComparator());
+
+        for (int pos = 0; pos < 10; ++pos) {
+            outputDestinations.add(inputDestinations.get(pos));
+        }
 
         return outputDestinations;
     }

@@ -20,7 +20,7 @@
     <RelativeLayout
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="170dp"
+        android:layout_height="150dp"
         android:background="@android:color/white"
         android:orientation="vertical"
         app:behavior_hideable="false"
@@ -37,40 +37,43 @@
             android:layout_marginLeft="15dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/proximanova_semibold"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            tools:text="@string/destination_type" />
 
 
         <TextView
-            android:id="@+id/tvDestinationDetails"
+            android:id="@+id/tvDestinationPhone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tvDestinationName"
             android:layout_marginStart="15dp"
             android:layout_marginTop="3dp"
             android:fontFamily="@font/proximanova_regular"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="italic"
+            tools:text="Phone" />
+
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvDestinationPhone"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="3dp"
+            android:fontFamily="@font/proximanova_regular"
+            android:textSize="16sp"
+            tools:text="Address" />
 
         <TextView
             android:id="@+id/tvDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvDestinationDetails"
+            android:layout_below="@id/tvAddress"
             android:layout_marginStart="15dp"
             android:layout_marginTop="3dp"
             android:fontFamily="@font/proximanova_regular"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvHours"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tvDistance"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="3dp"
-            android:fontFamily="@font/proximanova_regular"
-            android:text="Opening Hours"
             android:textSize="16sp"
-            android:textStyle="italic" />
+            tools:text="Distance" />
 
         <RatingBar
             android:id="@+id/rbPathRating"
@@ -86,7 +89,7 @@
             android:id="@+id/btnBack"
             android:layout_width="193dp"
             android:layout_height="60dp"
-            android:layout_below="@id/tvHours"
+            android:layout_below="@id/tvDistance"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="0dp"
