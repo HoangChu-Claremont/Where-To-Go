@@ -1,6 +1,7 @@
 package com.example.where_to_go.fragments;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,13 +21,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Tour;
+import com.parse.Parse;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
@@ -59,7 +64,12 @@ public class HomeFragment extends Fragment {
 
         // TODO: Recommendation Algorithm
         cvContinueTour.setOnClickListener(v -> {
-
+            try {
+                goFilterActivity();
+                finalize();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         });
 
         // Setting up RecyclerView
@@ -69,11 +79,18 @@ public class HomeFragment extends Fragment {
         // Get Tour
         getFeaturedTours();
         getRecentTours();
+
     }
 
     // HELPER METHODS
 
-    private void setRecyclerView(RecyclerView recyclerView, ToursAdapter toursAdapter) {
+    private void goFilterActivity() throws Throwable {
+        Intent intent = new Intent(getActivity(), FilterActivity.class);
+        startActivity(intent);
+        finalize();
+    }
+
+    private void setRecyclerView(@NonNull RecyclerView recyclerView, ToursAdapter toursAdapter) {
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(tLayoutManager);
@@ -82,7 +99,7 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(toursAdapter);
     }
 
-    private void setFeaturedTourRecyclerView() {
+    private void setFeaturedToursRecyclerView() {
         RecyclerView rvFeaturedTours = requireView().findViewById(R.id.rvFeaturedTours);
 
         featuredTours = new ArrayList<>();

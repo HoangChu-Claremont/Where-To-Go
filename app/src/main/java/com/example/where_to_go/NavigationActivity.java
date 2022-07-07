@@ -61,8 +61,8 @@ public class NavigationActivity extends AppCompatActivity {
     // Logout Button
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflate = getMenuInflater();
-        inflate.inflate(R.menu.logout, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.logout, menu);
         return true;
     }
 

@@ -1,6 +1,8 @@
 package com.example.where_to_go.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +59,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
         public FeaturedTourViewHolder(@NonNull View itemView) {
             super(itemView);
+
             ivTourImage = itemView.findViewById(R.id.ivTourImage);
             ivTourName = itemView.findViewById(R.id.tvTourName);
             ibTourBookmark = itemView.findViewById(R.id.ibBookmark);
@@ -67,7 +70,8 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
         public void bind(@NonNull Tour featuredTour) {
             ivTourName.setText(featuredTour.getTourName());
-            Glide.with(context).load("http://via.placeholder.com/300.png").into(ivTourImage);
+
+            Glide.with(context).load("https://imgur.com/a/K0wRQZO").into(ivTourImage); // TODO: Set this image right
             showSavedStatus(featuredTour.getSaved());
 
             ibTourBookmark.setOnClickListener(v -> {
@@ -86,7 +90,6 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             int position = getAdapterPosition();
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
-
                 // Switch HomeFragment -> MapFragment
                 BottomNavigationView bottomNavigationView = ((NavigationActivity) context).bottomNavigationView;
                 bottomNavigationView.setSelectedItemId(R.id.action_map);

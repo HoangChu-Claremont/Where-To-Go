@@ -6,18 +6,25 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.where_to_go.MainActivity;
+import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
@@ -32,9 +39,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -60,13 +67,26 @@ public class MapFragment extends Fragment {
     Button btnStartSaveTour;
     TextView etTourName;
 
+    JSONObject jsonFilteredResult;
+    String intent = "Default";
+
+    private List<Destination> filteredResults;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     public MapFragment() {
         // Required empty public constructor
+    }
+
+    public MapFragment(String _intent, JSONObject _filterResult) {
+        intent = _intent;
+        jsonFilteredResult = _filterResult;
+        Log.i(TAG, intent);
+        Log.i(TAG, jsonFilteredResult.toString());
     }
 
     @Override
@@ -74,7 +94,6 @@ public class MapFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
-
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -91,8 +110,13 @@ public class MapFragment extends Fragment {
         assert supportMapFragment != null;
 
         // Method reference: Google Map shows asynchronously with filtered data.
-        supportMapFragment.getMapAsync(this::getFilteredDestination);
-
+        supportMapFragment.getMapAsync(googleMap -> {
+            try {
+                getFilteredDestination(googleMap);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
         Log.i(TAG, "Map Created");
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
@@ -114,27 +138,71 @@ public class MapFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.back, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    // Button clicks
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_back) {
+            Log.i(TAG, "onClick Back Button");
+            goHomeActivity();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     // HELPER METHODS
 
-    private void getFilteredDestination(GoogleMap googleMap) {
+    private void goHomeActivity() {
+        // Switch between MapFragment -> HomeFragment
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.map_fragment, new HomeFragment());
+        fragmentManager.popBackStack();
+        transaction.commit();
+
+        // Reset bottom navigation bar
+        BottomNavigationView bottomNavigationView = ((NavigationActivity) getContext()).bottomNavigationView;
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
+    }
+
+    private void getFilteredDestination(GoogleMap googleMap) throws JSONException {
 
         final YelpClient yelpClient = new YelpClient();
+        String categories;
 
-        yelpClient.getResponse(-122.1483654685629, 37.484668049999996, new Callback() {
+        if (intent.equals("Default")) {
+            categories = "";
+        } else {
+            categories = jsonFilteredResult.getString("destination_type");
+        }
 
+        yelpClient.getBusinesses(MainActivity.currentLongitude, MainActivity.currentLatitude, categories, new Callback() { // TODO: Get user's current location
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
+
                     String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 
                     JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                    List<Destination> filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+
+                    if (intent.equals("Default")) {
+                        filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+                    } else {
+                        filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, jsonResults);
+                    }
+
                     filteredDestinations.addAll(filteredResults);
 
                     // Avoid the "Only the original thread that created a view hierarchy
                     // can touch its views adapter" error
-                    ((Activity) requireContext()).runOnUiThread(() -> {
+
+                    requireActivity().runOnUiThread(() -> {
                         // Update the Adapter
                         filteredDestinationAdapter.notifyDataSetChanged();
 
@@ -220,6 +288,7 @@ public class MapFragment extends Fragment {
         }
     }
 
+    @NonNull
     private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
         Tour destinationCollections = new Tour();
 				
@@ -241,7 +310,7 @@ public class MapFragment extends Fragment {
         return destinationCollections;
     }
 
-    private void saveToDestinationsDB(Destination currentDestination, Tour currentTour) {
+    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) {
         String objectId = currentTour.getObjectId();
         Log.i(TAG, objectId);
 
