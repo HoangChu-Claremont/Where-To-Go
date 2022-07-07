@@ -6,9 +6,12 @@ import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
@@ -24,6 +27,8 @@ public class FilterActivity extends AppCompatActivity {
     private static final float HOURS_PER_DAY = 24;
     private static final String INTENT = "Filter";
     private static final String TAG = "FilterActivity";
+    private static final int ADD_CATEGORY_CLICK_LIMIT = 7;
+    private static int addCategoryClickCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +37,14 @@ public class FilterActivity extends AppCompatActivity {
 
         EditText tvNoDays = findViewById(R.id.tvCountDays);
         EditText tvPriceUnder = findViewById(R.id.tvPriceUnder);
-        Spinner spDestinationType = findViewById(R.id.spDestinationType);
+        Spinner spDestinationType = findViewById(R.id.spDestinationType0);
         Spinner spTransportation = findViewById(R.id.spTransportation);
-        Button btnSubmit = findViewById(R.id.btnSubmit);
-        Button btnReturn = findViewById(R.id.btnReturn);
 
+        for (int numId = 1; numId <= ADD_CATEGORY_CLICK_LIMIT; ++numId) {
+            setCategoryInVisible(numId);
+        }
+
+        Button btnSubmit = findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(v -> {
             try {
                 receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation);
@@ -45,11 +53,44 @@ public class FilterActivity extends AppCompatActivity {
             }
         });
 
+        Button btnReturn = findViewById(R.id.btnReturn);
         btnReturn.setOnClickListener(v -> {
             final FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.llFilter, new HomeFragment()).commit();
             finish();
         });
+
+        Button btnAddCategory = findViewById(R.id.btnAddCategory);
+        btnAddCategory.setOnClickListener(v -> {
+            if (addCategoryClickCount >= ADD_CATEGORY_CLICK_LIMIT) {
+                Log.i(TAG, "Remove id: " + (addCategoryClickCount - 1));
+                setCategoryInVisible(addCategoryClickCount);
+                --addCategoryClickCount;
+            }
+            else {
+                ++addCategoryClickCount;
+                Log.i(TAG, "Add id: " + addCategoryClickCount);
+                setCategoryVisible(addCategoryClickCount);
+            }
+
+            if (addCategoryClickCount == ADD_CATEGORY_CLICK_LIMIT) {
+                btnAddCategory.setText(R.string.remove_types);
+            } else {
+                btnAddCategory.setText(R.string.add_types_max_10);
+            }
+        });
+    }
+
+    private void setCategoryInVisible(int _addCategoryClickCount) {
+        String spDestinationId = "llDestinationType" + _addCategoryClickCount;
+        LinearLayout added_spDestinationType = findViewById(getResources().getIdentifier(spDestinationId, "id", getPackageName()));
+        added_spDestinationType.setVisibility(View.INVISIBLE);
+    }
+
+    private void setCategoryVisible(int _addCategoryClickCount) {
+        String spDestinationId = "llDestinationType" + _addCategoryClickCount;
+        LinearLayout added_spDestinationType = findViewById(getResources().getIdentifier(spDestinationId, "id", getPackageName()));
+        added_spDestinationType.setVisibility(View.VISIBLE);
     }
 
     // HELPER METHODS

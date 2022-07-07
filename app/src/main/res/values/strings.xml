@@ -36,6 +36,7 @@
     <string name="usd">USD</string>
     <string name="transportation">Transportation Options</string>
     <string name="add_types_max_10">Add Types (Max 10)</string>
+    <string name="remove_types">Remove Types</string>
 
     <string-array name="filter_list">
         <item>All</item>
