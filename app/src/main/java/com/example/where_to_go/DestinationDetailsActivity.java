@@ -3,6 +3,8 @@ package com.example.where_to_go;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -12,14 +14,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.fragments.MapFragment;
-import com.example.where_to_go.models.Destination;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class DestinationDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "DestinationDetailsActivity";
+    private static final String MILES = "miles";
+    private static final double KILOMETERS_TO_MILES = 1.609344;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,39 +28,49 @@ public class DestinationDetailsActivity extends AppCompatActivity {
 
         ImageView ivDestinationPhoto = findViewById(R.id.ivDestinationPhoto);
         TextView tvDestinationName = findViewById(R.id.tvDestinationName);
-        TextView tvDestinationDetails = findViewById(R.id.tvDestinationDetails); // TODO: Get this
-        TextView tvHours = findViewById(R.id.tvHours); // TODO: Calculate this
-        RatingBar rbPathRating = (RatingBar) findViewById(R.id.rbPathRating);
+        TextView tvDestinationPhone = findViewById(R.id.tvDestinationPhone);
+        TextView tvAddress = findViewById(R.id.tvAddress);
+        TextView tvDistance = findViewById(R.id.tvDistance);
+        RatingBar rbPathRating = findViewById(R.id.rbPathRating);
+
         Button btnBack = findViewById(R.id.btnBack);
-
-        // Un-pack the object transferred here.
-        // TODO: Input object isn't null, but output is null. FIX IT!
-        String strDestination = getIntent().getStringExtra(Destination.class.getSimpleName());
-        Destination destination = new Destination();
-        try {
-            JSONObject jsonDestination = new JSONObject(strDestination);
-            Log.i(TAG, jsonDestination.toString());
-            destination.setData(jsonDestination);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        // Set properties
-
-        // Set Image
-        Log.i(TAG, destination.getImageUrl());
-        Glide.with(this).load(destination.getImageUrl()).into(ivDestinationPhoto);
-
-        // Set text
-        tvDestinationName.setText(destination.getLocationName());
-        tvDestinationDetails.setText("Need Description!");
-        tvHours.setText("0");
-        rbPathRating.setRating((float) destination.getRating());
-
         btnBack.setOnClickListener(v -> {
             final FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.clDestinationDetails, new MapFragment()).commit();
+            fragmentManager.popBackStack();
             finish();
         });
+
+        setInformation(ivDestinationPhoto, tvDestinationName, tvDestinationPhone, tvAddress, tvDistance, rbPathRating);
+    }
+
+    // HELPER METHODS
+
+    private void setInformation(ImageView ivDestinationPhoto, TextView tvDestinationName, TextView tvDestinationPhone, TextView tvAddress, TextView tvDistance, RatingBar rbPathRating) {
+        // Un-pack the object transferred here.
+        Intent intent = getIntent();
+
+        // Numbers
+        double destinationRating = intent.getDoubleExtra("destination_rating", 0.0);
+        double destinationDistance = intent.getDoubleExtra("destination_distance", 0.00);
+        destinationDistance = destinationDistance / KILOMETERS_TO_MILES; // Convert from km to miles
+        destinationDistance = Math.round(destinationDistance * 10.0) / 10.0; // Round to 1 decimal value
+
+        // Text
+        String destinationPhoto = intent.getStringExtra("destination_photo");
+        String destinationName = intent.getStringExtra("destination_name");
+        String destinationPhone = intent.getStringExtra("destination_phone");
+        String destinationAddress = intent.getStringExtra("destination_address");
+        String str_destinationDistance = (destinationDistance > 0) ?  // Some destinations have exact LatLng
+                String.valueOf(destinationDistance) : "< 1.0";        // indicating a < 1.00-mile distance.
+
+        // Set Image
+        Glide.with(this).load(destinationPhoto).into(ivDestinationPhoto);
+
+        // Set text
+        tvDestinationName.setText(destinationName);
+        tvDestinationPhone.setText(destinationPhone);
+        rbPathRating.setRating((float) destinationRating);
+        tvDistance.setText(str_destinationDistance + " " + MILES);
+        tvAddress.setText(destinationAddress);
     }
 }

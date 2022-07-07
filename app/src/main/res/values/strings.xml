@@ -34,15 +34,34 @@
     <string name="price_under">Price Under</string>
     <string name="submit">Submit</string>
     <string name="usd">USD</string>
+    <string name="transportation">Transportation Options</string>
+    <string name="add_types_max_10">Add Types (Max 10)</string>
 
     <string-array name="filter_list">
-        <item>Any Categories</item>
-        <item>Category 1</item>
-        <item>Category 2</item>
-        <item>Category 3</item>
+        <item>All</item>
+        <item>Food</item>
+        <item>Nightlife</item>
+        <item>Restaurants</item>
+        <item>Shopping</item>
+        <item>Religious</item>
+        <item>Landmarks</item>
+        <item>Hotels</item>
+        <item>Natural</item>
+        <item>Arts and Entertainment</item>
+        <item>Beauty and Spas</item>
+        <item>Public Event</item>
+        <item>Financial Services</item>
+        <item>Healthcare</item>
     </string-array>
 
     <string-array name="currency">
         <item>USD</item>
+    </string-array>
+
+    <string-array name="transportation_options">
+        <item>Car</item>
+        <item>Bike</item>
+        <item>Walk</item>
+        <item>Public Transit</item>
     </string-array>
 </resources>

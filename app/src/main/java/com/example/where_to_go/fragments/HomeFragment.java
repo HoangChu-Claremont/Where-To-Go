@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,13 +25,15 @@ import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Tour;
+import com.parse.Parse;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeFragment extends Fragment {
-    // TODO: Work on moving between fragments
+
     private static final String TAG = "HomeFragment";
 
     private ToursAdapter featuredTourAdapter, recentTourAdapter;
@@ -61,7 +64,12 @@ public class HomeFragment extends Fragment {
 
         // TODO: Recommendation Algorithm
         cvContinueTour.setOnClickListener(v -> {
-            goFilterActivity();
+            try {
+                goFilterActivity();
+                finalize();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         });
 
         // Setting up RecyclerView
@@ -71,14 +79,16 @@ public class HomeFragment extends Fragment {
         // Get Tour
         getFeaturedTours();
         getRecentTours();
-    }
 
-    private void goFilterActivity() {
-        Intent intent = new Intent(getActivity(), FilterActivity.class);
-        startActivity(intent);
     }
 
     // HELPER METHODS
+
+    private void goFilterActivity() throws Throwable {
+        Intent intent = new Intent(getActivity(), FilterActivity.class);
+        startActivity(intent);
+        finalize();
+    }
 
     private void setRecyclerView(@NonNull RecyclerView recyclerView, ToursAdapter toursAdapter) {
         // Set Layout Manager
