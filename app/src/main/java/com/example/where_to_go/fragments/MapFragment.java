@@ -1,13 +1,11 @@
 package com.example.where_to_go.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.where_to_go.MainActivity;
+import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
@@ -160,14 +158,9 @@ public class MapFragment extends Fragment {
     private void goHomeActivity() {
         // Switch between MapFragment -> HomeFragment
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.map_fragment, new HomeFragment());
         fragmentManager.popBackStack();
-        transaction.commit();
 
         // Reset bottom navigation bar
-
-        // TODO: Error hitting back after filtering from MapFragment
         BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
@@ -183,7 +176,7 @@ public class MapFragment extends Fragment {
             category = jsonFilteredResult.getString("destination_type");
         }
 
-        yelpClient.getBusinesses(MainActivity.currentLongitude, MainActivity.currentLatitude, category, new Callback() {
+        yelpClient.getBusinesses(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
