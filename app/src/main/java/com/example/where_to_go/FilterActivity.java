@@ -38,7 +38,11 @@ public class FilterActivity extends AppCompatActivity {
         Button btnReturn = findViewById(R.id.btnReturn);
 
         btnSubmit.setOnClickListener(v -> {
-            receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation);
+            try {
+                receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         });
 
         btnReturn.setOnClickListener(v -> {
@@ -50,28 +54,14 @@ public class FilterActivity extends AppCompatActivity {
 
     // HELPER METHODS
 
-    private void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull EditText _tvPriceUnder, @NonNull Spinner _spDestinationType, @NonNull Spinner _spTransportation) {
+    private void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull EditText _tvPriceUnder, @NonNull Spinner _spDestinationType, @NonNull Spinner _spTransportation) throws JSONException {
         String tvNoDays_str = _tvNoDays.getText().toString();
         String tvPriceUnder_str = _tvPriceUnder.getText().toString();
         String spTransportationType = _spTransportation.getSelectedItem().toString();
 
         String spDestinationType = _spDestinationType.getSelectedItem().toString(); // TODO: Should be made from a list
 
-        Map<String, String> categories = new HashMap<>();
-
-        categories.put("Food", "food");
-        categories.put("Nightlife", "nightlife");
-        categories.put("Restaurants", "restaurants");
-        categories.put("Shopping", "shopping");
-        categories.put("Religious", "religiousorgs");
-        categories.put("Landmarks", "landmarks");
-        categories.put("Hotels", "hotelstravel");
-        categories.put("Natural", "active");
-        categories.put("Arts & Entertainment", "arts");
-        categories.put("Beauty & Spas", "beautysvc");
-        categories.put("Public Event", "eventservices");
-        categories.put("Financial Services", "financialservices");
-        categories.put("Healthcare", "health");
+        Map<String, String> categories = getBaseCategories();
 
         if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty() && !spDestinationType.isEmpty()) {
             Log.i(TAG, "Retrieved result: ");
@@ -84,19 +74,43 @@ public class FilterActivity extends AppCompatActivity {
             int priceUnder = Integer.parseInt(tvPriceUnder_str);
             String category = categories.get(spDestinationType);
 
-            JSONObject jsonResult = new JSONObject();
-            try {
-                jsonResult.put("no_hours", noHours);
-                jsonResult.put("price_under", priceUnder);
-                jsonResult.put("destination_type", category);
-                jsonResult.put("transportation_option", spTransportationType);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            JSONObject jsonFilterObject = getJsonFilterObject(noHours, priceUnder, category, spTransportationType);
 
+            // Return to MapFragment
             FragmentManager fragmentManager = getSupportFragmentManager();
             Log.i(TAG, "Begin to Map");
-            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonResult)).commit();
+            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).commit();
         }
+    }
+
+    private JSONObject getJsonFilterObject(int noHours, int priceUnder, String category, String spTransportationType) throws JSONException {
+        JSONObject jsonFilterObject = new JSONObject();
+
+        jsonFilterObject.put("no_hours", noHours);
+        jsonFilterObject.put("price_under", priceUnder);
+        jsonFilterObject.put("destination_type", category);
+        jsonFilterObject.put("transportation_option", spTransportationType);
+
+        return jsonFilterObject;
+    }
+
+    private Map<String, String> getBaseCategories() {
+        Map<String, String> _categories = new HashMap<>();
+
+        _categories.put("Food", "food");
+        _categories.put("Nightlife", "nightlife");
+        _categories.put("Restaurants", "restaurants");
+        _categories.put("Shopping", "shopping");
+        _categories.put("Religious", "religiousorgs");
+        _categories.put("Landmarks", "landmarks");
+        _categories.put("Hotels", "hotelstravel");
+        _categories.put("Natural", "active");
+        _categories.put("Arts & Entertainment", "arts");
+        _categories.put("Beauty & Spas", "beautysvc");
+        _categories.put("Public Event", "eventservices");
+        _categories.put("Financial Services", "financialservices");
+        _categories.put("Healthcare", "health");
+
+        return _categories;
     }
 }
