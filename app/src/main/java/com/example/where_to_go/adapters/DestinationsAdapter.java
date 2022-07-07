@@ -10,13 +10,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.DestinationDetailsActivity;
+import com.example.where_to_go.MainActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
-import com.google.gson.Gson;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,13 +96,24 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
                 // get the post at the position, this won't work if the class is static
                 Destination destination = destinations.get(position);
                 // create intent for the new activity
-                Gson gson = new Gson();
-                String str_destination = gson.toJson(destination);
-
                 Intent intent = new Intent(context, DestinationDetailsActivity.class);
-                intent.putExtra(Destination.class.getSimpleName(), str_destination);
-                // show the activity
-                context.startActivity(intent);
+                // Add information to the intent
+                intent.putExtra("destination_photo", destination.getImageUrl());
+                intent.putExtra("destination_name", destination.getLocationName());
+                intent.putExtra("destination_phone", destination.getPhone());
+                intent.putExtra("destination_rating", destination.getRating());
+                // Add distance
+                destination.setDistance(MainActivity.currentLongitude, MainActivity.currentLatitude);
+                intent.putExtra("destination_distance", destination.getDistance());
+                intent.putExtra("destination_address", destination.getAddress());
+
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+//                 show the activity
+                 context.startActivity(intent);
             }
         }
     }

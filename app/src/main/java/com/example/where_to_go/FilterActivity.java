@@ -16,6 +16,7 @@ import com.example.where_to_go.fragments.MapFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class FilterActivity extends AppCompatActivity {
@@ -36,7 +37,9 @@ public class FilterActivity extends AppCompatActivity {
         Button btnSubmit = findViewById(R.id.btnSubmit);
         Button btnReturn = findViewById(R.id.btnReturn);
 
-        btnSubmit.setOnClickListener(v -> receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation));
+        btnSubmit.setOnClickListener(v -> {
+            receiveFilterResult(tvNoDays, tvPriceUnder, spDestinationType, spTransportation);
+        });
 
         btnReturn.setOnClickListener(v -> {
             final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -54,7 +57,7 @@ public class FilterActivity extends AppCompatActivity {
 
         String spDestinationType = _spDestinationType.getSelectedItem().toString(); // TODO: Should be made from a list
 
-        Map<String, String> categories = null;
+        Map<String, String> categories = new HashMap<>();
 
         categories.put("Food", "food");
         categories.put("Nightlife", "nightlife");
@@ -93,7 +96,7 @@ public class FilterActivity extends AppCompatActivity {
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             Log.i(TAG, "Begin to Map");
-            fragmentManager.beginTransaction().replace(R.id.llFilter, new MapFragment(INTENT, jsonResult)).commit();
+            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonResult)).commit();
         }
     }
 }

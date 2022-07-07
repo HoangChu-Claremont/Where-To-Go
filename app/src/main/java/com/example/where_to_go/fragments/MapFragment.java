@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.where_to_go.MainActivity;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
@@ -165,7 +166,7 @@ public class MapFragment extends Fragment {
         transaction.commit();
 
         // Reset bottom navigation bar
-        BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
+        BottomNavigationView bottomNavigationView = ((NavigationActivity) getContext()).bottomNavigationView;
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
@@ -180,8 +181,7 @@ public class MapFragment extends Fragment {
             categories = jsonFilteredResult.getString("destination_type");
         }
 
-        yelpClient.getBusinesses(-122.1483654685629, 37.484668049999996, categories, new Callback() { // TODO: Get user's current location
-
+        yelpClient.getBusinesses(MainActivity.currentLongitude, MainActivity.currentLatitude, categories, new Callback() { // TODO: Get user's current location
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
@@ -201,7 +201,8 @@ public class MapFragment extends Fragment {
 
                     // Avoid the "Only the original thread that created a view hierarchy
                     // can touch its views adapter" error
-                    ((Activity) requireContext()).runOnUiThread(() -> {
+
+                    requireActivity().runOnUiThread(() -> {
                         // Update the Adapter
                         filteredDestinationAdapter.notifyDataSetChanged();
 

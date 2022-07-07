@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clFilter"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FilterActivity">
@@ -56,8 +57,8 @@
                     android:id="@+id/tvPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:layout_marginEnd="20dp"
+                    android:layout_weight="1"
 
                     android:gravity="start | center"
                     android:text="@string/price_under" />
@@ -114,17 +115,17 @@
 
                 <TextView
                     android:id="@+id/tvDestinationType"
-                    android:layout_weight="0.3333"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
                     android:gravity="start | center"
                     android:text="@string/destination_type" />
 
                 <Spinner
                     android:id="@+id/spDestinationType"
-                    android:layout_weight="0.3333"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
                     android:drawSelectorOnTop="true"
                     android:entries="@array/filter_list"
                     android:gravity="center"
@@ -132,9 +133,9 @@
 
                 <SeekBar
                     android:id="@+id/seekBar"
-                    android:layout_weight="0.3333"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
 
             </LinearLayout>
 
