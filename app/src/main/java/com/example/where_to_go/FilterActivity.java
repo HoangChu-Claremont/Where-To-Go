@@ -2,8 +2,12 @@ package com.example.where_to_go;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.util.Log;
@@ -18,6 +22,8 @@ import android.widget.Toast;
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.utilities.SeekBarComparator;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +43,12 @@ public class FilterActivity extends AppCompatActivity {
     private static final String TAG = "FilterActivity";
     private static final int TOTAL_CATEGORIES = 8;
     private static final int TOTAL_PERCENTAGE = 100;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     private static int addCategoryClickCount = -1;
+
+    boolean locationPermissionGranted = false;
+    public static double currentLongitude, currentLatitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +60,21 @@ public class FilterActivity extends AppCompatActivity {
         Spinner spPrice = findViewById(R.id.spPrice);
         SeekBar[] seekBars = new SeekBar[TOTAL_CATEGORIES];
 
-        for (int id = 0; id < TOTAL_CATEGORIES; ++id) {
+        if (hasPermission()) {
+            Log.i(TAG, "Getting current location...");
+            getDeviceLocation();
+        } else {
+            Log.i(TAG, "Requesting location permission...");
+            requestPermissions();
+        }
+
+
+        for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Add all currently existing seekbars
             String seekBarId = "seekBar" + id;
             seekBars[id] = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
         }
 
-        for (int numId = 0; numId < TOTAL_CATEGORIES; ++numId) {
+        for (int numId = 0; numId < TOTAL_CATEGORIES; ++numId) { // Init all of them invisible
             setCategoryInVisible(numId);
         }
 
@@ -70,7 +90,7 @@ public class FilterActivity extends AppCompatActivity {
         Button btnReturn = findViewById(R.id.btnReturn);
         btnReturn.setOnClickListener(v -> {
             final FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.llFilter, new HomeFragment()).commit();
+            fragmentManager.popBackStack();
             finish();
         });
 
@@ -116,6 +136,47 @@ public class FilterActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private boolean hasPermission() {
+        return ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[] {
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        }, 1);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        locationPermissionGranted = false;
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) { // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getDeviceLocation();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            Toast.makeText(this, "Please allow location permission for your best experience", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getDeviceLocation() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                currentLongitude = location.getLongitude();
+                currentLatitude = location.getLatitude();
+                Log.i(TAG, "Current Longitude: " + currentLongitude);
+                Log.i(TAG, "Current Latitude: " + currentLatitude);
+            }
+        });
     }
     
     @NonNull
@@ -176,6 +237,7 @@ public class FilterActivity extends AppCompatActivity {
         String spPrice = _spPrice.getSelectedItem().toString();
         String spTransportationType = _spTransportation.getSelectedItem().toString();
         String category = getCategory(_seekBars);
+        List<Integer> preferences = getPreferences(_seekBars);
 
         if (!tvNoDays_str.isEmpty()) {
             Log.i(TAG, "Retrieved result: ");
@@ -186,17 +248,37 @@ public class FilterActivity extends AppCompatActivity {
 
             // Prepare transaction materials
             int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
-            JSONObject jsonFilterObject = getJsonFilterObject(noHours, spPrice, category, spTransportationType);
+            JSONObject jsonFilterObject = getJsonFilterObject(noHours, spPrice, category, spTransportationType, preferences);
 
             // Return to MapFragment
             FragmentManager fragmentManager = getSupportFragmentManager();
             Log.i(TAG, "Begin to Map");
             fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).commit();
+        } else {
+            Toast.makeText(this, "Number of days is required!", Toast.LENGTH_SHORT).show();
         }
     }
 
     @NonNull
-    private String getCategory(SeekBar[] _seekBars) {
+    private List<Integer> getPreferences(@NonNull SeekBar[] _seekBars) {
+        List<Integer> preferences = new ArrayList<>();
+        HashSet<Integer> category_set = new HashSet<>();
+
+        for (SeekBar currentSeekBar : _seekBars) {
+            int currentProgress = currentSeekBar.getProgress();
+            if (currentSeekBar.getProgress() > 0) {
+                if (!category_set.contains(currentProgress)) {
+                    category_set.add(currentProgress);
+                    preferences.add(currentProgress);
+                }
+            }
+        }
+
+        return preferences;
+    }
+
+    @NonNull
+    private String getCategory(@NonNull SeekBar[] _seekBars) {
         HashSet<String> category_set = new HashSet<>();
         List<String> categories = new ArrayList<>();
         StringBuilder returnCategory = new StringBuilder();
@@ -234,13 +316,14 @@ public class FilterActivity extends AppCompatActivity {
     }
 
     @NonNull
-    private JSONObject getJsonFilterObject(int noHours, String spPrice, String category, String spTransportationType) throws JSONException {
+    private JSONObject getJsonFilterObject(int _noHours, String _spPrice, String _category, String _spTransportationType, List<Integer> _preferences) throws JSONException {
         JSONObject jsonFilterObject = new JSONObject();
 
-        jsonFilterObject.put("no_hours", noHours);
-        jsonFilterObject.put("price", spPrice);
-        jsonFilterObject.put("destination_type", category);
-        jsonFilterObject.put("transportation_option", spTransportationType);
+        jsonFilterObject.put("no_hours", _noHours);
+        jsonFilterObject.put("price", _spPrice);
+        jsonFilterObject.put("destination_type", _category);
+        jsonFilterObject.put("transportation_option", _spTransportationType);
+        jsonFilterObject.put("preference_values", _preferences);
 
         return jsonFilterObject;
     }

@@ -40,6 +40,7 @@ public class Destination extends ParseObject {
         setImageUrl(jsonObject);
         setPhone(jsonObject);
         setAddress(jsonObject);
+        setDistance(jsonObject);
     }
 
     // GETTER
@@ -91,7 +92,14 @@ public class Destination extends ParseObject {
         address = street + ", " + county;
     }
 
-    public void setDistance(double origLongitude, double origLatitude) {
+    private void setDistance(@NonNull JSONObject jsonObject) throws JSONException {
+        final double METERS_TO_MILES = 0.00062137;
+        distance = jsonObject.getDouble("distance");
+        distance = distance * METERS_TO_MILES; // Convert from meters to miles
+        distance = Math.round(distance * 10.0) / 10.0; // Round to 1 decimal value
+    }
+
+    public void setCustomDistance(double origLongitude, double origLatitude) {
         double destinationLongitude = getLongitude();
         double destinationLatitude = getLatitude();
         distance = Math.sqrt((destinationLongitude - origLongitude) * (destinationLatitude - origLongitude) +

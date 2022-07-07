@@ -12,6 +12,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -83,10 +84,11 @@ public class HomeFragment extends Fragment {
 
     // HELPER METHODS
 
-    private void goFilterActivity() throws Throwable {
+    private void goFilterActivity() {
         Intent intent = new Intent(getActivity(), FilterActivity.class);
+        final FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction().addToBackStack(null).commit();
         startActivity(intent);
-        finalize();
     }
 
     private void setRecyclerView(@NonNull RecyclerView recyclerView, ToursAdapter toursAdapter) {

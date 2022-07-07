@@ -30,10 +30,9 @@
     <string name="logout">Logout</string>
     <string name="btn_back">Back</string>
     <string name="number_of_days">Number Of Days</string>
-    <string name="destination_type">Destination Type</string>
-    <string name="price_under">Price Under</string>
+    <string name="destination_type">Category</string>
+    <string name="price_under">Price</string>
     <string name="submit">Submit</string>
-    <string name="usd">USD</string>
     <string name="transportation">Transportation Options</string>
     <string name="add_types_max_10">Add Categories</string>
     <string name="remove_types">Remove Categories</string>

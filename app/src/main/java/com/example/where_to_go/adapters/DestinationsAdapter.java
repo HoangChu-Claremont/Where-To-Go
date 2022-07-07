@@ -123,7 +123,6 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             _intent.putExtra("destination_rating", destination.getRating());
 
             // Add distance
-            destination.setDistance(MainActivity.currentLongitude, MainActivity.currentLatitude);
             _intent.putExtra("destination_distance", destination.getDistance());
             _intent.putExtra("destination_address", destination.getAddress());
 
