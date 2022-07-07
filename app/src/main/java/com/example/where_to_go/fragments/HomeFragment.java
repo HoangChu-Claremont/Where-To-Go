@@ -62,7 +62,6 @@ public class HomeFragment extends Fragment {
 
         CardView cvContinueTour = view.findViewById(R.id.cvContinueTour);
 
-        // TODO: Recommendation Algorithm
         cvContinueTour.setOnClickListener(v -> {
             try {
                 goFilterActivity();

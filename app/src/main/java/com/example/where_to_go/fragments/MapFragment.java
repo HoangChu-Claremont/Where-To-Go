@@ -166,26 +166,27 @@ public class MapFragment extends Fragment {
         transaction.commit();
 
         // Reset bottom navigation bar
-        BottomNavigationView bottomNavigationView = ((NavigationActivity) getContext()).bottomNavigationView;
+
+        // TODO: Error hitting back after filtering from MapFragment
+        BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException {
 
         final YelpClient yelpClient = new YelpClient();
-        String categories;
+        String category;
 
         if (intent.equals("Default")) {
-            categories = "";
+            category = "";
         } else {
-            categories = jsonFilteredResult.getString("destination_type");
+            category = jsonFilteredResult.getString("destination_type");
         }
 
-        yelpClient.getBusinesses(MainActivity.currentLongitude, MainActivity.currentLatitude, categories, new Callback() { // TODO: Get user's current location
+        yelpClient.getBusinesses(MainActivity.currentLongitude, MainActivity.currentLatitude, category, new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
-
                     String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 

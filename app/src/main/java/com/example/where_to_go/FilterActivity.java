@@ -122,7 +122,9 @@ public class FilterActivity extends AppCompatActivity {
     private List<SeekBar> getVisibleSeekBars(@NonNull SeekBar[] seekBars) {
         List<SeekBar> visibleSeekBars = new ArrayList<>();
         for (SeekBar seekBar : seekBars) {
-            visibleSeekBars.add(seekBar);
+            if (seekBar.getProgress() > 0) {
+                visibleSeekBars.add(seekBar);
+            }
         }
         return visibleSeekBars;
     }
@@ -175,7 +177,7 @@ public class FilterActivity extends AppCompatActivity {
         String spTransportationType = _spTransportation.getSelectedItem().toString();
         String category = getCategory(_seekBars);
 
-        if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty() && (category.length() > 0)) {
+        if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty()) {
             Log.i(TAG, "Retrieved result: ");
             Log.i(TAG, "Number of days: " + tvNoDays_str);
             Log.i(TAG, "Price Under: " + tvPriceUnder_str);
@@ -199,7 +201,6 @@ public class FilterActivity extends AppCompatActivity {
         HashSet<String> category_set = new HashSet<>();
         List<String> categories = new ArrayList<>();
         StringBuilder returnCategory = new StringBuilder();
-        returnCategory.append("");
 
         for (int i = 0; i < _seekBars.length; ++i) {
             SeekBar currentSeekBar = _seekBars[i];
@@ -227,6 +228,9 @@ public class FilterActivity extends AppCompatActivity {
             returnCategory.append(categories.get(i));
         }
 
+        if (returnCategory.length() == 0) {
+            return "";
+        }
         return returnCategory.toString();
     }
 
