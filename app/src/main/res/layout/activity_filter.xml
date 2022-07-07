@@ -63,17 +63,10 @@
                     android:gravity="start | center"
                     android:text="@string/price_under" />
 
-                <EditText
-                    android:id="@+id/tvPriceUnder"
-                    android:layout_width="114dp"
-                    android:layout_height="match_parent"
-                    android:autofillHints=""
-                    android:gravity="center" />
-
                 <Spinner
-                    android:id="@+id/spCurrency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/spPrice"
+                    android:layout_width="185dp"
+                    android:layout_height="match_parent"
                     android:drawSelectorOnTop="true"
                     android:entries="@array/currency"
                     android:gravity="center"

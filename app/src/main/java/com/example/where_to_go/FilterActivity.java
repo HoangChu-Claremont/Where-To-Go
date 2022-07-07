@@ -45,8 +45,8 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter);
 
         EditText tvNoDays = findViewById(R.id.tvCountDays);
-        EditText tvPriceUnder = findViewById(R.id.tvPriceUnder);
         Spinner spTransportation = findViewById(R.id.spTransportation);
+        Spinner spPrice = findViewById(R.id.spPrice);
         SeekBar[] seekBars = new SeekBar[TOTAL_CATEGORIES];
 
         for (int id = 0; id < TOTAL_CATEGORIES; ++id) {
@@ -61,7 +61,7 @@ public class FilterActivity extends AppCompatActivity {
         Button btnSubmit = findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(v -> {
             try {
-                receiveFilterResult(tvNoDays, tvPriceUnder, spTransportation, seekBars);
+                receiveFilterResult(tvNoDays, spPrice, spTransportation, seekBars);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -171,23 +171,22 @@ public class FilterActivity extends AppCompatActivity {
         llDestinationType.setVisibility(View.VISIBLE);
     }
 
-    private void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull EditText _tvPriceUnder, @NonNull Spinner _spTransportation, SeekBar[] _seekBars) throws JSONException {
+    private void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull Spinner _spPrice, @NonNull Spinner _spTransportation, SeekBar[] _seekBars) throws JSONException {
         String tvNoDays_str = _tvNoDays.getText().toString();
-        String tvPriceUnder_str = _tvPriceUnder.getText().toString();
+        String spPrice = _spPrice.getSelectedItem().toString();
         String spTransportationType = _spTransportation.getSelectedItem().toString();
         String category = getCategory(_seekBars);
 
-        if (!tvNoDays_str.isEmpty() && !tvPriceUnder_str.isEmpty()) {
+        if (!tvNoDays_str.isEmpty()) {
             Log.i(TAG, "Retrieved result: ");
             Log.i(TAG, "Number of days: " + tvNoDays_str);
-            Log.i(TAG, "Price Under: " + tvPriceUnder_str);
+            Log.i(TAG, "Price: " + spPrice);
             Log.i(TAG, "Destination Type: " + category);
             Log.i(TAG, "Transportation Type: " + spTransportationType);
 
             // Prepare transaction materials
             int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
-            int priceUnder = Integer.parseInt(tvPriceUnder_str);
-            JSONObject jsonFilterObject = getJsonFilterObject(noHours, priceUnder, category, spTransportationType);
+            JSONObject jsonFilterObject = getJsonFilterObject(noHours, spPrice, category, spTransportationType);
 
             // Return to MapFragment
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -235,11 +234,11 @@ public class FilterActivity extends AppCompatActivity {
     }
 
     @NonNull
-    private JSONObject getJsonFilterObject(int noHours, int priceUnder, String category, String spTransportationType) throws JSONException {
+    private JSONObject getJsonFilterObject(int noHours, String spPrice, String category, String spTransportationType) throws JSONException {
         JSONObject jsonFilterObject = new JSONObject();
 
         jsonFilterObject.put("no_hours", noHours);
-        jsonFilterObject.put("price_under", priceUnder);
+        jsonFilterObject.put("price", spPrice);
         jsonFilterObject.put("destination_type", category);
         jsonFilterObject.put("transportation_option", spTransportationType);
 
