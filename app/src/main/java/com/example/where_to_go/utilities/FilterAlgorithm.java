@@ -30,7 +30,7 @@ public class FilterAlgorithm {
             inputDestinations.add(destination);
         }
 
-        inputDestinations.sort(new RatingComparator());
+        inputDestinations.sort(new DestinationComparator());
 
         for (int pos = 0; pos < 10; ++pos) {
             outputDestinations.add(inputDestinations.get(pos));
