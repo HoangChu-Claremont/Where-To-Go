@@ -55,7 +55,7 @@
 
                 <TextView
                     android:id="@+id/tvPrice"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="20dp"
                     android:layout_weight="1"
@@ -63,17 +63,10 @@
                     android:gravity="start | center"
                     android:text="@string/price_under" />
 
-                <EditText
-                    android:id="@+id/tvPriceUnder"
-                    android:layout_width="114dp"
-                    android:layout_height="match_parent"
-                    android:autofillHints=""
-                    android:gravity="center" />
-
                 <Spinner
-                    android:id="@+id/spCurrency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/spPrice"
+                    android:layout_width="185dp"
+                    android:layout_height="match_parent"
                     android:drawSelectorOnTop="true"
                     android:entries="@array/currency"
                     android:gravity="center"
@@ -107,14 +100,15 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/llDestinationType"
+                android:id="@+id/llDestinationType0"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                tools:visibility="invisible">
 
                 <TextView
-                    android:id="@+id/tvDestinationType"
+                    android:id="@+id/tvDestinationType0"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.3333"
@@ -122,7 +116,7 @@
                     android:text="@string/destination_type" />
 
                 <Spinner
-                    android:id="@+id/spDestinationType"
+                    android:id="@+id/spDestinationType0"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.3333"
@@ -132,7 +126,313 @@
                     android:spinnerMode="dropdown" />
 
                 <SeekBar
-                    android:id="@+id/seekBar"
+                    android:id="@+id/seekBar0"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType1"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType2"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType3"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType4"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType5"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType6"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType6"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType6"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType7"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType8"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType8"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType8"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar8"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3333" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llDestinationType9"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tvDestinationType9"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:gravity="start | center"
+                    android:text="@string/destination_type" />
+
+                <Spinner
+                    android:id="@+id/spDestinationType9"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3333"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/filter_list"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <SeekBar
+                    android:id="@+id/seekBar9"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3333" />

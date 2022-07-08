@@ -69,8 +69,8 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private static final String TAG = "FeaturedTourViewHolder";
-        private ImageView ivDestinationImage;
-        private TextView tvDestinationName;
+        private final ImageView ivDestinationImage;
+        private final TextView tvDestinationName;
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
@@ -92,29 +92,41 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             // gets item position
             int position = getAdapterPosition();
             // make sure the position is valid, i.e. actually exists in the view
+            Log.i(TAG, String.valueOf(position));
             if (position != RecyclerView.NO_POSITION) {
                 // get the post at the position, this won't work if the class is static
                 Destination destination = destinations.get(position);
                 // create intent for the new activity
                 Intent intent = new Intent(context, DestinationDetailsActivity.class);
-                // Add information to the intent
-                intent.putExtra("destination_photo", destination.getImageUrl());
-                intent.putExtra("destination_name", destination.getLocationName());
-                intent.putExtra("destination_phone", destination.getPhone());
-                intent.putExtra("destination_rating", destination.getRating());
-                // Add distance
-                destination.setDistance(MainActivity.currentLongitude, MainActivity.currentLatitude);
-                intent.putExtra("destination_distance", destination.getDistance());
-                intent.putExtra("destination_address", destination.getAddress());
 
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.addToBackStack(null);
-                transaction.commit();
+                addInformationToIntent(intent, destination);
 
-//                 show the activity
-                 context.startActivity(intent);
+                goToDestinationDetails(intent);
             }
+        }
+
+        // HELPER METHODS
+
+        private void goToDestinationDetails(Intent intent) {
+            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.addToBackStack(null);
+            transaction.commit();
+            context.startActivity(intent);
+        }
+
+        private Intent addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
+            // Add information to the intent
+            _intent.putExtra("destination_photo", destination.getImageUrl());
+            _intent.putExtra("destination_name", destination.getLocationName());
+            _intent.putExtra("destination_phone", destination.getPhone());
+            _intent.putExtra("destination_rating", destination.getRating());
+
+            // Add distance
+            _intent.putExtra("destination_distance", destination.getDistance());
+            _intent.putExtra("destination_address", destination.getAddress());
+
+            return _intent;
         }
     }
 }

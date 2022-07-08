@@ -2,24 +2,18 @@ package com.example.where_to_go;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
-
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
-import com.example.where_to_go.fragments.MapFragment;
 
 public class DestinationDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "DestinationDetailsActivity";
     private static final String MILES = "miles";
-    private static final double KILOMETERS_TO_MILES = 1.609344;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +46,6 @@ public class DestinationDetailsActivity extends AppCompatActivity {
         // Numbers
         double destinationRating = intent.getDoubleExtra("destination_rating", 0.0);
         double destinationDistance = intent.getDoubleExtra("destination_distance", 0.00);
-        destinationDistance = destinationDistance / KILOMETERS_TO_MILES; // Convert from km to miles
-        destinationDistance = Math.round(destinationDistance * 10.0) / 10.0; // Round to 1 decimal value
 
         // Text
         String destinationPhoto = intent.getStringExtra("destination_photo");

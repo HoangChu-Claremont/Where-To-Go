@@ -1,13 +1,11 @@
 package com.example.where_to_go.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.where_to_go.MainActivity;
+import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
@@ -160,32 +158,28 @@ public class MapFragment extends Fragment {
     private void goHomeActivity() {
         // Switch between MapFragment -> HomeFragment
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.map_fragment, new HomeFragment());
         fragmentManager.popBackStack();
-        transaction.commit();
 
         // Reset bottom navigation bar
-        BottomNavigationView bottomNavigationView = ((NavigationActivity) getContext()).bottomNavigationView;
+        BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException {
 
         final YelpClient yelpClient = new YelpClient();
-        String categories;
+        String category;
 
         if (intent.equals("Default")) {
-            categories = "";
+            category = "";
         } else {
-            categories = jsonFilteredResult.getString("destination_type");
+            category = jsonFilteredResult.getString("destination_type");
         }
 
-        yelpClient.getBusinesses(MainActivity.currentLongitude, MainActivity.currentLatitude, categories, new Callback() { // TODO: Get user's current location
+        yelpClient.getBusinesses(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 try {
-
                     String responseData = Objects.requireNonNull(response.body()).string();
                     JSONObject jsonData = new JSONObject(responseData);
 
