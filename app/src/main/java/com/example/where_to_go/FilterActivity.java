@@ -201,7 +201,11 @@ public class FilterActivity extends AppCompatActivity {
     private void resetInvisibleSeekBarValue(int addCategoryClickCount) {
         String seekBarId = "seekBar" + addCategoryClickCount;
         SeekBar seekBar = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
-        seekBar.setProgress(0);
+        if (addCategoryClickCount == 0) {
+            seekBar.setProgress(100);
+        } else {
+            seekBar.setProgress(0);
+        }
     }
 
     // HELPER METHODS
