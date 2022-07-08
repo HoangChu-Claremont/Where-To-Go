@@ -9,7 +9,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +18,6 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.utilities.SeekBarComparator;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -29,8 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,15 +64,7 @@ public class FilterActivity extends AppCompatActivity {
             requestPermissions();
         }
 
-
-        for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Add all currently existing seekbars
-            String seekBarId = "seekBar" + id;
-            seekBars[id] = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
-        }
-
-        for (int numId = 0; numId < TOTAL_CATEGORIES; ++numId) { // Init all of them invisible
-            setCategoryInVisible(numId);
-        }
+        initCategories(seekBars);
 
         Button btnSubmit = findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(v -> {
@@ -138,6 +126,17 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
+    private void initCategories(SeekBar[] _seekBars) {
+        for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Add all currently existing seekbars
+            String seekBarId = "seekBar" + id;
+            _seekBars[id] = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
+        }
+
+        for (int numId = 0; numId < TOTAL_CATEGORIES; ++numId) { // Init all of them invisible
+            setCategoryInVisible(numId);
+        }
+    }
+
     private boolean hasPermission() {
         return ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -150,7 +149,6 @@ public class FilterActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_COARSE_LOCATION
         }, 1);
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -165,6 +163,9 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
+
+    // HELPER METHODS
+
     @SuppressLint("MissingPermission")
     private void getDeviceLocation() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -178,7 +179,7 @@ public class FilterActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     @NonNull
     private List<SeekBar> getVisibleSeekBars(@NonNull SeekBar[] seekBars) {
         List<SeekBar> visibleSeekBars = new ArrayList<>();
@@ -201,10 +202,12 @@ public class FilterActivity extends AppCompatActivity {
     private void resetInvisibleSeekBarValue(int addCategoryClickCount) {
         String seekBarId = "seekBar" + addCategoryClickCount;
         SeekBar seekBar = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
-        seekBar.setProgress(0);
+        if (addCategoryClickCount == 0) {
+            seekBar.setProgress(100);
+        } else {
+            seekBar.setProgress(0);
+        }
     }
-
-    // HELPER METHODS
 
     private void adjustSeekBarAccordingly(@NonNull List<SeekBar> visibleSeekBars, int currentTotalProgress) {
         Log.i(TAG, "adjustSeekBarAccordingly");
