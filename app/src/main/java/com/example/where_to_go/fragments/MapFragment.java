@@ -48,6 +48,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,6 +71,7 @@ public class MapFragment extends Fragment {
     String intent = "Default";
 
     private List<Destination> filteredResults;
+    HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,51 +175,87 @@ public class MapFragment extends Fragment {
 
         if (intent.equals("Default")) {
             category = "";
-        } else {
-            category = jsonFilteredResult.getString("destination_type");
-        }
+            yelpClient.getBusinesses(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try {
+                        String responseData = Objects.requireNonNull(response.body()).string();
+                        JSONObject jsonData = new JSONObject(responseData);
 
-        yelpClient.getBusinesses(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                try {
-                    String responseData = Objects.requireNonNull(response.body()).string();
-                    JSONObject jsonData = new JSONObject(responseData);
+                        JSONArray jsonResults = jsonData.getJSONArray("businesses");
+                        categoryDestinationsMap.put(category, jsonResults);
 
-                    JSONArray jsonResults = jsonData.getJSONArray("businesses");
+                            filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
 
-                    if (intent.equals("Default")) {
-                        filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
-                    } else {
-                        filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, jsonResults);
+                        filteredDestinations.addAll(filteredResults);
+
+                        // Avoid the "Only the original thread that created a view hierarchy
+                        // can touch its views adapter" error
+
+                        requireActivity().runOnUiThread(() -> {
+                            // Update the Adapter
+                            filteredDestinationAdapter.notifyDataSetChanged();
+
+                            setGoogleMap(googleMap, filteredDestinations);
+
+                            // Users can reorder locations
+                            setDragDropDestinations(rvDestinations);
+
+                        });
+
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
                     }
+                }
 
-                    filteredDestinations.addAll(filteredResults);
-
-                    // Avoid the "Only the original thread that created a view hierarchy
-                    // can touch its views adapter" error
-
-                    requireActivity().runOnUiThread(() -> {
-                        // Update the Adapter
-                        filteredDestinationAdapter.notifyDataSetChanged();
-
-                        setGoogleMap(googleMap, filteredDestinations);
-
-                        // Users can reorder locations
-                        setDragDropDestinations(rvDestinations);
-
-                    });
-
-                } catch (IOException | JSONException e) {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                 }
-            }
+            });
+        } else {
+            List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
+            for (String _category : categories) {
+                yelpClient.getBusinesses(FilterActivity.currentLongitude, FilterActivity.currentLatitude, _category, new Callback() {
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
+                        try {
+                            String responseData = Objects.requireNonNull(response.body()).string();
+                            JSONObject jsonData = new JSONObject(responseData);
 
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
+                            JSONArray jsonResults = jsonData.getJSONArray("businesses");
+                            categoryDestinationsMap.put(_category, jsonResults);
+
+                            filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+
+                            filteredDestinations.addAll(filteredResults);
+
+                            // Avoid the "Only the original thread that created a view hierarchy
+                            // can touch its views adapter" error
+
+                            requireActivity().runOnUiThread(() -> {
+                                // Update the Adapter
+                                filteredDestinationAdapter.notifyDataSetChanged();
+
+                                setGoogleMap(googleMap, filteredDestinations);
+
+                                // Users can reorder locations
+                                setDragDropDestinations(rvDestinations);
+
+                            });
+
+                        } catch (IOException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
-        });
+        }
     }
 
     private void setFilteredDestinationRecyclerView() {

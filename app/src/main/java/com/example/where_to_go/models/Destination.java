@@ -99,10 +99,10 @@ public class Destination extends ParseObject {
         distance = Math.round(distance * 10.0) / 10.0; // Round to 1 decimal value
     }
 
-    public void setCustomDistance(double origLongitude, double origLatitude) {
+    public double setCustomDistance(double origLongitude, double origLatitude) {
         double destinationLongitude = getLongitude();
         double destinationLatitude = getLatitude();
-        distance = Math.sqrt((destinationLongitude - origLongitude) * (destinationLatitude - origLongitude) +
+        return Math.sqrt((destinationLongitude - origLongitude) * (destinationLatitude - origLongitude) +
                 (destinationLatitude - origLatitude) * (destinationLatitude - origLatitude));
     }
 

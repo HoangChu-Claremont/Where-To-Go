@@ -34,7 +34,6 @@ import java.util.Map;
 
 public class FilterActivity extends AppCompatActivity {
 
-    private static final float HOURS_PER_DAY = 24;
     private static final String INTENT = "Filter";
     private static final String TAG = "FilterActivity";
     private static final int TOTAL_CATEGORIES = 8;
@@ -250,8 +249,8 @@ public class FilterActivity extends AppCompatActivity {
             Log.i(TAG, "Transportation Type: " + spTransportationType);
 
             // Prepare transaction materials
-            int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
-            JSONObject jsonFilterObject = getJsonFilterObject(noHours, spPrice, category, spTransportationType, preferences);
+            int noDays = (int) Float.parseFloat(tvNoDays_str);
+            JSONObject jsonFilterObject = getJsonFilterObject(noDays, spPrice, category, spTransportationType, preferences);
 
             // Return to MapFragment
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -319,10 +318,10 @@ public class FilterActivity extends AppCompatActivity {
     }
 
     @NonNull
-    private JSONObject getJsonFilterObject(int _noHours, String _spPrice, String _category, String _spTransportationType, List<Integer> _preferences) throws JSONException {
+    private JSONObject getJsonFilterObject(int _noDays, String _spPrice, String _category, String _spTransportationType, List<Integer> _preferences) throws JSONException {
         JSONObject jsonFilterObject = new JSONObject();
 
-        jsonFilterObject.put("no_hours", _noHours);
+        jsonFilterObject.put("no_days", _noDays);
         jsonFilterObject.put("price", _spPrice);
         jsonFilterObject.put("destination_type", _category);
         jsonFilterObject.put("transportation_option", _spTransportationType);
