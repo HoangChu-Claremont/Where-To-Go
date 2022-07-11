@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -48,8 +49,9 @@ public class FilterAlgorithm {
     }
 
     @NonNull
-    public static List<Destination> getFilteredTour(@NonNull JSONObject jsonFilteredResult, HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
-        Log.i(TAG, "Get started");
+    public static List<Destination> getFilteredTour(@NonNull JSONObject jsonFilteredResult,
+                                                    HashMap<String, JSONArray> _categoryDestinationsMap)
+            throws JSONException {
         List<Destination> outputDestinations;
         List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
 
@@ -72,6 +74,7 @@ public class FilterAlgorithm {
         List<String> orderedCategories = getOrderedCategories(noDestinationsPerCategory, categories);
 
         // Step 2
+        Log.i(TAG, orderedCategories.toString());
         List<Pair<List<Destination>, Double>> builtRatedTours = buildTours(orderedCategories, _categoryDestinationsMap);
 
         // Step 3
@@ -100,32 +103,40 @@ public class FilterAlgorithm {
     @NonNull
     private static List<Pair<List<Destination>, Double>> buildTours(List<String> _orderedCategories,
                                                                     HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
+
         List<Pair<List<Destination>, Double>> returningTours = new ArrayList<>();
+        HashSet<String> seenDestinations = new HashSet<>();
 
         for (int i = 0; i < numberOfTours; ++i) {
             // Get a starting destination
             List<Destination> builtTour = new ArrayList<>();
             String currentCategory = _orderedCategories.get(0);
             JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
-            Destination startingDestination = getStartingDestination(jsonDestinations);
+
+            Destination startingDestination = getStartingDestination(jsonDestinations, seenDestinations);
             builtTour.add(startingDestination);
+            seenDestinations.add(startingDestination.getId());
 
             // Recursive function
             Pair<List<Destination>, Double> aTourWithRatings = buildOneTour(builtTour, _orderedCategories,
-                    1, startingDestination.getRating(), _categoryDestinationsMap);
+                    1, startingDestination.getRating(), _categoryDestinationsMap, seenDestinations);
+
+            // Update and Reset
             returningTours.add(aTourWithRatings);
+            seenDestinations = new HashSet<>();
+            seenDestinations.add(startingDestination.getId());
         }
 
         return returningTours;
     }
 
     @NonNull
-    private static Destination getStartingDestination(JSONArray jsonDestinations) throws JSONException {
-        return getBestRatedDestination(jsonDestinations);
+    private static Destination getStartingDestination(JSONArray jsonDestinations, HashSet<String> seenDestinations) throws JSONException {
+        return getBestRatedDestination(jsonDestinations, seenDestinations);
     }
 
     @NonNull
-    private static Destination getBestRatedDestination(@NonNull JSONArray jsonDestinations) throws JSONException {
+    private static Destination getBestRatedDestination(@NonNull JSONArray jsonDestinations, HashSet<String> seenDestinations) throws JSONException {
         double bestRating = 0.0;
         Destination bestRatedDestination = new Destination();
 
@@ -135,7 +146,7 @@ public class FilterAlgorithm {
             int totalReview = jsonCurrentDestination.getInt("review_count");
             double totalRating = currentRating * totalReview;
 
-            if (totalRating > bestRating) {
+            if (totalRating > bestRating && !seenDestinations.contains(jsonCurrentDestination.getString("id"))) {
                 bestRating = totalRating;
                 bestRatedDestination.setData(jsonCurrentDestination);
             }
@@ -145,24 +156,26 @@ public class FilterAlgorithm {
     }
 
     @NonNull
-    private static Pair<List<Destination>, Double> buildOneTour(List<Destination> _builtTour, @NonNull List<String> _orderedCategories, int _currentCategoryOrder, double _totalRating, HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
+    private static Pair<List<Destination>, Double> buildOneTour(List<Destination> _builtTour, @NonNull List<String> _orderedCategories,
+                                                                int _currentCategoryOrder, double _totalRating,
+                                                                HashMap<String, JSONArray> _categoryDestinationsMap, HashSet<String> seenDestinations)
+            throws JSONException {
         if (_currentCategoryOrder == _orderedCategories.size()) {
             return new Pair<>(_builtTour, _totalRating / _builtTour.size());
         }
         String currentCategory = _orderedCategories.get(_currentCategoryOrder);
         JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
 
-        assert jsonDestinations != null;
-
-        Destination nextClosestDestination = getNextClosestDestination(jsonDestinations);
+        Destination nextClosestDestination = getNextClosestDestination(jsonDestinations, seenDestinations);
         _builtTour.add(nextClosestDestination);
+        seenDestinations.add(nextClosestDestination.getId());
         _totalRating += nextClosestDestination.getRating();
 
-        return buildOneTour(_builtTour, _orderedCategories, _currentCategoryOrder + 1, _totalRating, _categoryDestinationsMap);
+        return buildOneTour(_builtTour, _orderedCategories, _currentCategoryOrder + 1, _totalRating, _categoryDestinationsMap, seenDestinations);
     }
 
     @NonNull
-    private static Destination getNextClosestDestination(@NonNull JSONArray jsonDestinations) throws JSONException {
+    private static Destination getNextClosestDestination(@NonNull JSONArray jsonDestinations, HashSet<String> seenDestinations) throws JSONException {
         double closestDistance = Double.POSITIVE_INFINITY;
         Destination closestDestination = new Destination();
 
@@ -173,7 +186,7 @@ public class FilterAlgorithm {
 
             double currentDestinationDistance = closestDestination.setCustomDistance(targetDestination.getLongitude(), targetDestination.getLatitude());
 
-            if (currentDestinationDistance < closestDistance) {
+            if (currentDestinationDistance < closestDistance && !seenDestinations.contains(jsonCurrentDestination.getString("id"))) {
                 closestDistance = currentDestinationDistance;
                 closestDestination.setData(jsonCurrentDestination);
             }

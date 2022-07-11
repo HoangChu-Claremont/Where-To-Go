@@ -21,6 +21,7 @@ public class Destination extends ParseObject {
     private static final String LATITUDE = "latitude";
     private static final String IMAGE_URL = "location_image_url";
     private static final String RATING = "rating";
+    private static final String ID = "id";
 
     private double longitude, latitude, distance;
     private double rating;
@@ -28,6 +29,7 @@ public class Destination extends ParseObject {
     private String imageUrl;
     private String phone;
     private String address;
+    private String id;
 
     public Destination() {
         // empty constructor required by the Parceler library
@@ -41,9 +43,14 @@ public class Destination extends ParseObject {
         setPhone(jsonObject);
         setAddress(jsonObject);
         setDistance(jsonObject);
+        setID(jsonObject);
     }
 
     // GETTER
+
+    public String getId() {
+        return id;
+    }
 
     public String getAddress() {
         return address;
@@ -78,6 +85,10 @@ public class Destination extends ParseObject {
     }
 
     // SETTER
+
+    private void setID(@NonNull JSONObject jsonObject) throws JSONException {
+        id = jsonObject.getString("id");
+    }
 
     private void setAddress(@NonNull JSONObject jsonObject) throws JSONException {
         JSONArray addresses = jsonObject.getJSONObject("location").getJSONArray("display_address");
