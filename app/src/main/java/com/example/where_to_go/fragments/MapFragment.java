@@ -167,11 +167,12 @@ public class MapFragment extends Fragment {
     }
 
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException {
-
-        YelpClient yelpClient = new YelpClient();
-
-        if (intent.equals("Default")) {
-            String category = "";
+        Log.i(TAG, "Start filter");
+        final YelpClient yelpClient = new YelpClient();
+        List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
+        Log.i(TAG, categories.toString());
+        for (String category : categories) {
+            Log.i(TAG, "Category: " + category);
             yelpClient.defaultQuery(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -201,6 +202,7 @@ public class MapFragment extends Fragment {
                         });
 
                     } catch (IOException | JSONException e) {
+                        Log.e(TAG, e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -210,90 +212,6 @@ public class MapFragment extends Fragment {
                     e.printStackTrace();
                 }
             });
-        } else {
-            List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
-            Log.i(TAG, categories.size() + ": " + categories.toString());
-            if (!categories.isEmpty()) {
-                for (String category : categories) {
-                    yelpClient.filterQuery(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
-                        @Override
-                        public void onResponse(@NonNull Call call, @NonNull Response response) {
-                            try {
-                                String responseData = Objects.requireNonNull(response.body()).string();
-                                JSONObject jsonData = new JSONObject(responseData);
-
-                                JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                                categoryDestinationsMap.put(category, jsonResults);
-
-                                filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
-
-                                filteredDestinations.addAll(filteredResults);
-
-                                // Avoid the "Only the original thread that created a view hierarchy
-                                // can touch its views adapter" error
-
-                                requireActivity().runOnUiThread(() -> {
-                                    // Update the Adapter
-                                    filteredDestinationAdapter.notifyDataSetChanged();
-
-                                    setGoogleMap(googleMap, filteredDestinations);
-
-                                    // Users can reorder locations
-                                    setDragDropDestinations(rvDestinations);
-
-                                });
-
-                            } catch (IOException | JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-            } else {
-                yelpClient.defaultQuery(FilterActivity.currentLongitude, FilterActivity.currentLatitude, "", new Callback() {
-                    @Override
-                    public void onResponse(@NonNull Call call, @NonNull Response response) {
-                        try {
-                            String responseData = Objects.requireNonNull(response.body()).string();
-                            JSONObject jsonData = new JSONObject(responseData);
-
-                            JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                            categoryDestinationsMap.put("", jsonResults);
-
-                            filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
-
-                            filteredDestinations.addAll(filteredResults);
-
-                            // Avoid the "Only the original thread that created a view hierarchy
-                            // can touch its views adapter" error
-
-                            requireActivity().runOnUiThread(() -> {
-                                // Update the Adapter
-                                filteredDestinationAdapter.notifyDataSetChanged();
-
-                                setGoogleMap(googleMap, filteredDestinations);
-
-                                // Users can reorder locations
-                                setDragDropDestinations(rvDestinations);
-
-                            });
-
-                        } catch (IOException | JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
         }
     }
 

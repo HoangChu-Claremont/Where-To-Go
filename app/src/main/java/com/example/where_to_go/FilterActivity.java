@@ -302,18 +302,22 @@ public class FilterActivity extends AppCompatActivity {
                 if (categoryCode != null && !category_set.contains(categoryCode)) {
                     category_set.add(categoryCode);
                     categories.add(categoryCode);
-                    categories.add(",");
                 }
             }
         }
 
-        for (int i = 0; i < categories.size() - 1; ++i) {
-            returnCategory.append(categories.get(i));
-        }
-
-        if (returnCategory.length() == 0) {
+        if (categories.size() == 0) {
             return "";
         }
+
+        int lastCategoryIndex = categories.size() - 1;
+        for (int i = 0; i < lastCategoryIndex; ++i) {
+            returnCategory.append(categories.get(i));
+            returnCategory.append(",");
+        }
+        returnCategory.append(categories.get(lastCategoryIndex));
+
+        Log.i(TAG, returnCategory.toString());
         return returnCategory.toString();
     }
 
