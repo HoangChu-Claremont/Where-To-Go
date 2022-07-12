@@ -148,14 +148,4 @@ public class HomeFragment extends Fragment {
             recentTourAdapter.notifyDataSetChanged();
         });
     }
-
-    private final LocationListener mLocationListener = location -> {
-        //your code here
-    };
-
-    private boolean hasPermission() {
-        int network_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-        int gps_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
-        return network_permission_check != PackageManager.PERMISSION_GRANTED && gps_permission_check != PackageManager.PERMISSION_GRANTED;
-    }
 }
