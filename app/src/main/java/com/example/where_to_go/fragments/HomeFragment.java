@@ -1,32 +1,24 @@
 package com.example.where_to_go.fragments;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationListener;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,22 +73,30 @@ public class HomeFragment extends Fragment {
     // HELPER METHODS
 
     private void goFilterActivity() {
+        Log.i(TAG, "goFilterActivity");
+
         Intent intent = new Intent(getActivity(), FilterActivity.class);
         final FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+
         fragmentManager.beginTransaction().addToBackStack(TAG).commit();
         startActivity(intent);
     }
 
     private void setRecyclerView(@NonNull RecyclerView recyclerView, ToursAdapter toursAdapter) {
+        Log.i(TAG, "setRecyclerView");
+
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(tLayoutManager);
         recyclerView.setHasFixedSize(true);
+
         // Set the Adapter on RecyclerView
         recyclerView.setAdapter(toursAdapter);
     }
 
     private void setFeaturedToursRecyclerView() {
+        Log.i(TAG, "setFeaturedToursRecyclerView");
+
         RecyclerView rvFeaturedTours = requireView().findViewById(R.id.rvFeaturedTours);
 
         featuredTours = new ArrayList<>();
@@ -106,8 +106,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void setRecentToursRecyclerView() {
-        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
+        Log.i(TAG, "setRecentToursRecyclerView");
 
+        RecyclerView rvRecentTours = requireView().findViewById(R.id.rvRecentTours);
         recentTours = new ArrayList<>();
         recentTourAdapter = new ToursAdapter(getContext(), recentTours);
 
@@ -115,6 +116,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void getFeaturedTours() {
+        Log.i(TAG, "getFeaturedTours");
+
         // Create a Query
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
 
@@ -147,15 +150,5 @@ public class HomeFragment extends Fragment {
             recentTours.addAll(_destinationCollections);
             recentTourAdapter.notifyDataSetChanged();
         });
-    }
-
-    private final LocationListener mLocationListener = location -> {
-        //your code here
-    };
-
-    private boolean hasPermission() {
-        int network_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-        int gps_permission_check = ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
-        return network_permission_check != PackageManager.PERMISSION_GRANTED && gps_permission_check != PackageManager.PERMISSION_GRANTED;
     }
 }
