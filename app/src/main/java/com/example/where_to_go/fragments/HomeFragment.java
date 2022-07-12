@@ -80,7 +80,7 @@ public class HomeFragment extends Fragment {
 
     // HELPER METHODS
 
-    private void goFilterActivity() throws Throwable {
+    private void goFilterActivity() {
         Intent intent = new Intent(getActivity(), FilterActivity.class);
         final FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         fragmentManager.beginTransaction().addToBackStack(TAG).commit();

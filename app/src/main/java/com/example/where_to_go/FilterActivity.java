@@ -34,8 +34,9 @@ import java.util.Map;
 
 public class FilterActivity extends AppCompatActivity {
 
-    private static final String INTENT = "Filter";
     private static final String TAG = "FilterActivity";
+
+    private static final String INTENT = "Filter";
     private static final int TOTAL_CATEGORIES = 8;
     private static final int TOTAL_PERCENTAGE = 100;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -260,7 +261,7 @@ public class FilterActivity extends AppCompatActivity {
             // Return to MapFragment
             FragmentManager fragmentManager = getSupportFragmentManager();
             Log.i(TAG, "Begin to Map");
-            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).commit();
+            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).addToBackStack(TAG).commit();
         } else {
             Toast.makeText(this, "Number of days is required!", Toast.LENGTH_SHORT).show();
         }
