@@ -27,7 +27,7 @@ import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
-import com.example.where_to_go.utilities.FilterAlgorithm;
+import com.example.where_to_go.utilities.MultiThread;
 import com.example.where_to_go.utilities.YelpClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -112,7 +112,7 @@ public class MapFragment extends Fragment {
         supportMapFragment.getMapAsync(googleMap -> {
             try {
                 getFilteredDestination(googleMap);
-            } catch (JSONException | IOException e) {
+            } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
@@ -166,7 +166,7 @@ public class MapFragment extends Fragment {
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
-    private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException {
+    private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException {
         Log.i(TAG, "Start filter");
         final YelpClient yelpClient = new YelpClient();
         List<String> categories = new ArrayList<>();
@@ -176,47 +176,13 @@ public class MapFragment extends Fragment {
             categories.add("");
         }
         Log.i(TAG, categories.toString());
+        MultiThread myThread;
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
-            yelpClient.query(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) {
-                    try {
-                        String responseData = Objects.requireNonNull(response.body()).string();
-                        JSONObject jsonData = new JSONObject(responseData);
-
-                        JSONArray jsonResults = jsonData.getJSONArray("businesses");
-                        categoryDestinationsMap.put(category, jsonResults);
-
-                        filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
-
-                        filteredDestinations.addAll(filteredResults);
-
-                        // Avoid the "Only the original thread that created a view hierarchy
-                        // can touch its views adapter" error
-
-                        requireActivity().runOnUiThread(() -> {
-                            // Update the Adapter
-                            filteredDestinationAdapter.notifyDataSetChanged();
-
-                            setGoogleMap(googleMap, filteredDestinations);
-
-                            // Users can reorder locations
-                            setDragDropDestinations(rvDestinations);
-
-                        });
-
-                    } catch (IOException | JSONException e) {
-                        Log.e(TAG, e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            myThread = new MultiThread(category, FilterActivity.currentLongitude, FilterActivity.currentLatitude);
+            myThread.start();
+            myThread.join();
+            categoryDestinationsMap.put(category, myThread.getCategoryDestinationsMap());
         }
     }
 
