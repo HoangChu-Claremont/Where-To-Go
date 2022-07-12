@@ -113,6 +113,7 @@ public class MapFragment extends Fragment {
 
             String tourName = etTourName.getText().toString();
             ParseUser currentUser = ParseUser.getCurrentUser();
+            Log.i(TAG, "Current User: " + currentUser);
 
             if (tourName.isEmpty()) {
                 Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
@@ -174,7 +175,9 @@ public class MapFragment extends Fragment {
             myThread.start();
             myThread.join();
             jsonResults = myThread.getJsonResults();
-            categoryDestinationsMap.put(category, jsonResults);
+            synchronized(this) {
+                categoryDestinationsMap.put(category, jsonResults);
+            }
         }
 
         Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
