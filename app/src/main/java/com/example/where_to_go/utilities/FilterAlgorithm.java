@@ -55,7 +55,8 @@ public class FilterAlgorithm {
         List<Destination> outputDestinations;
         List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
 
-        // TODO: Algorithms!
+        Log.i(TAG, "jsonFilteredResult: " + jsonFilteredResult);
+        Log.i(TAG, "_categoryDestinationsMap: " + _categoryDestinationsMap);
 
         // Preliminary work
         List<Pair<String, Integer>> sortedPreferenceMap = getPreferenceMap(jsonFilteredResult, categories); // Descending order
@@ -104,13 +105,17 @@ public class FilterAlgorithm {
     private static List<Pair<List<Destination>, Double>> buildTours(List<String> _orderedCategories,
                                                                     HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
 
+        Log.i(TAG, "_categoryDestinationsMap: " + _categoryDestinationsMap);
+
         List<Pair<List<Destination>, Double>> returningTours = new ArrayList<>();
         HashSet<String> seenDestinations = new HashSet<>();
 
         for (int i = 0; i < numberOfTours; ++i) {
             // Get a starting destination
+            Log.i(TAG, "You're starting destination: " + i);
+
             List<Destination> builtTour = new ArrayList<>();
-            String currentCategory = _orderedCategories.get(0);
+            String currentCategory = _orderedCategories.get(i);
             JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
 
             Destination startingDestination = getStartingDestination(jsonDestinations, seenDestinations);
@@ -139,6 +144,9 @@ public class FilterAlgorithm {
     private static Destination getBestRatedDestination(@NonNull JSONArray jsonDestinations, HashSet<String> seenDestinations) throws JSONException {
         double bestRating = 0.0;
         Destination bestRatedDestination = new Destination();
+
+        Log.i(TAG, "jsonDestinations: " + jsonDestinations);
+        Log.i(TAG, "seenDestinations: " + seenDestinations);
 
         for (int i = 0; i < jsonDestinations.length(); ++i) {
             JSONObject jsonCurrentDestination = jsonDestinations.getJSONObject(i);
