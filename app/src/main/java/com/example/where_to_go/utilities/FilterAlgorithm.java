@@ -174,6 +174,8 @@ public class FilterAlgorithm {
         String currentCategory = _orderedCategories.get(_currentCategoryOrder);
         JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
 
+        assert jsonDestinations != null;
+
         Destination nextClosestDestination = getNextClosestDestination(jsonDestinations, seenDestinations);
         _builtTour.add(nextClosestDestination);
         seenDestinations.add(nextClosestDestination.getId());
@@ -214,9 +216,8 @@ public class FilterAlgorithm {
         int bound = _categories.size();
         int noDestinations = 0;
         for (String category : _categories) {
-            if (_noDestinationsPerCategory.containsKey(category)) {
-                noDestinations += _noDestinationsPerCategory.get(category);
-            }
+            assert _noDestinationsPerCategory.containsKey(category);
+            noDestinations += _noDestinationsPerCategory.get(category);
         }
 
         for (int i = 0; i < noDestinations; ++i) {
@@ -247,7 +248,7 @@ public class FilterAlgorithm {
     private static HashMap<String, Integer> getNoDestinationsPerCategory(int _noDays, @NonNull List<Pair<String, Integer>> _sortedPreferenceMap) {
         HashMap<String, Integer> resultNoDestinationsPerCategory = new HashMap<>();
         int maxNoTours = 0;
-        int totalActivityHours = (HOURS_PER_DAY - AVG_SLEEP_HOURS_PER_DAY) * _noDays; // TODO: Need to account driving time as well
+        int totalActivityHours = HOURS_PER_DAY * _noDays - AVG_SLEEP_HOURS_PER_DAY * (_noDays - 1) ; // TODO: Need to account driving time as well
 
         for (Pair<String, Integer> categoryPreference : _sortedPreferenceMap) {
             String category = categoryPreference.first;

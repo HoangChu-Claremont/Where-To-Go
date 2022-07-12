@@ -17,27 +17,22 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MultiThread extends Thread {
+public class MultiThreadYelpAPI extends Thread {
 
     private static final String BUSINESS_SEARCH_URL = "https://api.yelp.com/v3/businesses/search";
     private static final String BUSINESS_DETAILS_URL = "https://api.yelp.com/v3/businesses";
     private static final int YELP_LIMIT_PER_REQUEST = 50;
-    private static final String TAG = "YelpClient";
-    private String category;
+    private static final String TAG = "MultithreadingYelpClient";
 
-    JSONArray jsonResults;
+    private final String category;
+    private JSONArray jsonResults;
+    private final double currentLongitude;
+    private final double currentLatitude;
 
-    private double currentLongitude;
-    private double currentLatitude;
-
-    public MultiThread(String _category, double _currentLongitude, double _currentLatitude) {
+    public MultiThreadYelpAPI(String _category, double _currentLongitude, double _currentLatitude) {
         category = _category;
         currentLongitude = _currentLongitude;
         currentLatitude = _currentLatitude;
-    }
-
-    public JSONArray getCategoryDestinationsMap() {
-        return jsonResults;
     }
 
     @Override
@@ -47,6 +42,13 @@ public class MultiThread extends Thread {
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    // HELPER METHODS
+
+    public JSONArray getJsonResults() {
+        return jsonResults;
     }
 
     public void query(double currentLongitude, double currentLatitude, String category) throws JSONException, IOException {
@@ -68,7 +70,7 @@ public class MultiThread extends Thread {
         Call call = client.newCall(request);
 
         Response response = call.execute();
-        assert response.code() == 200;
+
         Log.i(TAG, "response code: " + response.code());
         String responseData = Objects.requireNonNull(response.body()).string();
         JSONObject jsonData = new JSONObject(responseData);

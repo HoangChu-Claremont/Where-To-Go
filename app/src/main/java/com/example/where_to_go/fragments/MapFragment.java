@@ -28,8 +28,7 @@ import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.FilterAlgorithm;
-import com.example.where_to_go.utilities.MultiThread;
-import com.example.where_to_go.utilities.YelpClient;
+import com.example.where_to_go.utilities.MultiThreadYelpAPI;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,11 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
@@ -71,7 +65,6 @@ public class MapFragment extends Fragment {
     JSONObject jsonFilteredResult;
     String intent = "Default";
 
-    private List<Destination> filteredResults;
     HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
 
     @Override
@@ -169,28 +162,35 @@ public class MapFragment extends Fragment {
 
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException {
         Log.i(TAG, "Start filter");
+
         List<String> categories = new ArrayList<>();
 
-        if (Objects.equals(intent, "Filter")) {
+        if (!intent.equals("Default")) {
             categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
-        } else { // TODO: Adjust for each featured package.
+        } else {
             categories.add("");
         }
 
-        Log.i(TAG, categories.toString());
-        MultiThread myThread;
-
+        MultiThreadYelpAPI myThread;
+        JSONArray jsonResults = new JSONArray();
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
-            myThread = new MultiThread(category, FilterActivity.currentLongitude, FilterActivity.currentLatitude);
+            myThread = new MultiThreadYelpAPI(category, FilterActivity.currentLongitude, FilterActivity.currentLatitude);
             myThread.start();
             myThread.join();
-            categoryDestinationsMap.put(category, myThread.getCategoryDestinationsMap());
+            jsonResults = myThread.getJsonResults();
+            categoryDestinationsMap.put(category, jsonResults);
         }
 
         Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
+        Log.i(TAG, "jsonResults: " + jsonResults.length());
 
-        filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+        List<Destination> filteredResults;
+        if (!intent.equals("Default")) {
+            filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+        } else {
+            filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+        }
 
         filteredDestinations.addAll(filteredResults);
 
