@@ -55,7 +55,8 @@ public class FilterAlgorithm {
         List<Destination> outputDestinations;
         List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
 
-        // TODO: Algorithms!
+        Log.i(TAG, "jsonFilteredResult: " + jsonFilteredResult);
+        Log.i(TAG, "_categoryDestinationsMap: " + _categoryDestinationsMap);
 
         // Preliminary work
         List<Pair<String, Integer>> sortedPreferenceMap = getPreferenceMap(jsonFilteredResult, categories); // Descending order
@@ -104,13 +105,17 @@ public class FilterAlgorithm {
     private static List<Pair<List<Destination>, Double>> buildTours(List<String> _orderedCategories,
                                                                     HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
 
+        Log.i(TAG, "_categoryDestinationsMap: " + _categoryDestinationsMap);
+
         List<Pair<List<Destination>, Double>> returningTours = new ArrayList<>();
         HashSet<String> seenDestinations = new HashSet<>();
 
         for (int i = 0; i < numberOfTours; ++i) {
             // Get a starting destination
+            Log.i(TAG, "You're starting destination: " + i);
+
             List<Destination> builtTour = new ArrayList<>();
-            String currentCategory = _orderedCategories.get(0);
+            String currentCategory = _orderedCategories.get(i);
             JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
 
             Destination startingDestination = getStartingDestination(jsonDestinations, seenDestinations);
@@ -140,6 +145,9 @@ public class FilterAlgorithm {
         double bestRating = 0.0;
         Destination bestRatedDestination = new Destination();
 
+        Log.i(TAG, "jsonDestinations: " + jsonDestinations);
+        Log.i(TAG, "seenDestinations: " + seenDestinations);
+
         for (int i = 0; i < jsonDestinations.length(); ++i) {
             JSONObject jsonCurrentDestination = jsonDestinations.getJSONObject(i);
             double currentRating = jsonCurrentDestination.getDouble("rating");
@@ -165,6 +173,8 @@ public class FilterAlgorithm {
         }
         String currentCategory = _orderedCategories.get(_currentCategoryOrder);
         JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
+
+        assert jsonDestinations != null;
 
         Destination nextClosestDestination = getNextClosestDestination(jsonDestinations, seenDestinations);
         _builtTour.add(nextClosestDestination);
@@ -206,9 +216,8 @@ public class FilterAlgorithm {
         int bound = _categories.size();
         int noDestinations = 0;
         for (String category : _categories) {
-            if (_noDestinationsPerCategory.containsKey(category)) {
-                noDestinations += _noDestinationsPerCategory.get(category);
-            }
+            assert _noDestinationsPerCategory.containsKey(category);
+            noDestinations += _noDestinationsPerCategory.get(category);
         }
 
         for (int i = 0; i < noDestinations; ++i) {
@@ -239,7 +248,7 @@ public class FilterAlgorithm {
     private static HashMap<String, Integer> getNoDestinationsPerCategory(int _noDays, @NonNull List<Pair<String, Integer>> _sortedPreferenceMap) {
         HashMap<String, Integer> resultNoDestinationsPerCategory = new HashMap<>();
         int maxNoTours = 0;
-        int totalActivityHours = (HOURS_PER_DAY - AVG_SLEEP_HOURS_PER_DAY) * _noDays; // TODO: Need to account driving time as well
+        int totalActivityHours = HOURS_PER_DAY * _noDays - AVG_SLEEP_HOURS_PER_DAY * (_noDays - 1) ; // TODO: Need to account driving time as well
 
         for (Pair<String, Integer> categoryPreference : _sortedPreferenceMap) {
             String category = categoryPreference.first;
