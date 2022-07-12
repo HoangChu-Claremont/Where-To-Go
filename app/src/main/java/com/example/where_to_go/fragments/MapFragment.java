@@ -1,7 +1,6 @@
 package com.example.where_to_go.fragments;
 
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -9,7 +8,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
@@ -36,16 +33,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +48,7 @@ import java.util.List;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
+
     private static final Object LOCK = new Object();
     private DestinationsAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
@@ -85,7 +80,6 @@ public class MapFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -106,11 +100,11 @@ public class MapFragment extends Fragment {
         supportMapFragment.getMapAsync(googleMap -> {
             try {
                 getFilteredDestination(googleMap);
+                Log.i(TAG, "Map Created");
             } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
-        Log.i(TAG, "Map Created");
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
@@ -163,7 +157,7 @@ public class MapFragment extends Fragment {
     }
 
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException {
-        Log.i(TAG, "Start filter");
+        Log.i(TAG, "getFilteredDestination");
 
         List<String> categories = new ArrayList<>();
 
@@ -208,6 +202,8 @@ public class MapFragment extends Fragment {
     }
 
     private void setFilteredDestinationRecyclerView() {
+        Log.i(TAG, "setFilteredDestinationRecyclerView");
+
         filteredDestinations = new ArrayList<>();
         rvDestinations = requireView().findViewById(R.id.rvDestinations);
 
@@ -240,6 +236,8 @@ public class MapFragment extends Fragment {
     }
 
     private void setDragDropDestinations(RecyclerView rvDestinations) {
+        Log.i(TAG, "setDragDropDestinations");
+
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -258,6 +256,8 @@ public class MapFragment extends Fragment {
     }
 
     private void saveToursToParseDB(String tourName, ParseUser currentUser) throws ParseException, InterruptedException {
+        Log.i(TAG, "saveToursToParseDB");
+
         Tour destinationCollections = saveToToursDB(tourName, currentUser);
 
         // Wait for 3 seconds for TourDB adding a new row.
@@ -272,6 +272,8 @@ public class MapFragment extends Fragment {
 
     @NonNull
     private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
+        Log.i(TAG, "saveToToursDB");
+
         Tour destinationCollections = new Tour();
 				
         // Getting information to set up the POST query
@@ -294,7 +296,7 @@ public class MapFragment extends Fragment {
 
     private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) {
         String objectId = currentTour.getObjectId();
-        Log.i(TAG, objectId);
+        Log.i(TAG, "saveToDestinationsDB: " + objectId);
 
         // Getting information to set up the POST query
         currentDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));

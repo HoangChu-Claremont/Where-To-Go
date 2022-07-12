@@ -8,11 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
@@ -46,6 +44,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
     @Override
     public int getItemCount() {
+        Log.i(TAG, "getItemCount");
         return featuredTours.size();
     }
 
@@ -67,9 +66,14 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
         }
 
         public void bind(@NonNull Tour featuredTour) {
+            Log.i(TAG, "binding");
+
             ivTourName.setText(featuredTour.getTourName());
 
-            Glide.with(context).load("https://imgur.com/a/K0wRQZO").into(ivTourImage); // TODO: Set this image right
+            Glide.with(context).load("https://imgur.com/a/K0wRQZO")
+                    .centerCrop()
+                    .placeholder(R.drawable.profile_gradient)
+                    .into(ivTourImage); // TODO: Set this image right
             showSavedStatus(featuredTour.getSaved());
 
             ibTourBookmark.setOnClickListener(v -> {
@@ -84,8 +88,11 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
         @Override
         public void onClick(View v) {
+            Log.i(TAG, "onClick: " + v);
+
             // gets item position
             int position = getAdapterPosition();
+
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
                 // Switch HomeFragment -> MapFragment
@@ -96,6 +103,8 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
         // HELPER METHODS
         private void showSavedStatus(boolean isSaved) {
+            Log.i(TAG, "showSavedStatus");
+
             if (isSaved) {
                 ibTourBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark_filled));
             } else {
