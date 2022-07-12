@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,12 +25,10 @@ import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Tour;
-import com.parse.Parse;
 import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
@@ -66,7 +63,6 @@ public class HomeFragment extends Fragment {
         cvContinueTour.setOnClickListener(v -> {
             try {
                 goFilterActivity();
-                finalize();
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -84,10 +80,10 @@ public class HomeFragment extends Fragment {
 
     // HELPER METHODS
 
-    private void goFilterActivity() {
+    private void goFilterActivity() throws Throwable {
         Intent intent = new Intent(getActivity(), FilterActivity.class);
         final FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().addToBackStack(null).commit();
+        fragmentManager.beginTransaction().addToBackStack(TAG).commit();
         startActivity(intent);
     }
 

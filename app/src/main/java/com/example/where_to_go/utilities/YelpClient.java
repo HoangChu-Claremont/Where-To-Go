@@ -24,28 +24,7 @@ public class YelpClient {
     private static final int YELP_LIMIT_PER_REQUEST = 50;
     private static final String TAG = "YelpClient";
 
-    public void defaultQuery(double currentLongitude, double currentLatitude, String category, Callback callback) {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(BUSINESS_SEARCH_URL))).newBuilder();
-
-        urlBuilder.addQueryParameter("longitude", String.valueOf(currentLongitude));
-        urlBuilder.addQueryParameter("latitude", String.valueOf(currentLatitude));
-        urlBuilder.addQueryParameter("limit", String.valueOf(YELP_LIMIT_PER_REQUEST));
-        urlBuilder.addQueryParameter("categories", category);
-        String url = urlBuilder.build().toString();
-
-        Log.i(TAG, url);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .header("Authorization", "Bearer " + BuildConfig.YELP_API_KEY)
-                .build();
-
-        Call call = client.newCall(request);
-        call.enqueue(callback);
-    }
-
-    public void filterQuery(double currentLongitude, double currentLatitude, String category, Callback callback) {
+    public void query(double currentLongitude, double currentLatitude, String category, Callback callback) {
         OkHttpClient client = new OkHttpClient.Builder().build();
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(BUSINESS_SEARCH_URL))).newBuilder();
 
