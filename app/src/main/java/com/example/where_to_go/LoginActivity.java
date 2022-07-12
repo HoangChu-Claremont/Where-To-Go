@@ -25,7 +25,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etUsername;
     private EditText etPassword;
 
-
     //    private LoginButton facebookLoginButton; // Log in by Facebook
     //    private CallbackManager callbackManager;
     //    private boolean isLoggedInFB = false;

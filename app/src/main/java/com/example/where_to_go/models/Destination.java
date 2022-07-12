@@ -21,6 +21,7 @@ public class Destination extends ParseObject {
     private static final String LATITUDE = "latitude";
     private static final String IMAGE_URL = "location_image_url";
     private static final String RATING = "rating";
+    private static final String ID = "id";
 
     private double longitude, latitude, distance;
     private double rating;
@@ -28,6 +29,7 @@ public class Destination extends ParseObject {
     private String imageUrl;
     private String phone;
     private String address;
+    private String id;
 
     public Destination() {
         // empty constructor required by the Parceler library
@@ -41,9 +43,14 @@ public class Destination extends ParseObject {
         setPhone(jsonObject);
         setAddress(jsonObject);
         setDistance(jsonObject);
+        setID(jsonObject);
     }
 
     // GETTER
+
+    public String getId() {
+        return id;
+    }
 
     public String getAddress() {
         return address;
@@ -79,6 +86,10 @@ public class Destination extends ParseObject {
 
     // SETTER
 
+    private void setID(@NonNull JSONObject jsonObject) throws JSONException {
+        id = jsonObject.getString("id");
+    }
+
     private void setAddress(@NonNull JSONObject jsonObject) throws JSONException {
         JSONArray addresses = jsonObject.getJSONObject("location").getJSONArray("display_address");
         String street = "";
@@ -99,10 +110,10 @@ public class Destination extends ParseObject {
         distance = Math.round(distance * 10.0) / 10.0; // Round to 1 decimal value
     }
 
-    public void setCustomDistance(double origLongitude, double origLatitude) {
+    public double setCustomDistance(double origLongitude, double origLatitude) {
         double destinationLongitude = getLongitude();
         double destinationLatitude = getLatitude();
-        distance = Math.sqrt((destinationLongitude - origLongitude) * (destinationLatitude - origLongitude) +
+        return Math.sqrt((destinationLongitude - origLongitude) * (destinationLatitude - origLongitude) +
                 (destinationLatitude - origLatitude) * (destinationLatitude - origLatitude));
     }
 

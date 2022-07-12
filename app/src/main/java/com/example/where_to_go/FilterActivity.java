@@ -34,14 +34,13 @@ import java.util.Map;
 
 public class FilterActivity extends AppCompatActivity {
 
-    private static final float HOURS_PER_DAY = 24;
-    private static final String INTENT = "Filter";
     private static final String TAG = "FilterActivity";
+
+    private static final String INTENT = "Filter";
     private static final int TOTAL_CATEGORIES = 8;
     private static final int TOTAL_PERCENTAGE = 100;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    private static int addCategoryClickCount = -1;
+    private static int addCategoryClickCount;
 
     boolean locationPermissionGranted = false;
     public static double currentLongitude, currentLatitude;
@@ -71,6 +70,7 @@ public class FilterActivity extends AppCompatActivity {
             try {
                 receiveFilterResult(tvNoDays, spPrice, spTransportation, seekBars);
             } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -84,6 +84,8 @@ public class FilterActivity extends AppCompatActivity {
 
         Button btnAddCategory = findViewById(R.id.btnAddCategory);
         btnAddCategory.setOnClickListener(v -> {
+
+            Log.i(TAG, String.valueOf(addCategoryClickCount));
             if (addCategoryClickCount >= TOTAL_CATEGORIES - 1) {
                 Log.i(TAG, "Remove id: " + (addCategoryClickCount - 1));
                 setCategoryInVisible(addCategoryClickCount);
@@ -126,30 +128,6 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
-    private void initCategories(SeekBar[] _seekBars) {
-        for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Add all currently existing seekbars
-            String seekBarId = "seekBar" + id;
-            _seekBars[id] = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
-        }
-
-        for (int numId = 0; numId < TOTAL_CATEGORIES; ++numId) { // Init all of them invisible
-            setCategoryInVisible(numId);
-        }
-    }
-
-    private boolean hasPermission() {
-        return ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, new String[] {
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        }, 1);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         locationPermissionGranted = false;
@@ -165,6 +143,33 @@ public class FilterActivity extends AppCompatActivity {
 
 
     // HELPER METHODS
+
+    private void initCategories(SeekBar[] _seekBars) {
+        addCategoryClickCount = -1; // When click "Add Categories", 1st category is 0th-indexed.
+
+        for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Add all currently existing seekbars
+            String seekBarId = "seekBar" + id;
+            _seekBars[id] = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
+            resetInvisibleSeekBarValue(id);
+        }
+
+        for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Init all of them invisible
+            setCategoryInVisible(id);
+        }
+    }
+
+    private boolean hasPermission() {
+        return ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[] {
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        }, 1);
+    }
 
     @SuppressLint("MissingPermission")
     private void getDeviceLocation() {
@@ -250,13 +255,13 @@ public class FilterActivity extends AppCompatActivity {
             Log.i(TAG, "Transportation Type: " + spTransportationType);
 
             // Prepare transaction materials
-            int noHours = (int) (Float.parseFloat(tvNoDays_str) * HOURS_PER_DAY);
-            JSONObject jsonFilterObject = getJsonFilterObject(noHours, spPrice, category, spTransportationType, preferences);
+            int noDays = (int) Float.parseFloat(tvNoDays_str);
+            JSONObject jsonFilterObject = getJsonFilterObject(noDays, spPrice, category, spTransportationType, preferences);
 
             // Return to MapFragment
             FragmentManager fragmentManager = getSupportFragmentManager();
             Log.i(TAG, "Begin to Map");
-            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).commit();
+            fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).addToBackStack(TAG).commit();
         } else {
             Toast.makeText(this, "Number of days is required!", Toast.LENGTH_SHORT).show();
         }
@@ -303,26 +308,30 @@ public class FilterActivity extends AppCompatActivity {
                 if (categoryCode != null && !category_set.contains(categoryCode)) {
                     category_set.add(categoryCode);
                     categories.add(categoryCode);
-                    categories.add(",");
                 }
             }
         }
 
-        for (int i = 0; i < categories.size() - 1; ++i) {
-            returnCategory.append(categories.get(i));
-        }
-
-        if (returnCategory.length() == 0) {
+        if (categories.size() == 0) {
             return "";
         }
+
+        int lastCategoryIndex = categories.size() - 1;
+        for (int i = 0; i < lastCategoryIndex; ++i) {
+            returnCategory.append(categories.get(i));
+            returnCategory.append(",");
+        }
+        returnCategory.append(categories.get(lastCategoryIndex));
+
+        Log.i(TAG, returnCategory.toString());
         return returnCategory.toString();
     }
 
     @NonNull
-    private JSONObject getJsonFilterObject(int _noHours, String _spPrice, String _category, String _spTransportationType, List<Integer> _preferences) throws JSONException {
+    private JSONObject getJsonFilterObject(int _noDays, String _spPrice, String _category, String _spTransportationType, List<Integer> _preferences) throws JSONException {
         JSONObject jsonFilterObject = new JSONObject();
 
-        jsonFilterObject.put("no_hours", _noHours);
+        jsonFilterObject.put("no_days", _noDays);
         jsonFilterObject.put("price", _spPrice);
         jsonFilterObject.put("destination_type", _category);
         jsonFilterObject.put("transportation_option", _spTransportationType);

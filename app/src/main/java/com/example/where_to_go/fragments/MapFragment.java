@@ -28,7 +28,7 @@ import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.FilterAlgorithm;
-import com.example.where_to_go.utilities.YelpClient;
+import com.example.where_to_go.utilities.MultiThreadYelpAPI;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,12 +48,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
@@ -68,7 +65,7 @@ public class MapFragment extends Fragment {
     JSONObject jsonFilteredResult;
     String intent = "Default";
 
-    private List<Destination> filteredResults;
+    HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,8 +80,6 @@ public class MapFragment extends Fragment {
     public MapFragment(String _intent, JSONObject _filterResult) {
         intent = _intent;
         jsonFilteredResult = _filterResult;
-        Log.i(TAG, intent);
-        Log.i(TAG, jsonFilteredResult.toString());
     }
 
     @Override
@@ -111,7 +106,7 @@ public class MapFragment extends Fragment {
         supportMapFragment.getMapAsync(googleMap -> {
             try {
                 getFilteredDestination(googleMap);
-            } catch (JSONException e) {
+            } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
@@ -165,58 +160,47 @@ public class MapFragment extends Fragment {
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
-    private void getFilteredDestination(GoogleMap googleMap) throws JSONException {
+    private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException {
+        Log.i(TAG, "Start filter");
 
-        final YelpClient yelpClient = new YelpClient();
-        String category;
+        List<String> categories = new ArrayList<>();
 
-        if (intent.equals("Default")) {
-            category = "";
+        if (!intent.equals("Default")) {
+            categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
         } else {
-            category = jsonFilteredResult.getString("destination_type");
+            categories.add("");
         }
 
-        yelpClient.getBusinesses(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                try {
-                    String responseData = Objects.requireNonNull(response.body()).string();
-                    JSONObject jsonData = new JSONObject(responseData);
+        MultiThreadYelpAPI myThread;
+        JSONArray jsonResults = new JSONArray();
+        for (String category : categories) {
+            Log.i(TAG, "Category: " + category);
+            myThread = new MultiThreadYelpAPI(category, FilterActivity.currentLongitude, FilterActivity.currentLatitude);
+            myThread.start();
+            myThread.join();
+            jsonResults = myThread.getJsonResults();
+            categoryDestinationsMap.put(category, jsonResults);
+        }
 
-                    JSONArray jsonResults = jsonData.getJSONArray("businesses");
+        Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
+        Log.i(TAG, "jsonResults: " + jsonResults.length());
 
-                    if (intent.equals("Default")) {
-                        filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
-                    } else {
-                        filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, jsonResults);
-                    }
+        List<Destination> filteredResults;
+        if (!intent.equals("Default")) {
+            filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+        } else {
+            filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+        }
 
-                    filteredDestinations.addAll(filteredResults);
+        filteredDestinations.addAll(filteredResults);
 
-                    // Avoid the "Only the original thread that created a view hierarchy
-                    // can touch its views adapter" error
+        // Update the Adapter
+        filteredDestinationAdapter.notifyDataSetChanged();
 
-                    requireActivity().runOnUiThread(() -> {
-                        // Update the Adapter
-                        filteredDestinationAdapter.notifyDataSetChanged();
+        setGoogleMap(googleMap, filteredDestinations);
 
-                        setGoogleMap(googleMap, filteredDestinations);
-
-                        // Users can reorder locations
-                        setDragDropDestinations(rvDestinations);
-
-                    });
-
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-            }
-        });
+        // Users can reorder locations
+        setDragDropDestinations(rvDestinations);
     }
 
     private void setFilteredDestinationRecyclerView() {
