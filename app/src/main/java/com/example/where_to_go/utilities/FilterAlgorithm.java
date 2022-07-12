@@ -73,11 +73,10 @@ public class FilterAlgorithm {
 
         // Step 1
         List<String> orderedCategories = getOrderedCategories(noDestinationsPerCategory, categories);
-
+        Log.i(TAG, "orderedCategories: " + orderedCategories);
         // Step 2
-        Log.i(TAG, orderedCategories.toString());
         List<Pair<List<Destination>, Double>> builtRatedTours = buildTours(orderedCategories, _categoryDestinationsMap);
-
+        Log.i(TAG, "builtRatedTours size: " + builtRatedTours.size());
         // Step 3
         outputDestinations = getBestRatedTour(builtRatedTours);
 
@@ -114,19 +113,21 @@ public class FilterAlgorithm {
             // Get a starting destination
             Log.i(TAG, "You're starting destination: " + i);
 
+            // Get an ordered array of categories
             List<Destination> builtTour = new ArrayList<>();
             String currentCategory = _orderedCategories.get(i);
             JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
 
+            // Select a starting position
             Destination startingDestination = getStartingDestination(jsonDestinations, seenDestinations);
             builtTour.add(startingDestination);
             seenDestinations.add(startingDestination.getId());
 
-            // Recursive function
+            // Build a tour recursively
             Pair<List<Destination>, Double> aTourWithRatings = buildOneTour(builtTour, _orderedCategories,
                     1, startingDestination.getRating(), _categoryDestinationsMap, seenDestinations);
 
-            // Update and Reset
+            // Update and Reset for a new tour
             returningTours.add(aTourWithRatings);
             seenDestinations = new HashSet<>();
             seenDestinations.add(startingDestination.getId());
@@ -168,15 +169,23 @@ public class FilterAlgorithm {
                                                                 int _currentCategoryOrder, double _totalRating,
                                                                 HashMap<String, JSONArray> _categoryDestinationsMap, HashSet<String> seenDestinations)
             throws JSONException {
+
+        Log.i(TAG, "Currently pick destination #:" + _currentCategoryOrder);
+        // Base case
         if (_currentCategoryOrder == _orderedCategories.size()) {
             return new Pair<>(_builtTour, _totalRating / _builtTour.size());
         }
+
+        // Get all destinations of a category
         String currentCategory = _orderedCategories.get(_currentCategoryOrder);
         JSONArray jsonDestinations = _categoryDestinationsMap.get(currentCategory);
 
         assert jsonDestinations != null;
 
+        // Find the next closest destination
         Destination nextClosestDestination = getNextClosestDestination(jsonDestinations, seenDestinations);
+
+        // Add a destination and update total rating
         _builtTour.add(nextClosestDestination);
         seenDestinations.add(nextClosestDestination.getId());
         _totalRating += nextClosestDestination.getRating();
@@ -248,16 +257,20 @@ public class FilterAlgorithm {
     private static HashMap<String, Integer> getNoDestinationsPerCategory(int _noDays, @NonNull List<Pair<String, Integer>> _sortedPreferenceMap) {
         HashMap<String, Integer> resultNoDestinationsPerCategory = new HashMap<>();
         int maxNoTours = 0;
+
+        // N days -> N-1 sleeping nights
         int totalActivityHours = HOURS_PER_DAY * _noDays - AVG_SLEEP_HOURS_PER_DAY * (_noDays - 1) ; // TODO: Need to account driving time as well
 
         for (Pair<String, Integer> categoryPreference : _sortedPreferenceMap) {
             String category = categoryPreference.first;
             int preference = categoryPreference.second;
+
+            // Compute
             double maxHoursThisCategory = (INT_TO_FLOAT * totalActivityHours) * preference / MAX_PERCENTAGE;
             int totalDestinationsThisCategory = (int) Math.floor(maxHoursThisCategory / TIME_PER_DESTINATION); // Floor down, so users will always have sufficient time as planned
 
+            // Update
             resultNoDestinationsPerCategory.put(category, totalDestinationsThisCategory);
-
             maxNoTours = Math.max(maxNoTours, totalDestinationsThisCategory);
         }
 

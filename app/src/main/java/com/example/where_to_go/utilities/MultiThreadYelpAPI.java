@@ -52,28 +52,33 @@ public class MultiThreadYelpAPI extends Thread {
     }
 
     public void query(double currentLongitude, double currentLatitude, String category) throws JSONException, IOException {
-
+        // Build URL
         OkHttpClient client = new OkHttpClient.Builder().build();
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(BUSINESS_SEARCH_URL))).newBuilder();
 
+        // Add URL Params
         urlBuilder.addQueryParameter("longitude", String.valueOf(currentLongitude));
         urlBuilder.addQueryParameter("latitude", String.valueOf(currentLatitude));
         urlBuilder.addQueryParameter("limit", String.valueOf(YELP_LIMIT_PER_REQUEST));
         urlBuilder.addQueryParameter("categories", category);
         String url = urlBuilder.build().toString();
+        Log.i(TAG, "URL: " + url);
 
+        // Make request
         Request request = new Request.Builder()
                 .url(url)
                 .header("Authorization", "Bearer " + BuildConfig.YELP_API_KEY)
                 .build();
 
+        // Get response
         Call call = client.newCall(request);
-
         Response response = call.execute();
 
+        // Get response body in JSON
         Log.i(TAG, "response code: " + response.code());
         String responseData = Objects.requireNonNull(response.body()).string();
         JSONObject jsonData = new JSONObject(responseData);
         jsonResults = jsonData.getJSONArray("businesses");
+        Log.i(TAG, "jsonResults Size:" + jsonResults.length());
     }
 }
