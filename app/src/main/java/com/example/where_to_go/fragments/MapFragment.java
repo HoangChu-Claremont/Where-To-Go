@@ -169,11 +169,16 @@ public class MapFragment extends Fragment {
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException {
         Log.i(TAG, "Start filter");
         final YelpClient yelpClient = new YelpClient();
-        List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
+        List<String> categories = new ArrayList<>();
+        if (Objects.equals(intent, "Filter")) {
+            categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
+        } else { // TODO: Adjust for each featured package.
+            categories.add("");
+        }
         Log.i(TAG, categories.toString());
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
-            yelpClient.defaultQuery(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
+            yelpClient.query(FilterActivity.currentLongitude, FilterActivity.currentLatitude, category, new Callback() {
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
                     try {

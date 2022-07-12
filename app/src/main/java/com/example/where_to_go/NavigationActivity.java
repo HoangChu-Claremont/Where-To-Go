@@ -50,7 +50,9 @@ public class NavigationActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                 }
-                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.flContainer, fragment)
+                        .addToBackStack(String.valueOf(item.getItemId())).commit();
                 return true;
             }
         });
