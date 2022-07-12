@@ -21,6 +21,8 @@ import com.example.where_to_go.MainActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -115,6 +117,8 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             context.startActivity(intent);
         }
 
+        @NonNull
+        @Contract("_, _ -> param1")
         private Intent addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
             // Add information to the intent
             _intent.putExtra("destination_photo", destination.getImageUrl());
