@@ -27,6 +27,7 @@ import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
+import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.MultiThread;
 import com.example.where_to_go.utilities.YelpClient;
 import com.google.android.gms.maps.CameraUpdate;
@@ -168,15 +169,17 @@ public class MapFragment extends Fragment {
 
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException {
         Log.i(TAG, "Start filter");
-        final YelpClient yelpClient = new YelpClient();
         List<String> categories = new ArrayList<>();
+
         if (Objects.equals(intent, "Filter")) {
             categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
         } else { // TODO: Adjust for each featured package.
             categories.add("");
         }
+
         Log.i(TAG, categories.toString());
         MultiThread myThread;
+
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
             myThread = new MultiThread(category, FilterActivity.currentLongitude, FilterActivity.currentLatitude);
@@ -184,6 +187,20 @@ public class MapFragment extends Fragment {
             myThread.join();
             categoryDestinationsMap.put(category, myThread.getCategoryDestinationsMap());
         }
+
+        Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
+
+        filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+
+        filteredDestinations.addAll(filteredResults);
+
+        // Update the Adapter
+        filteredDestinationAdapter.notifyDataSetChanged();
+
+        setGoogleMap(googleMap, filteredDestinations);
+
+        // Users can reorder locations
+        setDragDropDestinations(rvDestinations);
     }
 
     private void setFilteredDestinationRecyclerView() {
