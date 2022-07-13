@@ -22,6 +22,7 @@ import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.utilities.SeekBarComparator;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 public class FilterActivity extends AppCompatActivity {
 
@@ -240,7 +242,7 @@ public class FilterActivity extends AppCompatActivity {
         llDestinationType.setVisibility(View.VISIBLE);
     }
 
-    private void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull Spinner _spPrice, @NonNull Spinner _spTransportation, SeekBar[] _seekBars) throws JSONException {
+    private synchronized void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull Spinner _spPrice, @NonNull Spinner _spTransportation, SeekBar[] _seekBars) throws JSONException {
         String tvNoDays_str = _tvNoDays.getText().toString();
         String spPrice = _spPrice.getSelectedItem().toString();
         String spTransportationType = _spTransportation.getSelectedItem().toString();

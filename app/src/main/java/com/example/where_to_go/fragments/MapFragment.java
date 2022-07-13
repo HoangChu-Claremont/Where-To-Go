@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +23,7 @@ import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
+import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.FilterAlgorithm;
@@ -36,7 +38,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.yelp.clientlib.entities.User;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +49,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MapFragment extends Fragment {
     private static final String TAG = "MapFragment";
@@ -58,6 +65,7 @@ public class MapFragment extends Fragment {
     TextView etTourName;
 
     JSONObject jsonFilteredResult;
+    List<Destination> filteredResults = new ArrayList<>();
     String intent = "Default";
 
     HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
@@ -101,13 +109,14 @@ public class MapFragment extends Fragment {
             try {
                 getFilteredDestination(googleMap);
                 Log.i(TAG, "Map Created");
-            } catch (JSONException | IOException | InterruptedException e) {
+            } catch (JSONException | IOException | InterruptedException | ParseException e) {
                 e.printStackTrace();
             }
         });
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
+
             // Set up required variables for querying the DB
             etTourName = view.findViewById(R.id.etTourName);
 
@@ -115,14 +124,30 @@ public class MapFragment extends Fragment {
             ParseUser currentUser = ParseUser.getCurrentUser();
             Log.i(TAG, "Current User: " + currentUser);
 
-            if (tourName.isEmpty()) {
-                Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
+            List<String> tourNames = new ArrayList<>();
+
+            // Get a list of existing tour names
+            ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+            tourParseQuery.selectKeys(Arrays.asList(Tour.TOUR_NAME));
+            try {
+                List<Tour> tourFounds = tourParseQuery.find();
+                for (Tour tourFound : tourFounds) {
+                    tourNames.add(tourFound.getObjectId());
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
 
-            try {
-                saveToursToParseDB(tourName, currentUser);
-            } catch (ParseException | InterruptedException e) {
-                e.printStackTrace();
+            if (tourName.isEmpty()) {
+                Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
+            } else if (tourNames.contains(tourName)) {
+                Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
+            } else {
+                try {
+                    saveToursToParseDB(tourName, currentUser);
+                } catch (ParseException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -150,13 +175,16 @@ public class MapFragment extends Fragment {
         // Switch between MapFragment -> HomeFragment
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         fragmentManager.popBackStack();
-
-        // Reset bottom navigation bar
-        BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
-        bottomNavigationView.setSelectedItemId(R.id.action_home);
+        if (getActivity() instanceof FilterActivity) {
+            getActivity().finish();
+        } else if (getActivity() instanceof NavigationActivity) {
+            // Reset bottom navigation bar
+            BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
+            bottomNavigationView.setSelectedItemId(R.id.action_home);
+        }
     }
 
-    private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException {
+    private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException, ParseException {
         Log.i(TAG, "getFilteredDestination");
 
         List<String> categories = new ArrayList<>();
@@ -183,11 +211,19 @@ public class MapFragment extends Fragment {
         Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
         Log.i(TAG, "jsonResults: " + jsonResults.length());
 
-        List<Destination> filteredResults;
-        if (!intent.equals("Default")) {
-            filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+        Log.i(TAG, "Clicked on position: " + ToursAdapter.POSITION);
+
+        if (ToursAdapter.POSITION != -1) {
+            filteredResults = getDestinationsFromDB(filteredResults);
+            ToursAdapter.POSITION = -1; // Reset for next-time classification
         } else {
-            filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+            if (filteredResults.isEmpty()) {
+                if (!intent.equals("Default")) {
+                    filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+                } else {
+                    filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+                }
+            }
         }
 
         filteredDestinations.addAll(filteredResults);
@@ -199,6 +235,48 @@ public class MapFragment extends Fragment {
 
         // Users can reorder locations
         setDragDropDestinations(rvDestinations);
+    }
+
+    private List<Destination> getDestinationsFromDB(List<Destination> filteredResults) throws ParseException {
+        String clickedTourID = getClickedTourID();
+        ParseObject obj = ParseObject.createWithoutData(Tour.class, clickedTourID);
+
+        List<Destination> destinationFromDBs = ParseQuery.getQuery(Destination.class)
+                .whereEqualTo(Destination.TOUR_ID, obj)
+                .find();
+
+        for (Destination destinationFromDB : destinationFromDBs) {
+            destinationFromDB.setFieldFromDB();
+            filteredResults.add(destinationFromDB);
+        }
+
+        return filteredResults;
+    }
+
+    private String getClickedTourID(){
+        Log.i(TAG, "getDestinationsFromDB");
+        List<Destination> resultsFromDB = new ArrayList<>();
+        List<String> tourIDs = new ArrayList<>();
+
+        // Get a list of existing tour names
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.selectKeys(Arrays.asList(Tour.OBJECT_ID));
+        try {
+            List<Tour> tourFounds = tourParseQuery.find();
+            for (Tour tourFound : tourFounds) {
+                tourIDs.add(tourFound.getObjectId());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Get the clicked tour, which is the most recently session.
+        Log.i(TAG, "tourIDs size: " + tourIDs.size());
+        Log.i(TAG, "Position: " + ToursAdapter.POSITION);
+        String clickedTourID = tourIDs.get(ToursAdapter.POSITION);
+        Log.i(TAG, "clickedTourID: " + clickedTourID);
+
+        return clickedTourID;
     }
 
     private void setFilteredDestinationRecyclerView() {

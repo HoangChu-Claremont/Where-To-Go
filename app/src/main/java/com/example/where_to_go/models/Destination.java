@@ -16,12 +16,14 @@ import org.json.JSONObject;
 public class Destination extends ParseObject {
     private static final String TAG = "Destination";
 
-    private static final String LOCATION_NAME = "location_name";
-    private static final String LONGITUDE = "longitude";
-    private static final String LATITUDE = "latitude";
-    private static final String IMAGE_URL = "location_image_url";
-    private static final String RATING = "rating";
-    private static final String ID = "id";
+    public static final String LOCATION_NAME = "location_name";
+    public static final String LONGITUDE = "longitude";
+    public static final String LATITUDE = "latitude";
+    public static final String IMAGE_URL = "location_image_url";
+    public static final String RATING = "rating";
+    public static final String TOUR_ID = "tour_id";
+    public static final String PHONE = "phone";
+    public static final String ADDRESS = "address";
 
     private double longitude, latitude, distance;
     private double rating;
@@ -82,6 +84,44 @@ public class Destination extends ParseObject {
 
     public double getDistance() {
         return distance;
+    }
+
+    public void setFieldFromDB(){
+        address = getAddressDB();
+        rating = getRatingDB();
+        longitude = getLongitudeDB();
+        latitude = getLatitudeDB();
+        locationName = getLocationNameDB();
+        imageUrl = getImageUrlDB();
+        phone = getPhoneDB();
+    }
+
+    public String getAddressDB() {
+        return getString(ADDRESS);
+    }
+
+    public double getRatingDB() {
+        return getDouble(RATING);
+    }
+
+    public double getLongitudeDB() {
+        return getDouble(LONGITUDE);
+    }
+
+    public double getLatitudeDB() {
+        return getDouble(LATITUDE);
+    }
+
+    public String getLocationNameDB() {
+        return getString(LOCATION_NAME);
+    }
+
+    public String getImageUrlDB() {
+        return getString(IMAGE_URL);
+    }
+
+    public String getPhoneDB() {
+        return getString(PHONE);
     }
 
     // SETTER
@@ -145,5 +185,7 @@ public class Destination extends ParseObject {
         put(LATITUDE, latitude);
         put(IMAGE_URL, imageUrl);
         put(RATING, rating);
+        put(PHONE, phone);
+        put(ADDRESS, address);
     }
 }

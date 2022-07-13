@@ -122,7 +122,7 @@ public class HomeFragment extends Fragment {
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
 
         // Include information we want to query
-        destinationCollectionsParseQuery.include(Tour.USER_ID);
+        destinationCollectionsParseQuery.whereEqualTo(Tour.IS_FEATURED, true);
 
         // Query
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
@@ -136,6 +136,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void getRecentTours() {
+        Log.i(TAG, "getRecentTours");
+
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
         final int LIMIT = 5;
         destinationCollectionsParseQuery.include(Tour.USER_ID)
