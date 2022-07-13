@@ -129,7 +129,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             try {
                 List<Tour> tourFounds = tourParseQuery.find();
                 for (Tour tourFound : tourFounds) {
-                    tourNames.add(tourFound.getObjectId());
+                    tourNames.add(tourFound.getTourName());
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -141,6 +141,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
             } else {
                 try {
+                    Log.i(TAG, "ToursAdapter.POSITION: " + ToursAdapter.POSITION);
                     if (ToursAdapter.POSITION == -1) {
                         saveToursToParseDB(tourName, currentUser);
                     }
