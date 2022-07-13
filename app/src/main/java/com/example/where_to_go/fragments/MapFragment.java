@@ -1,10 +1,11 @@
 package com.example.where_to_go.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,6 +32,7 @@ import com.example.where_to_go.utilities.MultiThreadYelpAPI;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -40,8 +42,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.yelp.clientlib.entities.User;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,11 +49,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = "MapFragment";
 
     private static final Object LOCK = new Object();
@@ -116,7 +114,6 @@ public class MapFragment extends Fragment {
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
-
             // Set up required variables for querying the DB
             etTourName = view.findViewById(R.id.etTourName);
 
@@ -144,12 +141,24 @@ public class MapFragment extends Fragment {
                 Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
             } else {
                 try {
-                    saveToursToParseDB(tourName, currentUser);
+                    if (ToursAdapter.POSITION == -1) {
+                        saveToursToParseDB(tourName, currentUser);
+                    }
+                    startGoogleDirection(filteredDestinations);
                 } catch (ParseException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    private void startGoogleDirection(List<Destination> filteredDestinations) {
+        // TODO: Start Google Map Application
+        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
+
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse(url));
+        startActivity(intent);
     }
 
     @Override
@@ -170,6 +179,41 @@ public class MapFragment extends Fragment {
     }
 
     // HELPER METHODS
+
+    private void saveTour(@NonNull View view) {
+        // Set up required variables for querying the DB
+        etTourName = view.findViewById(R.id.etTourName);
+
+        String tourName = etTourName.getText().toString();
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        Log.i(TAG, "Current User: " + currentUser);
+
+        List<String> tourNames = new ArrayList<>();
+
+        // Get a list of existing tour names
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.selectKeys(Arrays.asList(Tour.TOUR_NAME));
+        try {
+            List<Tour> tourFounds = tourParseQuery.find();
+            for (Tour tourFound : tourFounds) {
+                tourNames.add(tourFound.getObjectId());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (tourName.isEmpty()) {
+            Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
+        } else if (tourNames.contains(tourName)) {
+            Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
+        } else {
+            try {
+                saveToursToParseDB(tourName, currentUser);
+            } catch (ParseException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void goHomeActivity() {
         // Switch between MapFragment -> HomeFragment
@@ -302,15 +346,56 @@ public class MapFragment extends Fragment {
 
         // Mark each destination on the Map
         for (Destination destination : filteredDestinations) {
-            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
             MarkerOptions marker = new MarkerOptions();
-            googleMap.addMarker(marker.position(coordinate).title(destination.getLocationName()));
-            builder.include(marker.getPosition());
+
+            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
+            MarkerOptions currentPlace = marker.position(coordinate).title(destination.getLocationName());
+
+            googleMap.addMarker(currentPlace);
+            builder.include(marker.getPosition()); // Build bounds
         }
 
         LatLngBounds bounds = builder.build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         googleMap.moveCamera(cameraUpdate);
+    }
+
+    @NonNull
+    private String getUrl(@NonNull List<Destination> filteredDestinations, String directionMode) {
+        Log.i(TAG, "Get Url with filteredDestinations size: " + filteredDestinations.size());
+        // Set output format
+        String outputFormat = "json";
+
+        // Origin of route
+        Destination origin = filteredDestinations.get(0);
+        String strOrigin = "origin=" + origin.getLatitude() + "%2C" + origin.getLongitude();
+        // Destination of route
+        Destination dest = filteredDestinations.get(filteredDestinations.size()-1);
+        String strDest = "destination=" + dest.getLatitude() + "%2C" + dest.getLongitude();
+
+        // Build the startEnd for the API
+        String startEnd = strOrigin + "&" + strDest;
+
+        // Set waypoints
+        StringBuilder waypoints = new StringBuilder();
+        for (int i = 1; i < filteredDestinations.size()-1 - 1; ++i) { // We don't need '|' for the last one
+            Destination waypoint = filteredDestinations.get(i);
+            waypoints.append(waypoint.getLatitude()).append("%2C").append(waypoint.getLongitude());
+            waypoints.append("%7C");
+        }
+        Destination finalWaypoint = filteredDestinations.get(filteredDestinations.size()-1-1);
+        waypoints.append(finalWaypoint.getLatitude()).append("%2C").append(finalWaypoint.getLongitude());
+        Log.i(TAG, "waypoints: " + waypoints);
+
+        // Mode
+        String mode = "mode=" + directionMode;
+
+        // Build the url
+        String url = "https://maps.googleapis.com/maps/api/directions/" + outputFormat + "?"
+                + startEnd + "&" + waypoints + "&" + mode + "&key=" + getString(R.string.google_maps_api_key);
+
+        Log.i(TAG, "URL: " + url);
+        return url;
     }
 
     private void setDragDropDestinations(RecyclerView rvDestinations) {
@@ -385,5 +470,10 @@ public class MapFragment extends Fragment {
                 Log.e(TAG, "Error while saving a new destination", e);
             }
         });
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+
     }
 }
