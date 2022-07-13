@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.FilterActivity;
@@ -51,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = "MapFragment";
@@ -94,6 +97,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Log.i(TAG, "Clicked on ToursAdapter position: " + ToursAdapter.POSITION);
+
+        if (ToursAdapter.POSITION != -1) {
+            EditText etTourName = view.findViewById(getResources().getIdentifier("etTourName", "id", requireActivity().getPackageName()));
+            etTourName.setVisibility(View.GONE);
+        }
 
         // Featured Destination
         setFilteredDestinationRecyclerView();
@@ -174,13 +184,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
         } else {
             try {
-                Log.i(TAG, "ToursAdapter.POSITION: " + ToursAdapter.POSITION);
                 if (ToursAdapter.POSITION == -1) {
                     saveToursToParseDB(tourName, currentUser);
                 } else {
                     ToursAdapter.POSITION = -1; // Reset for next-time classification
                 }
-                Log.i(TAG, "start google direction");
+                Log.i(TAG, "Start Google Maps's Directions");
                 startGoogleDirection(filteredDestinations);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -229,8 +238,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
         Log.i(TAG, "jsonResults: " + jsonResults.length());
-
-        Log.i(TAG, "Clicked on position: " + ToursAdapter.POSITION);
 
         if (ToursAdapter.POSITION != -1) {
             filteredResults = getDestinationsFromDB(filteredResults);
@@ -290,7 +297,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Get the clicked tour, which is the most recently session.
         Log.i(TAG, "tourIDs size: " + tourIDs.size());
-        Log.i(TAG, "Position: " + ToursAdapter.POSITION);
         String clickedTourID = tourIDs.get(ToursAdapter.POSITION);
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
