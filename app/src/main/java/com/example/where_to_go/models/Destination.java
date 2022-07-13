@@ -179,7 +179,7 @@ public class Destination extends ParseObject {
         imageUrl = jsonObject.getString("image_url");
     }
 
-    public void putToDB() {
+    public void putToDB() throws Exception{
         put(LOCATION_NAME, locationName);
         put(LONGITUDE, longitude);
         put(LATITUDE, latitude);
