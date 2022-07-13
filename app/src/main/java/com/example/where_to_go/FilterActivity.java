@@ -41,11 +41,8 @@ public class FilterActivity extends AppCompatActivity {
     private static final String INTENT = "Filter";
     private static final int TOTAL_CATEGORIES = 8;
     private static final int TOTAL_PERCENTAGE = 100;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static int addCategoryClickCount;
 
-    boolean locationPermissionGranted = false;
-    public static double currentLongitude, currentLatitude;
+    private static int addCategoryClickCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,14 +53,6 @@ public class FilterActivity extends AppCompatActivity {
         Spinner spTransportation = findViewById(R.id.spTransportation);
         Spinner spPrice = findViewById(R.id.spPrice);
         SeekBar[] seekBars = new SeekBar[TOTAL_CATEGORIES];
-
-        if (hasPermission()) {
-            Log.i(TAG, "Getting current location...");
-            getDeviceLocation();
-        } else {
-            Log.i(TAG, "Requesting location permission...");
-            requestPermissions();
-        }
 
         initCategories(seekBars);
 
@@ -130,19 +119,6 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        locationPermissionGranted = false;
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) { // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getDeviceLocation();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            Toast.makeText(this, "Please allow location permission for your best experience", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     // HELPER METHODS
 
@@ -158,33 +134,6 @@ public class FilterActivity extends AppCompatActivity {
         for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Init all of them invisible
             setCategoryInVisible(id);
         }
-    }
-
-    private boolean hasPermission() {
-        return ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, new String[] {
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        }, 1);
-    }
-
-    @SuppressLint("MissingPermission")
-    private void getDeviceLocation() {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            // Got last known location. In some rare situations this can be null.
-            if (location != null) {
-                currentLongitude = location.getLongitude();
-                currentLatitude = location.getLatitude();
-                Log.i(TAG, "Current Longitude: " + currentLongitude);
-                Log.i(TAG, "Current Latitude: " + currentLatitude);
-            }
-        });
     }
 
     @NonNull

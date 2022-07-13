@@ -1,10 +1,11 @@
 package com.example.where_to_go.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,9 +18,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.FilterActivity;
+import com.example.where_to_go.MainActivity;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.DestinationsAdapter;
@@ -31,6 +35,7 @@ import com.example.where_to_go.utilities.MultiThreadYelpAPI;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -40,8 +45,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.yelp.clientlib.entities.User;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,11 +52,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = "MapFragment";
 
     private static final Object LOCK = new Object();
@@ -96,6 +98,13 @@ public class MapFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Log.i(TAG, "Clicked on ToursAdapter position: " + ToursAdapter.POSITION);
+
+        if (ToursAdapter.POSITION != -1) {
+            EditText etTourName = view.findViewById(getResources().getIdentifier("etTourName", "id", requireActivity().getPackageName()));
+            etTourName.setVisibility(View.GONE);
+        }
+
         // Featured Destination
         setFilteredDestinationRecyclerView();
 
@@ -116,40 +125,19 @@ public class MapFragment extends Fragment {
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
-
             // Set up required variables for querying the DB
             etTourName = view.findViewById(R.id.etTourName);
-
-            String tourName = etTourName.getText().toString();
-            ParseUser currentUser = ParseUser.getCurrentUser();
-            Log.i(TAG, "Current User: " + currentUser);
-
-            List<String> tourNames = new ArrayList<>();
-
-            // Get a list of existing tour names
-            ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-            tourParseQuery.selectKeys(Arrays.asList(Tour.TOUR_NAME));
-            try {
-                List<Tour> tourFounds = tourParseQuery.find();
-                for (Tour tourFound : tourFounds) {
-                    tourNames.add(tourFound.getObjectId());
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
-            if (tourName.isEmpty()) {
-                Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
-            } else if (tourNames.contains(tourName)) {
-                Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
-            } else {
-                try {
-                    saveToursToParseDB(tourName, currentUser);
-                } catch (ParseException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            startSaveAction();
         });
+    }
+
+    private void startGoogleDirection(List<Destination> filteredDestinations) {
+        // TODO: Start Google Map Application
+        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
+
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse(url));
+        startActivity(intent);
     }
 
     @Override
@@ -170,6 +158,44 @@ public class MapFragment extends Fragment {
     }
 
     // HELPER METHODS
+
+    private void startSaveAction() {
+        String tourName = etTourName.getText().toString();
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        Log.i(TAG, "Current User: " + currentUser);
+
+        List<String> tourNames = new ArrayList<>();
+
+        // Get a list of existing tour names
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.selectKeys(Arrays.asList(Tour.TOUR_NAME));
+        try {
+            List<Tour> tourFounds = tourParseQuery.find();
+            for (Tour tourFound : tourFounds) {
+                tourNames.add(tourFound.getTourName());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (tourName.isEmpty()) {
+            Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
+        } else if (tourNames.contains(tourName)) {
+            Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
+        } else {
+            try {
+                if (ToursAdapter.POSITION == -1) {
+                    saveToursToParseDB(tourName, currentUser);
+                } else {
+                    ToursAdapter.POSITION = -1; // Reset for next-time classification
+                }
+                Log.i(TAG, "Start Google Maps's Directions");
+                startGoogleDirection(filteredDestinations);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void goHomeActivity() {
         // Switch between MapFragment -> HomeFragment
@@ -199,7 +225,9 @@ public class MapFragment extends Fragment {
         JSONArray jsonResults = new JSONArray();
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
-            myThread = new MultiThreadYelpAPI(category, FilterActivity.currentLongitude, FilterActivity.currentLatitude);
+            Log.i(TAG, "Current Latitude: " + MainActivity.CURRENT_LATITUDE);
+            Log.i(TAG, "Current Longitude: " + MainActivity.CURRENT_LONGITUDE);
+            myThread = new MultiThreadYelpAPI(category, MainActivity.CURRENT_LONGITUDE, MainActivity.CURRENT_LATITUDE);
             myThread.start();
             myThread.join();
             jsonResults = myThread.getJsonResults();
@@ -211,11 +239,8 @@ public class MapFragment extends Fragment {
         Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
         Log.i(TAG, "jsonResults: " + jsonResults.length());
 
-        Log.i(TAG, "Clicked on position: " + ToursAdapter.POSITION);
-
         if (ToursAdapter.POSITION != -1) {
             filteredResults = getDestinationsFromDB(filteredResults);
-            ToursAdapter.POSITION = -1; // Reset for next-time classification
         } else {
             if (filteredResults.isEmpty()) {
                 if (!intent.equals("Default")) {
@@ -272,7 +297,6 @@ public class MapFragment extends Fragment {
 
         // Get the clicked tour, which is the most recently session.
         Log.i(TAG, "tourIDs size: " + tourIDs.size());
-        Log.i(TAG, "Position: " + ToursAdapter.POSITION);
         String clickedTourID = tourIDs.get(ToursAdapter.POSITION);
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
@@ -302,15 +326,55 @@ public class MapFragment extends Fragment {
 
         // Mark each destination on the Map
         for (Destination destination : filteredDestinations) {
-            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
             MarkerOptions marker = new MarkerOptions();
-            googleMap.addMarker(marker.position(coordinate).title(destination.getLocationName()));
-            builder.include(marker.getPosition());
+
+            LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
+            MarkerOptions currentPlace = marker.position(coordinate).title(destination.getLocationName());
+
+            googleMap.addMarker(currentPlace);
+            builder.include(marker.getPosition()); // Build bounds
         }
 
         LatLngBounds bounds = builder.build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         googleMap.moveCamera(cameraUpdate);
+    }
+
+    @NonNull
+    private String getUrl(@NonNull List<Destination> filteredDestinations, String directionMode) {
+        Log.i(TAG, "Get Url with filteredDestinations size: " + filteredDestinations.size());
+
+        Log.i(TAG, "Current Latitude: " + MainActivity.CURRENT_LATITUDE);
+        Log.i(TAG, "Current Longitude: " + MainActivity.CURRENT_LONGITUDE);
+
+        // Origin of route
+        String strOrigin = "origin=" + MainActivity.CURRENT_LATITUDE + "%2C" + MainActivity.CURRENT_LONGITUDE;
+        // Destination of route
+        String strDest = "destination=" + MainActivity.CURRENT_LATITUDE + "%2C" + MainActivity.CURRENT_LONGITUDE;
+
+        // Build the startEnd for the API
+        String startEnd = strOrigin + "&" + strDest;
+
+        // Set waypoints
+        StringBuilder waypoints = new StringBuilder("waypoints=");
+        for (int i = 0; i < filteredDestinations.size()-1; ++i) { // We don't need '|' for the last one
+            Destination waypoint = filteredDestinations.get(i);
+            waypoints.append(waypoint.getLatitude()).append("%2C").append(waypoint.getLongitude());
+            waypoints.append("%7C");
+        }
+        Destination finalWaypoint = filteredDestinations.get(filteredDestinations.size()-1-1);
+        waypoints.append(finalWaypoint.getLatitude()).append("%2C").append(finalWaypoint.getLongitude());
+        Log.i(TAG, "waypoints: " + waypoints);
+
+        // Mode
+        String mode = "travelmode=" + directionMode;
+
+        // Build the url
+        String url = "https://www.google.com/maps/dir/?api=1&"
+                + startEnd + "&" + waypoints + "&" + mode + "&key=" + getString(R.string.google_maps_api_key);
+
+        Log.i(TAG, "URL: " + url);
+        return url;
     }
 
     private void setDragDropDestinations(RecyclerView rvDestinations) {
@@ -333,7 +397,7 @@ public class MapFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void saveToursToParseDB(String tourName, ParseUser currentUser) throws ParseException, InterruptedException {
+    private void saveToursToParseDB(String tourName, ParseUser currentUser) throws Exception {
         Log.i(TAG, "saveToursToParseDB");
 
         Tour destinationCollections = saveToToursDB(tourName, currentUser);
@@ -372,7 +436,7 @@ public class MapFragment extends Fragment {
         return destinationCollections;
     }
 
-    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) {
+    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) throws Exception {
         String objectId = currentTour.getObjectId();
         Log.i(TAG, "saveToDestinationsDB: " + objectId);
 
@@ -385,5 +449,10 @@ public class MapFragment extends Fragment {
                 Log.e(TAG, "Error while saving a new destination", e);
             }
         });
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+
     }
 }
