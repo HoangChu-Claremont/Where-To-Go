@@ -16,11 +16,11 @@ import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Tour;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.util.List;
 
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
+    public static int POSITION = -1;
     private List<Tour> featuredTours;
     private Context context;
 
@@ -65,24 +65,24 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             itemView.setOnClickListener(this);
         }
 
-        public void bind(@NonNull Tour featuredTour) {
+        public void bind(@NonNull Tour tour) {
             Log.i(TAG, "binding");
 
-            ivTourName.setText(featuredTour.getTourName());
+            ivTourName.setText(tour.getTourName());
 
             Glide.with(context).load("https://imgur.com/a/K0wRQZO")
                     .centerCrop()
                     .placeholder(R.drawable.profile_gradient)
                     .into(ivTourImage); // TODO: Set this image right
-            showSavedStatus(featuredTour.getSaved());
+            showSavedStatus(tour.getSaved());
 
             ibTourBookmark.setOnClickListener(v -> {
-                Log.i(TAG, String.valueOf(featuredTour.getSaved()));
-                featuredTour.setIsSaved(!featuredTour.getSaved());
-                Log.i(TAG, String.valueOf(featuredTour.getSaved()));
+                Log.i(TAG, String.valueOf(tour.getSaved()));
+                tour.setIsSaved(!tour.getSaved());
+                Log.i(TAG, String.valueOf(tour.getSaved()));
 
-                featuredTour.saveInBackground();
-                showSavedStatus(featuredTour.getSaved());
+                tour.saveInBackground();
+                showSavedStatus(tour.getSaved());
             });
         }
 
@@ -95,6 +95,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
+                POSITION = position;
                 // Switch HomeFragment -> MapFragment
                 BottomNavigationView bottomNavigationView = ((NavigationActivity) context).bottomNavigationView;
                 bottomNavigationView.setSelectedItemId(R.id.action_map);
