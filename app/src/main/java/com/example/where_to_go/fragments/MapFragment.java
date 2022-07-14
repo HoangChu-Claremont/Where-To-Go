@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.FilterActivity;
@@ -127,7 +126,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         btnStartSaveTour.setOnClickListener(v -> {
             // Set up required variables for querying the DB
             etTourName = view.findViewById(R.id.etTourName);
-            startSaveAction();
+            try {
+                startSaveAction();
+                goHomeActivity();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -152,6 +156,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (item.getItemId() == R.id.action_back) {
             Log.i(TAG, "onClick Back Button");
             goHomeActivity();
+            ToursAdapter.POSITION = -1; // Reset for next-time classification
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -159,14 +164,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // HELPER METHODS
 
-    private void startSaveAction() {
+    private void startSaveAction() throws Exception {
         String tourName = etTourName.getText().toString();
         ParseUser currentUser = ParseUser.getCurrentUser();
         Log.i(TAG, "Current User: " + currentUser);
 
-        List<String> tourNames = new ArrayList<>();
-
         // Get a list of existing tour names
+        List<String> tourNames = getExistingTourNamesInDB(new ArrayList<>());
+
+        if (ToursAdapter.POSITION == -1) { // Destinations after being filtered
+            if (tourName.isEmpty()) {
+                Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
+            } else if (tourNames.contains(tourName)) {
+                Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
+            } else {
+                saveToursToParseDB(tourName, currentUser);
+                Log.i(TAG, "Start Google Maps's Directions");
+                startGoogleDirection(filteredDestinations);
+            }
+        } else { // Featured or saved or seen destinations
+            Log.i(TAG, "Start Google Maps's Directions");
+            startGoogleDirection(filteredDestinations);
+        }
+    }
+
+    private List<String> getExistingTourNamesInDB(List<String> tourNames) {
+
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         tourParseQuery.selectKeys(Arrays.asList(Tour.TOUR_NAME));
         try {
@@ -178,23 +201,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             e.printStackTrace();
         }
 
-        if (tourName.isEmpty()) {
-            Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
-        } else if (tourNames.contains(tourName)) {
-            Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
-        } else {
-            try {
-                if (ToursAdapter.POSITION == -1) {
-                    saveToursToParseDB(tourName, currentUser);
-                } else {
-                    ToursAdapter.POSITION = -1; // Reset for next-time classification
-                }
-                Log.i(TAG, "Start Google Maps's Directions");
-                startGoogleDirection(filteredDestinations);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        return tourNames;
     }
 
     private void goHomeActivity() {

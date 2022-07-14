@@ -2,19 +2,23 @@ package com.example.where_to_go;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.fragments.ProfileFragment;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.parse.ParseUser;
@@ -29,6 +33,13 @@ public class NavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
+
+        if (!hasPermission()) {
+            Log.i(TAG, "Requesting location permission...");
+            requestPermissions();
+        } else {
+            getDeviceLocation();
+        }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -85,5 +96,31 @@ public class NavigationActivity extends AppCompatActivity {
     private void goLoginActivity() {
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
+    }
+
+    // HELPER METHODS
+    @SuppressLint("MissingPermission")
+    private void getDeviceLocation() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            // Got last known location. In some rare situations this can be null.
+            MainActivity.CURRENT_LONGITUDE = location.getLongitude();
+            MainActivity.CURRENT_LATITUDE = location.getLatitude();
+            Log.i(TAG, "Current Longitude: " + MainActivity.CURRENT_LONGITUDE);
+            Log.i(TAG, "Current Latitude: " + MainActivity.CURRENT_LATITUDE);
+        });
+    }
+
+    private boolean hasPermission() {
+        return ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[] {
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        }, 1);
     }
 }

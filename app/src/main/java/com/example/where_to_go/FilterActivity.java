@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.regex.Pattern;
 
 public class FilterActivity extends AppCompatActivity {
 
@@ -198,7 +199,11 @@ public class FilterActivity extends AppCompatActivity {
         String category = getCategory(_seekBars);
         List<Integer> preferences = getPreferences(_seekBars);
 
-        if (!tvNoDays_str.isEmpty()) {
+        if (tvNoDays_str.isEmpty()) {
+            Toast.makeText(this, "Number of days is required!", Toast.LENGTH_SHORT).show();
+        } else if (!isValidNoDays(tvNoDays_str)) {
+            Toast.makeText(this, "Number of days contains only numbers!", Toast.LENGTH_SHORT).show();
+        } else {
             Log.i(TAG, "Retrieved result: ");
             Log.i(TAG, "Number of days: " + tvNoDays_str);
             Log.i(TAG, "Price: " + spPrice);
@@ -213,9 +218,13 @@ public class FilterActivity extends AppCompatActivity {
             FragmentManager fragmentManager = getSupportFragmentManager();
             Log.i(TAG, "Begin to Map");
             fragmentManager.beginTransaction().replace(R.id.clFilter, new MapFragment(INTENT, jsonFilterObject)).addToBackStack(TAG).commit();
-        } else {
-            Toast.makeText(this, "Number of days is required!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean isValidNoDays(String tvNoDays_str) {
+        String regexDoubleTypedNumber = "[0-9.]*";
+        Pattern digitPattern = Pattern.compile(regexDoubleTypedNumber);
+        return digitPattern.matcher(tvNoDays_str).matches();
     }
 
     @NonNull

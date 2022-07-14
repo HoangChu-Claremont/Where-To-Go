@@ -67,10 +67,7 @@ public class HomeFragment extends Fragment {
         // Get Tour
         getFeaturedTours();
         getRecentTours();
-
     }
-
-    // HELPER METHODS
 
     private void goFilterActivity() {
         Log.i(TAG, "goFilterActivity");
