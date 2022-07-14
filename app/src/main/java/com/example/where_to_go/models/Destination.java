@@ -1,8 +1,6 @@
 package com.example.where_to_go.models;
 
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.parse.ParseClassName;
@@ -31,7 +29,7 @@ public class Destination extends ParseObject {
     private String imageUrl;
     private String phone;
     private String address;
-    private String id;
+    private String yelpId;
 
     public Destination() {
         // empty constructor required by the Parceler library
@@ -45,13 +43,12 @@ public class Destination extends ParseObject {
         setPhone(jsonObject);
         setAddress(jsonObject);
         setDistance(jsonObject);
-        setID(jsonObject);
+        setYelpID(jsonObject);
     }
 
     // GETTER
-
-    public String getId() {
-        return id;
+    public String getYelpId() {
+        return yelpId;
     }
 
     public String getAddress() {
@@ -86,14 +83,8 @@ public class Destination extends ParseObject {
         return distance;
     }
 
-    public void setFieldFromDB(){
-        address = getAddressDB();
-        rating = getRatingDB();
-        longitude = getLongitudeDB();
-        latitude = getLatitudeDB();
-        locationName = getLocationNameDB();
-        imageUrl = getImageUrlDB();
-        phone = getPhoneDB();
+    public String getIdDB() {
+        return this.getObjectId();
     }
 
     public String getAddressDB() {
@@ -124,10 +115,20 @@ public class Destination extends ParseObject {
         return getString(PHONE);
     }
 
+    public void getFieldFromDB(){
+        address = getAddressDB();
+        rating = getRatingDB();
+        longitude = getLongitudeDB();
+        latitude = getLatitudeDB();
+        locationName = getLocationNameDB();
+        imageUrl = getImageUrlDB();
+        phone = getPhoneDB();
+    }
+
     // SETTER
 
-    private void setID(@NonNull JSONObject jsonObject) throws JSONException {
-        id = jsonObject.getString("id");
+    private void setYelpID(@NonNull JSONObject jsonObject) throws JSONException {
+        yelpId = jsonObject.getString("id");
     }
 
     private void setAddress(@NonNull JSONObject jsonObject) throws JSONException {
@@ -179,7 +180,7 @@ public class Destination extends ParseObject {
         imageUrl = jsonObject.getString("image_url");
     }
 
-    public void putToDB() throws Exception{
+    public void putToDB() {
         put(LOCATION_NAME, locationName);
         put(LONGITUDE, longitude);
         put(LATITUDE, latitude);

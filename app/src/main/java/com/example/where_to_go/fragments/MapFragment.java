@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = "MapFragment";
@@ -128,7 +127,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             etTourName = view.findViewById(R.id.etTourName);
             try {
                 startSaveAction();
-                goHomeActivity();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -177,6 +175,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Toast.makeText(getContext(), "Tour name can't be empty", Toast.LENGTH_SHORT).show();
             } else if (tourNames.contains(tourName)) {
                 Toast.makeText(getContext(), "Tour name already exists", Toast.LENGTH_SHORT).show();
+            } else if (filteredDestinations.size() == 0) {
+                Toast.makeText(getContext(), "There is no destinations to save", Toast.LENGTH_SHORT).show();
             } else {
                 saveToursToParseDB(tourName, currentUser);
                 Log.i(TAG, "Start Google Maps's Directions");
@@ -270,15 +270,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private List<Destination> getDestinationsFromDB(List<Destination> filteredResults) throws ParseException {
+        Log.i(TAG, "getDestinationsFromDB");
+
         String clickedTourID = getClickedTourID();
         ParseObject obj = ParseObject.createWithoutData(Tour.class, clickedTourID);
+
+        Log.i(TAG, "clickedTourID: " + clickedTourID);
 
         List<Destination> destinationFromDBs = ParseQuery.getQuery(Destination.class)
                 .whereEqualTo(Destination.TOUR_ID, obj)
                 .find();
 
         for (Destination destinationFromDB : destinationFromDBs) {
-            destinationFromDB.setFieldFromDB();
+            destinationFromDB.getFieldFromDB();
             filteredResults.add(destinationFromDB);
         }
 
@@ -287,12 +291,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private String getClickedTourID(){
         Log.i(TAG, "getDestinationsFromDB");
-        List<Destination> resultsFromDB = new ArrayList<>();
         List<String> tourIDs = new ArrayList<>();
 
         // Get a list of existing tour names
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-        tourParseQuery.selectKeys(Arrays.asList(Tour.OBJECT_ID));
+        tourParseQuery.addDescendingOrder("updatedAt")
+                .selectKeys(Arrays.asList(Tour.OBJECT_ID));
         try {
             List<Tour> tourFounds = tourParseQuery.find();
             for (Tour tourFound : tourFounds) {
@@ -303,7 +307,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         // Get the clicked tour, which is the most recently session.
-        Log.i(TAG, "tourIDs size: " + tourIDs.size());
+        Log.i(TAG, "tourIDs: " + tourIDs);
+        Log.i(TAG, "clicked tour position: " + ToursAdapter.POSITION);
         String clickedTourID = tourIDs.get(ToursAdapter.POSITION);
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
@@ -364,13 +369,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Set waypoints
         StringBuilder waypoints = new StringBuilder("waypoints=");
-        for (int i = 0; i < filteredDestinations.size()-1; ++i) { // We don't need '|' for the last one
+        String pipeSymbol = "%7C";
+        String commaSymbol = "%2C";
+        for (int i = 0; i < filteredDestinations.size(); ++i) { // We don't need '|' for the last one
             Destination waypoint = filteredDestinations.get(i);
-            waypoints.append(waypoint.getLatitude()).append("%2C").append(waypoint.getLongitude());
-            waypoints.append("%7C");
+            waypoints.append(waypoint.getLatitude()).append(commaSymbol).append(waypoint.getLongitude());
+            waypoints.append(pipeSymbol);
         }
-        Destination finalWaypoint = filteredDestinations.get(filteredDestinations.size()-1-1);
-        waypoints.append(finalWaypoint.getLatitude()).append("%2C").append(finalWaypoint.getLongitude());
+        waypoints.substring(0, waypoints.length() - pipeSymbol.length());
         Log.i(TAG, "waypoints: " + waypoints);
 
         // Mode
@@ -387,7 +393,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void setDragDropDestinations(RecyclerView rvDestinations) {
         Log.i(TAG, "setDragDropDestinations");
 
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.START | ItemTouchHelper.END, ItemTouchHelper.UP | ItemTouchHelper.DOWN) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 int fromPosition = viewHolder.getAdapterPosition();
@@ -398,6 +404,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+
+                if (position != RecyclerView.NO_POSITION) {
+                    filteredDestinationAdapter.onItemRemove(position);
+                }
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);

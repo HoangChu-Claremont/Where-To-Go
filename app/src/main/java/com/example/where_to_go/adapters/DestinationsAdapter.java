@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -17,6 +19,9 @@ import com.bumptech.glide.Glide;
 import com.example.where_to_go.DestinationDetailsActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+
 import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +71,45 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         Log.i(TAG, "Swap item " + fromPosition + " with item " + toPosition);
         notifyItemMoved(fromPosition, toPosition);
+    }
+
+    public void onItemRemove(int deletingPosition) {
+        Log.i(TAG, "onItemDeleted");
+        Log.i(TAG, "Previous size: " + destinations.size());
+        Log.i(TAG, "Delete destination #" + deletingPosition);
+
+        String removeDestinationId = destinations.get(deletingPosition).getIdDB();
+        destinations.remove(deletingPosition);
+        Log.i(TAG, "Current size: " + destinations.size());
+
+        removeDestinationsFromDatabaseIfExists(removeDestinationId);
+
+        notifyItemRemoved(deletingPosition);
+    }
+
+    private void removeDestinationsFromDatabaseIfExists(String removeDestinationId) {
+        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery("Destinations");
+
+        try {
+            Destination removeDestination = destinationParseQuery.get(removeDestinationId);
+            String removeDestinationName = removeDestination.getLocationNameDB(); // For debugging purpose
+
+            removeDestinationFromDB(removeDestination);
+            Log.i(TAG, "Remove destination " + removeDestinationName + "successfully!");
+        } catch (ParseException e) {
+            Toast.makeText(context, "Can't find destination", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    private void removeDestinationFromDB(@NonNull Destination removeDestination) {
+        try {
+            removeDestination.delete();
+            removeDestination.saveInBackground();
+        } catch (ParseException exception) {
+            Toast.makeText(context, "Can't remove destination", Toast.LENGTH_SHORT).show();
+            exception.printStackTrace();
+        }
     }
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

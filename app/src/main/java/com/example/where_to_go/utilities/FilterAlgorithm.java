@@ -121,7 +121,7 @@ public class FilterAlgorithm {
             // Select a starting position
             Destination startingDestination = getStartingDestination(jsonDestinations, seenDestinations);
             builtTour.add(startingDestination);
-            seenDestinations.add(startingDestination.getId());
+            seenDestinations.add(startingDestination.getYelpId());
 
             // Build a tour recursively
             Pair<List<Destination>, Double> aTourWithRatings = buildOneTour(builtTour, _orderedCategories,
@@ -130,7 +130,7 @@ public class FilterAlgorithm {
             // Update and Reset for a new tour
             returningTours.add(aTourWithRatings);
             seenDestinations = new HashSet<>();
-            seenDestinations.add(startingDestination.getId());
+            seenDestinations.add(startingDestination.getYelpId());
         }
 
         return returningTours;
@@ -187,7 +187,7 @@ public class FilterAlgorithm {
 
         // Add a destination and update total rating
         _builtTour.add(nextClosestDestination);
-        seenDestinations.add(nextClosestDestination.getId());
+        seenDestinations.add(nextClosestDestination.getYelpId());
         _totalRating += nextClosestDestination.getRating();
 
         return buildOneTour(_builtTour, _orderedCategories, _currentCategoryOrder + 1, _totalRating, _categoryDestinationsMap, seenDestinations);
