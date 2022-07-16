@@ -38,7 +38,7 @@ public class NavigationActivity extends AppCompatActivity {
             Log.i(TAG, "Requesting location permission...");
             requestPermissions();
         } else {
-            getDeviceLocation();
+//            getDeviceLocation();
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);

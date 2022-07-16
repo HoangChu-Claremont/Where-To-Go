@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.FilterActivity;
@@ -29,6 +30,7 @@ import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
+import com.example.where_to_go.utilities.DatabaseUtils;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.MultiThreadYelpAPI;
 import com.google.android.gms.maps.CameraUpdate;
@@ -195,7 +197,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         try {
             List<Tour> tourFounds = tourParseQuery.find();
             for (Tour tourFound : tourFounds) {
-                tourNames.add(tourFound.getTourName());
+                tourNames.add(tourFound.getTourNameDB());
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -273,12 +275,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.i(TAG, "getDestinationsFromDB");
 
         String clickedTourID = getClickedTourID();
-        ParseObject obj = ParseObject.createWithoutData(Tour.class, clickedTourID);
+        ParseObject tourDB_Object = ParseObject.createWithoutData(Tour.class, clickedTourID);
 
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
         List<Destination> destinationFromDBs = ParseQuery.getQuery(Destination.class)
-                .whereEqualTo(Destination.TOUR_ID, obj)
+                .whereEqualTo(Destination.TOUR_ID, tourDB_Object)
                 .find();
 
         for (Destination destinationFromDB : destinationFromDBs) {
@@ -296,7 +298,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Get a list of existing tour names
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         tourParseQuery.addDescendingOrder("updatedAt")
-                .selectKeys(Arrays.asList(Tour.OBJECT_ID));
+                .selectKeys(Arrays.asList(Tour.KEY_OBJECT_ID));
         try {
             List<Tour> tourFounds = tourParseQuery.find();
             for (Tour tourFound : tourFounds) {
@@ -454,7 +456,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return destinationCollections;
     }
 
-    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) throws Exception {
+    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) {
         String objectId = currentTour.getObjectId();
         Log.i(TAG, "saveToDestinationsDB: " + objectId);
 

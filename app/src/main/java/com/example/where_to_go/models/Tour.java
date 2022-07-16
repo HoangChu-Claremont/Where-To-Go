@@ -12,22 +12,21 @@ public class Tour extends ParseObject {
     public static final String USER_ID = "user_id";
     public static final String IS_SAVED = "isSaved";
     public static final String IS_FEATURED = "isFeatured";
-    public static final String OBJECT_ID = "objectId";
 
     // GETTER
-    public String getTourName() {
+    public String getTourNameDB() {
         return getString(TOUR_NAME);
     }
 
-    public String getTransportationSeconds() {
+    public String getTransportationSecondsDB() {
         return getString(TRANSPORTATION_SECONDS);
     }
 
-    public ParseUser getUserId() {
+    public ParseUser getUserIdDB() {
         return getParseUser(USER_ID);
     }
 
-    public boolean getSaved() {
+    public boolean getIsSaved() {
         return getBoolean(IS_SAVED);
     }
 

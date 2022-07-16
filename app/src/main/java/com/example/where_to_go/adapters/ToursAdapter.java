@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Tour;
+import com.example.where_to_go.utilities.DatabaseUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
         private ImageView ivTourImage;
         private TextView ivTourName;
         private ImageButton ibTourBookmark;
+        private ImageButton ibRemove;
 
         public FeaturedTourViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -60,6 +62,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             ivTourImage = itemView.findViewById(R.id.ivTourImage);
             ivTourName = itemView.findViewById(R.id.tvTourName);
             ibTourBookmark = itemView.findViewById(R.id.ibBookmark);
+            ibRemove = itemView.findViewById(R.id.ibRemove);
 
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
@@ -68,21 +71,33 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
         public void bind(@NonNull Tour tour) {
             Log.i(TAG, "binding");
 
-            ivTourName.setText(tour.getTourName());
+            ivTourName.setText(tour.getTourNameDB());
 
             Glide.with(context).load("https://imgur.com/a/K0wRQZO")
                     .centerCrop()
                     .placeholder(R.drawable.profile_gradient)
                     .into(ivTourImage); // TODO: Set this image right
-            showSavedStatus(tour.getSaved());
+            showSavedStatus(tour.getIsSaved());
 
             ibTourBookmark.setOnClickListener(v -> {
-                Log.i(TAG, String.valueOf(tour.getSaved()));
-                tour.setIsSaved(!tour.getSaved());
-                Log.i(TAG, String.valueOf(tour.getSaved()));
+                Log.i(TAG, String.valueOf(tour.getIsSaved()));
+                tour.setIsSaved(!tour.getIsSaved());
+                Log.i(TAG, String.valueOf(tour.getIsSaved()));
 
                 tour.saveInBackground();
-                showSavedStatus(tour.getSaved());
+                showSavedStatus(tour.getIsSaved());
+            });
+
+            ibRemove.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                String removeTourID = tour.getObjectId();
+                featuredTours.remove(position);
+
+                Log.i(TAG, "removeTourId: " + removeTourID);
+
+                DatabaseUtils.removeOneTourFromDatabaseIfExists(removeTourID);
+
+                notifyItemRemoved(position);
             });
         }
 

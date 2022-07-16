@@ -6,10 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -19,12 +18,11 @@ import com.bumptech.glide.Glide;
 import com.example.where_to_go.DestinationDetailsActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Destination;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
-
+import com.example.where_to_go.utilities.DatabaseUtils;
 import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.FilteredDestinationViewHolder> {
     private static final String TAG = "DestinationsAdapter";
@@ -78,37 +76,20 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
         Log.i(TAG, "Previous size: " + destinations.size());
         Log.i(TAG, "Delete destination #" + deletingPosition);
 
-        String removeDestinationId = destinations.get(deletingPosition).getIdDB();
+        Destination removeDestination = destinations.get(deletingPosition);
+        String removeDestinationId = removeDestination.getIdDB();
+        String associatedTourId = Objects.requireNonNull(removeDestination.getParseObject("tour_id")).getObjectId();
+
         destinations.remove(deletingPosition);
         Log.i(TAG, "Current size: " + destinations.size());
+        Log.i(TAG, "Current tour: " + associatedTourId);
 
-        removeDestinationsFromDatabaseIfExists(removeDestinationId);
+        DatabaseUtils.removeDestinationsFromDatabaseIfExists(removeDestinationId);
 
         notifyItemRemoved(deletingPosition);
-    }
 
-    private void removeDestinationsFromDatabaseIfExists(String removeDestinationId) {
-        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery("Destinations");
-
-        try {
-            Destination removeDestination = destinationParseQuery.get(removeDestinationId);
-            String removeDestinationName = removeDestination.getLocationNameDB(); // For debugging purpose
-
-            removeDestinationFromDB(removeDestination);
-            Log.i(TAG, "Remove destination " + removeDestinationName + "successfully!");
-        } catch (ParseException e) {
-            Toast.makeText(context, "Can't find destination", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
-    private void removeDestinationFromDB(@NonNull Destination removeDestination) {
-        try {
-            removeDestination.delete();
-            removeDestination.saveInBackground();
-        } catch (ParseException exception) {
-            Toast.makeText(context, "Can't remove destination", Toast.LENGTH_SHORT).show();
-            exception.printStackTrace();
+        if (destinations.size() == 0) {
+            DatabaseUtils.removeOneTourFromDatabaseIfExists(associatedTourId);
         }
     }
 
@@ -117,12 +98,27 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         private final ImageView ivDestinationImage;
         private final TextView tvDestinationName;
+        private final ImageButton ibRemove;
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
 
             ivDestinationImage = itemView.findViewById(R.id.ivTourImage);
             tvDestinationName = itemView.findViewById(R.id.tvTourName);
+            ibRemove = itemView.findViewById(R.id.ibRemove);
+
+            ibRemove.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+
+                Log.i(TAG, String.valueOf(position));
+                if (position != RecyclerView.NO_POSITION) {
+                    Destination destinationToRemove = destinations.get(position);
+                    String destinationIdToRemove = destinationToRemove.getObjectId();
+                    Log.i(TAG, "destinationIdToRemove: " + destinationIdToRemove);
+                    DatabaseUtils.removeDestinationsFromDatabaseIfExists(destinationIdToRemove);
+                    notifyItemRemoved(position);
+                }
+            });
             
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
