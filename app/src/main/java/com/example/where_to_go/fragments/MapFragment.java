@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.FilterActivity;
@@ -101,7 +101,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.i(TAG, "Clicked on ToursAdapter position: " + ToursAdapter.POSITION);
 
         if (ToursAdapter.POSITION != -1) {
-            EditText etTourName = view.findViewById(getResources().getIdentifier("etTourName", "id", requireActivity().getPackageName()));
+            EditText etTourName = view.findViewById(getResources().getIdentifier("etTourName", "id",
+                    requireActivity().getPackageName()));
             etTourName.setVisibility(View.GONE);
         }
 
@@ -135,15 +136,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    private void startGoogleDirection(List<Destination> filteredDestinations) {
-        // TODO: Start Google Map Application
-        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
-
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(url));
-        startActivity(intent);
-    }
-
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.back, menu);
@@ -163,6 +155,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     // HELPER METHODS
+
+    private void startGoogleDirection(List<Destination> filteredDestinations) {
+        // TODO: Start Google Map Application
+        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
+
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse(url));
+        startActivity(intent);
+    }
 
     private void startSaveAction() throws Exception {
         String tourName = etTourName.getText().toString();
@@ -219,6 +220,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private Pair<JSONArray, HashMap<String, JSONArray>> getJSonResultsFromYelpAndBuiltCategoryDestinationsMap(String intent) {
+        Pair<JSONArray, HashMap<String, JSONArray>> JSonResultsFromYelpAndBuiltCategoryDestinationsMap = new Pair<>(new JSONArray(), new HashMap<>());
+        return JSonResultsFromYelpAndBuiltCategoryDestinationsMap;
+    }
+
     private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException, ParseException {
         Log.i(TAG, "getFilteredDestination");
 
@@ -249,7 +255,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.i(TAG, "jsonResults: " + jsonResults.length());
 
         if (ToursAdapter.POSITION != -1) {
-            filteredResults = getDestinationsFromDB(filteredResults);
+            filteredResults.addAll(getDestinationsFromExistingTours());
         } else {
             if (filteredResults.isEmpty()) {
                 if (!intent.equals("Default")) {
@@ -271,24 +277,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         setDragDropDestinations(rvDestinations);
     }
 
-    private List<Destination> getDestinationsFromDB(List<Destination> filteredResults) throws ParseException {
-        Log.i(TAG, "getDestinationsFromDB");
+    @NonNull
+    private List<Destination> getDestinationsFromExistingTours() {
+        List<Destination> destinationsFromExistingTours;
 
         String clickedTourID = getClickedTourID();
-        ParseObject tourDB_Object = ParseObject.createWithoutData(Tour.class, clickedTourID);
-
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
-        List<Destination> destinationFromDBs = ParseQuery.getQuery(Destination.class)
-                .whereEqualTo(Destination.TOUR_ID, tourDB_Object)
-                .find();
+        List<Destination> destinationsFromDB = DatabaseUtils.getAllUnPackedDestinationsFromATour(clickedTourID);
+        destinationsFromExistingTours = unPack(destinationsFromDB);
 
-        for (Destination destinationFromDB : destinationFromDBs) {
+        return destinationsFromExistingTours;
+    }
+
+    @NonNull
+    private List<Destination> unPack(@NonNull List<Destination> destinationsFromDB) {
+        Log.i(TAG, "unPacking...");
+
+        List<Destination> unPackedDestinations  = new ArrayList<>();
+
+        for (Destination destinationFromDB : destinationsFromDB) {
             destinationFromDB.getFieldFromDB();
-            filteredResults.add(destinationFromDB);
+            unPackedDestinations.add(destinationFromDB);
         }
 
-        return filteredResults;
+        return unPackedDestinations;
     }
 
     private String getClickedTourID(){

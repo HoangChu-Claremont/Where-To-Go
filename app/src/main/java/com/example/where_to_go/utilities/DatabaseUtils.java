@@ -45,13 +45,11 @@ public class DatabaseUtils {
 
         tourParseQuery.whereEqualTo(Tour.IS_FEATURED, true);
 
-        tourParseQuery.findInBackground((returnedTours, e) -> {
-            if (e != null) {
-                Log.e(TAG, "Issues with getting featured tours from DB", e);
-            } else {
-                outputTours.addAll(returnedTours);
-            }
-        });
+        try {
+            outputTours = tourParseQuery.find();
+        } catch (ParseException e) {
+            Log.e(TAG, "Issues with getting featured tours from DB: " + e.getMessage());
+        }
 
         Log.i(TAG, "featuredTours size: " + outputTours.size());
         return outputTours;
@@ -65,13 +63,11 @@ public class DatabaseUtils {
         tourParseQuery.addDescendingOrder(Tour.KEY_UPDATED_AT)
                 .setLimit(limit);
 
-        tourParseQuery.findInBackground((returnedTours, e) -> {
-            if (e != null) {
-                Log.e(TAG, "Issues with getting recent tours from DB", e);
-            } else {
-                outputTours.addAll(returnedTours);
-            }
-        });
+        try {
+            outputTours = tourParseQuery.find();
+        } catch (ParseException e) {
+            Log.e(TAG, "Issues with getting recent tours from DB: " + e.getMessage());
+        }
 
         Log.i(TAG, "recentTours size: " + outputTours.size());
         return outputTours;
@@ -87,6 +83,28 @@ public class DatabaseUtils {
             destinationParseQuery.getInBackground(destinationIdToRemove, (destinationToRemove, e)
                     -> removeDestinationFromDB(destinationToRemove));
         }
+    }
+
+    @NonNull
+    public static List<Destination> getAllUnPackedDestinationsFromATour(String tourId) {
+        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
+        List<Destination> outputDestinations = new ArrayList<>();
+
+        if (hasTourExisted(tourId)) {
+            ParseObject tourDB_Object = ParseObject.createWithoutData(Tour.class, tourId);
+
+            // Remove destinations associated with removed tour
+            destinationParseQuery.whereEqualTo(Destination.TOUR_ID, tourDB_Object);
+
+            try {
+                outputDestinations = destinationParseQuery.find();
+            } catch (ParseException e) {
+                Log.e(TAG, "Issues with getting destinations from DB: " + e.getMessage());
+            }
+        }
+
+        Log.i(TAG, "outputDestinations size: " + outputDestinations.size());
+        return outputDestinations;
     }
 
     // HELPER METHODS
