@@ -1,12 +1,15 @@
 package com.example.where_to_go.utilities;
 
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,7 @@ public class DatabaseUtils {
 
     // TourDB
     public static void removeOneTourFromDatabaseIfExists(String tourIdToRemove) {
+        Log.i(TAG, "removeOneTourFromDatabaseIfExists");
         Log.i(TAG, "tourIdToRemove: " + tourIdToRemove);
 
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
@@ -40,6 +44,8 @@ public class DatabaseUtils {
 
     @NonNull
     public static List<Tour> getFeaturedToursFromDatabase() {
+        Log.i(TAG, "getFeaturedToursFromDatabase");
+
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         List<Tour> outputTours = new ArrayList<>();
 
@@ -57,6 +63,8 @@ public class DatabaseUtils {
 
     @NonNull
     public static List<Tour> getLimitedRecentToursFromDatabase(int limit) {
+        Log.i(TAG, "getLimitedRecentToursFromDatabase");
+
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         List<Tour> outputTours = new ArrayList<>();
 
@@ -74,14 +82,44 @@ public class DatabaseUtils {
     }
 
     public static List<Tour> getAllToursFromDatabase() {
+        Log.i(TAG, "getAllToursFromDatabase");
+
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         List<Tour> outputTours = new ArrayList<>();
+
+        try {
+            outputTours = tourParseQuery.find();
+        } catch (ParseException e) {
+            Log.i(TAG, "Can't get tours from DB: " + e.getMessage());
+        }
 
         return outputTours;
     }
 
+    public static String saveOneTourToDatabaseAndReturnID(String tourName, @NonNull ParseUser currentUser) {
+        Log.i(TAG, "saveOneTourToDatabaseAndReturnID");
+
+        Tour tour = new Tour();
+        String returnedTourId = "";
+
+        // Getting information to set up the POST query
+        tour.put(Tour.USER_ID, ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
+        tour.setTourNameDB(tourName);
+        tour.setTransportationSecondsDB(0); // TODO: Create an algorithm to calculate this
+
+        try {
+            tour.save();
+            returnedTourId = tour.getObjectId();
+        } catch (ParseException e) {
+            Log.i(TAG, "Can't save tour. " + e.getMessage());
+        }
+
+        return returnedTourId;
+    }
+
     // DestinationDB
     public static void removeDestinationsFromDatabaseIfExists(String destinationIdToRemove) {
+        Log.i(TAG, "removeDestinationsFromDatabaseIfExists");
         Log.i(TAG, "destinationIdToRemove: " + destinationIdToRemove);
 
         ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
@@ -94,6 +132,8 @@ public class DatabaseUtils {
 
     @NonNull
     public static List<Destination> getAllUnPackedDestinationsFromATour(String tourId) {
+        Log.i(TAG, "getAllUnPackedDestinationsFromATour");
+
         ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
         List<Destination> outputDestinations = new ArrayList<>();
 
@@ -114,9 +154,32 @@ public class DatabaseUtils {
         return outputDestinations;
     }
 
+    public static boolean saveDestinationsToDatabase(@NonNull List<Destination> destinations, @NonNull String tourId) {
+        Log.i(TAG, "saveDestinationsToDatabase");
+
+        for (Destination destination : destinations) {
+            Log.i(TAG, "saveToDestinationsDB: " + tourId);
+
+            // Getting information to set up the POST query
+            destination.put("tour_id", ParseObject.createWithoutData(Tour.class, tourId));
+            destination.putToDB();
+
+            try {
+                destination.save();
+            } catch (ParseException e) {
+                Log.i(TAG, "Error while saving this destination: " + e.getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // HELPER METHODS
 
     private static boolean hasDestinationExisted(String destinationIdToRemove) {
+        Log.i(TAG, "hasDestinationExisted");
+
         ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
         boolean hasExisted = false;
 
@@ -135,6 +198,8 @@ public class DatabaseUtils {
     }
 
     private static boolean hasTourExisted(String tourIdToRemove) {
+        Log.i(TAG, "hasTourExisted");
+
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         boolean hasExisted = false;
 
@@ -153,6 +218,7 @@ public class DatabaseUtils {
     }
 
     private static void removeTourFromDB(@NonNull Tour tourToRemove) {
+        Log.i(TAG, "removeTourFromDB");
         Log.i(TAG, "tourToRemove: " + tourToRemove);
 
         try {
@@ -165,6 +231,7 @@ public class DatabaseUtils {
     }
 
     private static void removeDestinationFromDB(@NonNull Destination destinationToRemove) {
+        Log.i(TAG, "removeDestinationFromDB");
         Log.i(TAG, "destinationToRemove: " + destinationToRemove);
 
         try {

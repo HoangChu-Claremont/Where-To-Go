@@ -26,7 +26,8 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private ToursAdapter featuredTourAdapter, recentTourAdapter;
+    private ToursAdapter featuredTourAdapter;
+    private ToursAdapter recentTourAdapter;
     private List<Tour> featuredTours;
     private List<Tour> recentTours;
 
@@ -126,5 +127,9 @@ public class HomeFragment extends Fragment {
 
         recentTours.addAll(DatabaseUtils.getLimitedRecentToursFromDatabase(limit));
         recentTourAdapter.notifyDataSetChanged();
+    }
+
+    public ToursAdapter getRecentTourAdapter() {
+        return recentTourAdapter;
     }
 }

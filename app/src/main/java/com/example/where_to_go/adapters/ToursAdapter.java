@@ -80,10 +80,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             showSavedStatus(tour.getIsSavedDB());
 
             ibTourBookmark.setOnClickListener(v -> {
-                Log.i(TAG, String.valueOf(tour.getIsSavedDB()));
                 tour.setIsSavedDB(!tour.getIsSavedDB());
-                Log.i(TAG, String.valueOf(tour.getIsSavedDB()));
-
                 tour.saveInBackground();
                 showSavedStatus(tour.getIsSavedDB());
             });
