@@ -27,18 +27,22 @@ import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
 
 public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.FilteredDestinationViewHolder> {
     private static final String TAG = "DestinationsAdapter";
 
     public Context context;
+
     private final List<Destination> destinations;
     private List<Marker> currentMarkers;
+    private NavigationAdapter navigationListener;
 
-    public DestinationsAdapter(Context _context, List<Destination> _destinations, List<Marker> _currentMarkers) {
+    public DestinationsAdapter(Context _context, List<Destination> _destinations, List<Marker> _currentMarkers, NavigationAdapter _navigationListener) {
         context = _context;
         destinations = _destinations;
         currentMarkers = _currentMarkers;
+        navigationListener = _navigationListener;
     }
 
     @NonNull
@@ -98,6 +102,16 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
                 Log.i(TAG, "Remove tour: " + associatedTourId);
                 DatabaseUtils.removeOneTourFromDatabaseIfExists(associatedTourId);
                 Toast.makeText(context, "Go back Home...", Toast.LENGTH_SHORT).show();
+
+                Object lock = new Object();
+                synchronized (lock) {
+                    try {
+                        lock.wait(3000);
+                    } catch (InterruptedException e) {
+                        Log.i(TAG, "Can't wait. " + e.getMessage());
+                    }
+                }
+                navigationListener.goHomeActivity();
             }
         }
     }
@@ -174,7 +188,7 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
         }
     }
 
-//    public interface NavigationAdapter {
-//        void goHomeActivity();
-//    }
+    public interface NavigationAdapter {
+        void goHomeActivity();
+    }
 }

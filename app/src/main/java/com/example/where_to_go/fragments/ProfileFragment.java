@@ -43,7 +43,6 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Toast.makeText(getContext(), "You're in Profile!", Toast.LENGTH_SHORT).show();
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 

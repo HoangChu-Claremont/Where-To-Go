@@ -85,7 +85,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Toast.makeText(getContext(), "You're in Map!", Toast.LENGTH_SHORT).show();
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -93,7 +92,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.i(TAG, "Clicked on ToursAdapter position: " + ToursAdapter.POSITION);
+        filteredDestinations = new ArrayList<>();
 
         // Set up appropriate view
         setStartSaveButton(view);
@@ -107,7 +106,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
             try {
                 startSaveAction();
                 updateTourInHomeFragment();
+
+                synchronized (LOCK) {
+                    LOCK.wait(3000);
+                }
+
                 goHomeActivity();
+
             } catch (Exception e) {
                 Log.i(TAG, "Can't start / save." + e.getMessage());
                 e.printStackTrace();
@@ -134,7 +139,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
         if (item.getItemId() == R.id.action_back) {
             Log.i(TAG, "onClick Back Button");
             goHomeActivity();
-            ToursAdapter.POSITION = -1; // Reset for next-time classification
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -214,6 +218,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
         return tourNames;
     }
 
+    @Override
     public void goHomeActivity() {
         Log.i(TAG, "goHomeActivity");
 
@@ -228,6 +233,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
             BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
             bottomNavigationView.setSelectedItemId(R.id.action_home);
         }
+
+        ToursAdapter.POSITION = -1;
     }
 
     @NonNull
@@ -363,11 +370,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Destina
     private void setFilteredDestinationRecyclerView() {
         Log.i(TAG, "setFilteredDestinationRecyclerView");
 
-        filteredDestinations = new ArrayList<>();
         rvDestinations = requireView().findViewById(R.id.rvDestinations);
 
         // Create the Adapter
-        filteredDestinationAdapter = new DestinationsAdapter(getContext(), filteredDestinations, currentMarkers);
+        filteredDestinationAdapter = new DestinationsAdapter(getContext(), filteredDestinations, currentMarkers, this);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
