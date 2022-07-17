@@ -73,6 +73,13 @@ public class DatabaseUtils {
         return outputTours;
     }
 
+    public static List<Tour> getAllToursFromDatabase() {
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        List<Tour> outputTours = new ArrayList<>();
+
+        return outputTours;
+    }
+
     // DestinationDB
     public static void removeDestinationsFromDatabaseIfExists(String destinationIdToRemove) {
         Log.i(TAG, "destinationIdToRemove: " + destinationIdToRemove);

@@ -77,15 +77,15 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
                     .centerCrop()
                     .placeholder(R.drawable.profile_gradient)
                     .into(ivTourImage); // TODO: Set this image right
-            showSavedStatus(tour.getIsSaved());
+            showSavedStatus(tour.getIsSavedDB());
 
             ibTourBookmark.setOnClickListener(v -> {
-                Log.i(TAG, String.valueOf(tour.getIsSaved()));
-                tour.setIsSaved(!tour.getIsSaved());
-                Log.i(TAG, String.valueOf(tour.getIsSaved()));
+                Log.i(TAG, String.valueOf(tour.getIsSavedDB()));
+                tour.setIsSavedDB(!tour.getIsSavedDB());
+                Log.i(TAG, String.valueOf(tour.getIsSavedDB()));
 
                 tour.saveInBackground();
-                showSavedStatus(tour.getIsSaved());
+                showSavedStatus(tour.getIsSavedDB());
             });
 
             ibRemove.setOnClickListener(v -> {

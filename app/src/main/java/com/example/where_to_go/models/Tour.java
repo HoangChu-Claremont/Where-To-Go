@@ -26,20 +26,20 @@ public class Tour extends ParseObject {
         return getParseUser(USER_ID);
     }
 
-    public boolean getIsSaved() {
+    public boolean getIsSavedDB() {
         return getBoolean(IS_SAVED);
     }
 
     // SETTER
-    public void setTourName(String tourName) {
+    public void setTourNameDB(String tourName) {
         put(TOUR_NAME, tourName);
     }
 
-    public void setTransportationSeconds(double transportationSeconds) {
+    public void setTransportationSecondsDB(double transportationSeconds) {
         put(TRANSPORTATION_SECONDS, transportationSeconds);
     }
 
-    public void setIsSaved(boolean isSaved) {
+    public void setIsSavedDB(boolean isSaved) {
         put(IS_SAVED, isSaved);
     }
 }
