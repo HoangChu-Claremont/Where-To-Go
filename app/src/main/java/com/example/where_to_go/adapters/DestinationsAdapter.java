@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -17,8 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.DestinationDetailsActivity;
 import com.example.where_to_go.R;
+import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.utilities.DatabaseUtils;
+import com.google.android.gms.maps.model.Marker;
+import com.parse.ParseObject;
 import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
@@ -29,10 +33,12 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
     public Context context;
     private final List<Destination> destinations;
+    private List<Marker> currentMarkers;
 
-    public DestinationsAdapter(Context _context, List<Destination> _destinations) {
+    public DestinationsAdapter(Context _context, List<Destination> _destinations, List<Marker> _currentMarkers) {
         context = _context;
         destinations = _destinations;
+        currentMarkers = _currentMarkers;
     }
 
     @NonNull
@@ -70,25 +76,29 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    public void onItemRemove(int deletingPosition) {
+    public void onItemRemove(int position) {
         Log.i(TAG, "onItemDeleted");
         Log.i(TAG, "Previous size: " + destinations.size());
-        Log.i(TAG, "Delete destination #" + deletingPosition);
+        Log.i(TAG, "Delete destination #" + position);
 
-        Destination removeDestination = destinations.get(deletingPosition);
+        Destination removeDestination = destinations.get(position);
+
         String removeDestinationId = removeDestination.getIdDB();
-        String associatedTourId = Objects.requireNonNull(removeDestination.getParseObject("tour_id")).getObjectId();
-
-        destinations.remove(deletingPosition);
-        Log.i(TAG, "Current size: " + destinations.size());
-        Log.i(TAG, "Current tour: " + associatedTourId);
+        ParseObject associatedTour = removeDestination.getParseObject(Destination.TOUR_ID);
 
         DatabaseUtils.removeDestinationsFromDatabaseIfExists(removeDestinationId);
+        destinations.remove(position);
+        notifyItemRemoved(position);
 
-        notifyItemRemoved(deletingPosition);
+        Log.i(TAG, "Current size: " + destinations.size());
 
-        if (destinations.size() == 0) {
-            DatabaseUtils.removeOneTourFromDatabaseIfExists(associatedTourId);
+        if (getItemCount() == 0) {
+            if (associatedTour != null) {
+                String associatedTourId = Objects.requireNonNull(associatedTour).getObjectId();
+                Log.i(TAG, "Remove tour: " + associatedTourId);
+                DatabaseUtils.removeOneTourFromDatabaseIfExists(associatedTourId);
+                Toast.makeText(context, "Go back Home...", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -109,11 +119,8 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             ibRemove.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    String destinationIdToRemoveId = destinations.get(position).getObjectId();
-                    DatabaseUtils.removeDestinationsFromDatabaseIfExists(destinationIdToRemoveId);
-                    destinations.remove(position);
-
-                    notifyItemRemoved(position);
+                    onItemRemove(position);
+                    MapFragment.resetMarkers(currentMarkers, position);
                 }
             });
             
@@ -156,7 +163,7 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         @NonNull
         @Contract("_, _ -> param1")
-        private Intent addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
+        private void addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
             // Add information to the intent
             _intent.putExtra("destination_photo", destination.getImageUrl());
             _intent.putExtra("destination_name", destination.getLocationName());
@@ -164,8 +171,10 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             _intent.putExtra("destination_rating", destination.getRating());
             _intent.putExtra("destination_distance", destination.getDistance());
             _intent.putExtra("destination_address", destination.getAddress());
-
-            return _intent;
         }
     }
+
+//    public interface NavigationAdapter {
+//        void goHomeActivity();
+//    }
 }

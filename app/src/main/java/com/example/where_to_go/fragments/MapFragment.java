@@ -39,10 +39,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import org.json.JSONArray;
@@ -54,7 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, DestinationsAdapter.NavigationAdapter {
     private static final String TAG = "MapFragment";
     private static final Object LOCK = new Object();
 
@@ -65,6 +65,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private EditText etTourName;
     private JSONObject jsonFilteredResult;
     private String intent = "Default";
+    private List<Marker> currentMarkers;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,8 +97,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Set up appropriate view
         setStartSaveButton(view);
-        setFilteredDestinationRecyclerView();
         setUpGoogleMap();
+        setFilteredDestinationRecyclerView();
 
         etTourName = view.findViewById(R.id.etTourName);
 
@@ -150,6 +151,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setUpGoogleMap() {
+        currentMarkers = new ArrayList<>();
+
         // Get a handle to the fragment and register the callback.
         SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         // When Google Map is loaded, test that we captured the fragment
@@ -211,7 +214,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return tourNames;
     }
 
-    private void goHomeActivity() {
+    public void goHomeActivity() {
         Log.i(TAG, "goHomeActivity");
 
         // Switch between MapFragment -> HomeFragment
@@ -298,7 +301,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Update the Adapter
         filteredDestinationAdapter.notifyDataSetChanged();
 
-        setGoogleMap(googleMap, filteredDestinations);
+        setGoogleMapAndAddMarkers(googleMap, filteredDestinations);
 
         // Users can reorder locations
         setDragDropDestinations(rvDestinations);
@@ -364,7 +367,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         rvDestinations = requireView().findViewById(R.id.rvDestinations);
 
         // Create the Adapter
-        filteredDestinationAdapter = new DestinationsAdapter(getContext(), filteredDestinations);
+        filteredDestinationAdapter = new DestinationsAdapter(getContext(), filteredDestinations, currentMarkers);
 
         // Set Layout Manager
         LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -374,24 +377,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         rvDestinations.setAdapter(filteredDestinationAdapter);
     }
 
-    private void setGoogleMap(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
+    @NonNull
+    private void setGoogleMapAndAddMarkers(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        List<Marker> markers = new ArrayList<>();
+
         int padding = 420; // More values = More zooming out. TODO: Calculate Padding
 
         // Mark each destination on the Map
         for (Destination destination : filteredDestinations) {
-            MarkerOptions marker = new MarkerOptions();
+            MarkerOptions markerOptions = new MarkerOptions();
 
             LatLng coordinate = new LatLng(destination.getLatitude(), destination.getLongitude());
-            MarkerOptions currentPlace = marker.position(coordinate).title(destination.getLocationName());
+            MarkerOptions currentPlace = markerOptions.position(coordinate).title(destination.getLocationName());
 
-            googleMap.addMarker(currentPlace);
-            builder.include(marker.getPosition()); // Build bounds
+            Marker marker = googleMap.addMarker(currentPlace);
+            currentMarkers.add(marker);
+
+            builder.include(markerOptions.getPosition()); // Build bounds
         }
 
         LatLngBounds bounds = builder.build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         googleMap.moveCamera(cameraUpdate);
+
+        Log.i(TAG, "markers size: " + markers.size());
     }
 
     @NonNull
@@ -450,11 +460,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                 if (position != RecyclerView.NO_POSITION) {
                     filteredDestinationAdapter.onItemRemove(position);
+                    MapFragment.resetMarkers(currentMarkers, position);
+                }
+
+                if (filteredDestinationAdapter.getItemCount() == 0) {
+                    goHomeActivity();
                 }
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rvDestinations);
+    }
+
+    public static void resetMarkers(@NonNull List<Marker> currentMarkers, int position) {
+        currentMarkers.get(position).setVisible(false);
+        currentMarkers.remove(position);
     }
 
     private void saveToursToParseDB(String tourName, ParseUser currentUser) {
