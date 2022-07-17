@@ -50,8 +50,7 @@ public class FilterAlgorithm {
 
     @NonNull
     public static List<Destination> getFilteredTour(@NonNull JSONObject jsonFilteredResult,
-                                                    HashMap<String, JSONArray> _categoryDestinationsMap)
-            throws JSONException {
+                                                    HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
         List<Destination> outputDestinations;
         List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
 

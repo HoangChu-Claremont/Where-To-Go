@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.FilterActivity;
 import com.example.where_to_go.MainActivity;
@@ -29,6 +29,7 @@ import com.example.where_to_go.adapters.DestinationsAdapter;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
+import com.example.where_to_go.utilities.DatabaseUtils;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.MultiThreadYelpAPI;
 import com.google.android.gms.maps.CameraUpdate;
@@ -47,28 +48,23 @@ import com.parse.ParseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = "MapFragment";
-
     private static final Object LOCK = new Object();
+
     private DestinationsAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
-
-    RecyclerView rvDestinations;
-    Button btnStartSaveTour;
-    TextView etTourName;
-
-    JSONObject jsonFilteredResult;
-    List<Destination> filteredResults = new ArrayList<>();
-    String intent = "Default";
-
-    HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
+    private RecyclerView rvDestinations;
+    private Button btnStartSaveTour;
+    private EditText etTourName;
+    private JSONObject jsonFilteredResult;
+    private String intent = "Default";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,48 +94,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         Log.i(TAG, "Clicked on ToursAdapter position: " + ToursAdapter.POSITION);
 
-        if (ToursAdapter.POSITION != -1) {
-            EditText etTourName = view.findViewById(getResources().getIdentifier("etTourName", "id", requireActivity().getPackageName()));
-            etTourName.setVisibility(View.GONE);
-        }
-
-        // Featured Destination
+        // Set up appropriate view
+        setStartSaveButton(view);
         setFilteredDestinationRecyclerView();
+        setUpGoogleMap();
 
-        // Get a handle to the fragment and register the callback.
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
-        // When Google Map is loaded, test that we captured the fragment
-        assert supportMapFragment != null;
-
-        // Method reference: Google Map shows asynchronously with filtered data.
-        supportMapFragment.getMapAsync(googleMap -> {
-            try {
-                getFilteredDestination(googleMap);
-                Log.i(TAG, "Map Created");
-            } catch (JSONException | IOException | InterruptedException | ParseException e) {
-                e.printStackTrace();
-            }
-        });
+        etTourName = view.findViewById(R.id.etTourName);
 
         btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
-            // Set up required variables for querying the DB
-            etTourName = view.findViewById(R.id.etTourName);
             try {
                 startSaveAction();
+                updateTourInHomeFragment();
+                goHomeActivity();
             } catch (Exception e) {
+                Log.i(TAG, "Can't start / save." + e.getMessage());
                 e.printStackTrace();
             }
         });
     }
 
-    private void startGoogleDirection(List<Destination> filteredDestinations) {
-        // TODO: Start Google Map Application
-        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
-
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(url));
-        startActivity(intent);
+    private void updateTourInHomeFragment() {
+        List<Fragment> fragments = getFragmentManager().getFragments();
+        for (Fragment fragment : fragments) {
+            Log.i(TAG, "Previous Fragment: " + fragment.getTag());
+        }
     }
 
     @Override
@@ -162,7 +141,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // HELPER METHODS
 
-    private void startSaveAction() throws Exception {
+    private void setStartSaveButton(View view) {
+        if (ToursAdapter.POSITION != -1) {
+            EditText etSavedTourName = view.findViewById(getResources().getIdentifier("etTourName", "id",
+                    requireActivity().getPackageName()));
+            etSavedTourName.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUpGoogleMap() {
+        // Get a handle to the fragment and register the callback.
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        // When Google Map is loaded, test that we captured the fragment
+        assert supportMapFragment != null;
+
+        // Method reference: Google Map shows asynchronously with filtered data.
+        supportMapFragment.getMapAsync(googleMap -> {
+            getFilteredDestination(googleMap);
+            Log.i(TAG, "Map Created");
+        });
+    }
+
+    private void startGoogleDirection(List<Destination> filteredDestinations) {
+        // TODO: Start Google Map Application
+        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
+
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse(url));
+        startActivity(intent);
+    }
+
+    private void startSaveAction() {
+        Log.i(TAG, "startSaveAction");
+
         String tourName = etTourName.getText().toString();
         ParseUser currentUser = ParseUser.getCurrentUser();
         Log.i(TAG, "Current User: " + currentUser);
@@ -189,55 +200,65 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private List<String> getExistingTourNamesInDB(List<String> tourNames) {
+        Log.i(TAG, "getExistingTourNamesInDB");
 
-        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-        tourParseQuery.selectKeys(Arrays.asList(Tour.TOUR_NAME));
-        try {
-            List<Tour> tourFounds = tourParseQuery.find();
-            for (Tour tourFound : tourFounds) {
-                tourNames.add(tourFound.getTourName());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        List<Tour> returnedTours = DatabaseUtils.getAllToursFromDatabase();
+
+        for (Tour returnedTour : returnedTours) {
+            tourNames.add(returnedTour.getTourNameDB());
         }
 
         return tourNames;
     }
 
     private void goHomeActivity() {
+        Log.i(TAG, "goHomeActivity");
+
         // Switch between MapFragment -> HomeFragment
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         fragmentManager.popBackStack();
+
+        // Reset bottom navigation bar if previous Activity was NavigationActivity
         if (getActivity() instanceof FilterActivity) {
             getActivity().finish();
         } else if (getActivity() instanceof NavigationActivity) {
-            // Reset bottom navigation bar
             BottomNavigationView bottomNavigationView = ((NavigationActivity) requireContext()).bottomNavigationView;
             bottomNavigationView.setSelectedItemId(R.id.action_home);
         }
     }
 
-    private void getFilteredDestination(GoogleMap googleMap) throws JSONException, IOException, InterruptedException, ParseException {
-        Log.i(TAG, "getFilteredDestination");
+    @NonNull
+    private Pair<JSONArray, HashMap<String, JSONArray>> getJSonResultsFromYelpAndBuiltCategoryDestinationsMap(@NonNull String intent) {
+        Log.i(TAG, "getJSonResultsFromYelpAndBuiltCategoryDestinationsMap");
 
         List<String> categories = new ArrayList<>();
+        JSONArray jsonResults = new JSONArray();
+        HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
 
+        MultiThreadYelpAPI yelpAPIRequestThread;
+
+        // Get all categories for the map
         if (!intent.equals("Default")) {
-            categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
+            try {
+                categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
+            } catch (JSONException e) {
+                Log.i(TAG, e.getMessage());
+            }
         } else {
             categories.add("");
         }
 
-        MultiThreadYelpAPI myThread;
-        JSONArray jsonResults = new JSONArray();
+        // Fetch all JSON results from YelpAPI
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
-            Log.i(TAG, "Current Latitude: " + MainActivity.CURRENT_LATITUDE);
-            Log.i(TAG, "Current Longitude: " + MainActivity.CURRENT_LONGITUDE);
-            myThread = new MultiThreadYelpAPI(category, MainActivity.CURRENT_LONGITUDE, MainActivity.CURRENT_LATITUDE);
-            myThread.start();
-            myThread.join();
-            jsonResults = myThread.getJsonResults();
+            yelpAPIRequestThread = new MultiThreadYelpAPI(category, MainActivity.CURRENT_LONGITUDE, MainActivity.CURRENT_LATITUDE);
+            yelpAPIRequestThread.start();
+            try {
+                yelpAPIRequestThread.join();
+            } catch (InterruptedException e) {
+                Log.i(TAG, e.getMessage());
+            }
+            jsonResults = yelpAPIRequestThread.getJsonResults();
             synchronized(this) {
                 categoryDestinationsMap.put(category, jsonResults);
             }
@@ -245,20 +266,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         Log.i(TAG, "categoryDestinationsMap: " + categoryDestinationsMap.size());
         Log.i(TAG, "jsonResults: " + jsonResults.length());
+        return new Pair<>(jsonResults, categoryDestinationsMap);
+    }
+
+    private void getFilteredDestination(GoogleMap googleMap) {
+        Log.i(TAG, "getFilteredDestination");
 
         if (ToursAdapter.POSITION != -1) {
-            filteredResults = getDestinationsFromDB(filteredResults);
+            filteredDestinations.addAll(getDestinationsFromExistingTours());
         } else {
-            if (filteredResults.isEmpty()) {
-                if (!intent.equals("Default")) {
-                    filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
-                } else {
-                    filteredResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+            if (filteredDestinations.isEmpty()) {
+                Pair<JSONArray, HashMap<String, JSONArray>> returnedPair =  getJSonResultsFromYelpAndBuiltCategoryDestinationsMap(intent);
+                JSONArray jsonResults = returnedPair.first;
+                HashMap<String, JSONArray> categoryDestinationsMap = returnedPair.second;
+
+                // Fetch destinations from YelpAPI
+                try {
+                    if (!intent.equals("Default")) {
+                        List<Destination> filteredResults = FilterAlgorithm.getFilteredTour(jsonFilteredResult, categoryDestinationsMap);
+                        filteredDestinations.addAll(filteredResults);
+                    } else {
+                        List<Destination> defaultResults = FilterAlgorithm.getTopRatedTour(jsonResults);
+                        filteredDestinations.addAll(defaultResults);
+                    }
+                } catch (JSONException e) {
+                    Log.i(TAG, "Can't fetch destinations from Yelp. " + e.getMessage());
                 }
             }
         }
-
-        filteredDestinations.addAll(filteredResults);
 
         // Update the Adapter
         filteredDestinationAdapter.notifyDataSetChanged();
@@ -269,24 +304,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         setDragDropDestinations(rvDestinations);
     }
 
-    private List<Destination> getDestinationsFromDB(List<Destination> filteredResults) throws ParseException {
-        Log.i(TAG, "getDestinationsFromDB");
+    @NonNull
+    private List<Destination> getDestinationsFromExistingTours() {
+        List<Destination> destinationsFromExistingTours;
 
         String clickedTourID = getClickedTourID();
-        ParseObject obj = ParseObject.createWithoutData(Tour.class, clickedTourID);
-
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
-        List<Destination> destinationFromDBs = ParseQuery.getQuery(Destination.class)
-                .whereEqualTo(Destination.TOUR_ID, obj)
-                .find();
+        List<Destination> destinationsFromDB = DatabaseUtils.getAllUnPackedDestinationsFromATour(clickedTourID);
+        destinationsFromExistingTours = unPack(destinationsFromDB);
 
-        for (Destination destinationFromDB : destinationFromDBs) {
+        return destinationsFromExistingTours;
+    }
+
+    @NonNull
+    private List<Destination> unPack(@NonNull List<Destination> destinationsFromDB) {
+        Log.i(TAG, "unPacking...");
+
+        List<Destination> unPackedDestinations  = new ArrayList<>();
+
+        for (Destination destinationFromDB : destinationsFromDB) {
             destinationFromDB.getFieldFromDB();
-            filteredResults.add(destinationFromDB);
+            unPackedDestinations.add(destinationFromDB);
         }
 
-        return filteredResults;
+        return unPackedDestinations;
     }
 
     private String getClickedTourID(){
@@ -296,7 +338,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Get a list of existing tour names
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         tourParseQuery.addDescendingOrder("updatedAt")
-                .selectKeys(Arrays.asList(Tour.OBJECT_ID));
+                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
         try {
             List<Tour> tourFounds = tourParseQuery.find();
             for (Tour tourFound : tourFounds) {
@@ -415,58 +457,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         itemTouchHelper.attachToRecyclerView(rvDestinations);
     }
 
-    private void saveToursToParseDB(String tourName, ParseUser currentUser) throws Exception {
+    private void saveToursToParseDB(String tourName, ParseUser currentUser) {
         Log.i(TAG, "saveToursToParseDB");
 
-        Tour destinationCollections = saveToToursDB(tourName, currentUser);
+        // Save tour to DB
+        String savedTourId = DatabaseUtils.saveOneTourToDatabaseAndReturnID(tourName, currentUser);
+        if (savedTourId.isEmpty()) {
+            Toast.makeText(getContext(), "Error while saving your tour :(", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Wait for 3 seconds for TourDB adding a new row.
-        synchronized (LOCK) {
-            LOCK.wait(3000);
-        }
 
-        for (Destination destination : filteredDestinations) {
-            saveToDestinationsDB(destination, destinationCollections);
-        }
-    }
-
-    @NonNull
-    private Tour saveToToursDB(String tourName, @NonNull ParseUser currentUser) {
-        Log.i(TAG, "saveToToursDB");
-
-        Tour destinationCollections = new Tour();
-				
-        // Getting information to set up the POST query
-        destinationCollections.put("user_id", ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
-        destinationCollections.setTourName(tourName);
-        destinationCollections.setTransportationSeconds(0); // TODO: Create an algorithm to calculate this
-
-        destinationCollections.saveInBackground(e -> {
-            if (e != null) {
-                Log.e(TAG, "Error while saving a new tour", e);
-                Toast.makeText(getContext(), "Error while saving your tour :(", Toast.LENGTH_SHORT).show();
+        try {
+            synchronized (LOCK) {
+                LOCK.wait(3000);
             }
-            Log.i(TAG, "Saved a new tour successfully!");
+        } catch (Exception e) {
+            Log.i(TAG, "Can't wait. " + e.getMessage());
+        }
+
+        // Save destinations to DB accordingly
+        boolean hasSaveDestinationsFromTour = DatabaseUtils.saveDestinationsToDatabase(filteredDestinations, savedTourId);
+        if (hasSaveDestinationsFromTour) {
             etTourName.setText("");
-            Toast.makeText(getContext(), "Your tour was saved successfully!", Toast.LENGTH_SHORT).show();
-        });
-
-        return destinationCollections;
-    }
-
-    private void saveToDestinationsDB(@NonNull Destination currentDestination, @NonNull Tour currentTour) throws Exception {
-        String objectId = currentTour.getObjectId();
-        Log.i(TAG, "saveToDestinationsDB: " + objectId);
-
-        // Getting information to set up the POST query
-        currentDestination.put("tour_id", ParseObject.createWithoutData(Tour.class, objectId));
-        currentDestination.putToDB();
-
-        currentDestination.saveInBackground(e -> {
-            if (e != null) {
-                Log.e(TAG, "Error while saving a new destination", e);
-            }
-        });
+        }
     }
 
     @Override
