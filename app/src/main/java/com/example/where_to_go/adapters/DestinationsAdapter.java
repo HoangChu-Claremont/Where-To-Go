@@ -50,7 +50,6 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
     @Override
     public int getItemCount() {
-        Log.i(TAG, "getItemCount");
         return destinations.size();
     }
 

@@ -235,7 +235,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         JSONArray jsonResults = new JSONArray();
         HashMap<String, JSONArray> categoryDestinationsMap = new HashMap<>();
 
-        MultiThreadYelpAPI myThread;
+        MultiThreadYelpAPI yelpAPIRequestThread;
 
         // Get all categories for the map
         if (!intent.equals("Default")) {
@@ -251,14 +251,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Fetch all JSON results from YelpAPI
         for (String category : categories) {
             Log.i(TAG, "Category: " + category);
-            myThread = new MultiThreadYelpAPI(category, MainActivity.CURRENT_LONGITUDE, MainActivity.CURRENT_LATITUDE);
-            myThread.start();
+            yelpAPIRequestThread = new MultiThreadYelpAPI(category, MainActivity.CURRENT_LONGITUDE, MainActivity.CURRENT_LATITUDE);
+            yelpAPIRequestThread.start();
             try {
-                myThread.join();
+                yelpAPIRequestThread.join();
             } catch (InterruptedException e) {
                 Log.i(TAG, e.getMessage());
             }
-            jsonResults = myThread.getJsonResults();
+            jsonResults = yelpAPIRequestThread.getJsonResults();
             synchronized(this) {
                 categoryDestinationsMap.put(category, jsonResults);
             }

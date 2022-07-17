@@ -1,8 +1,6 @@
 package com.example.where_to_go.utilities;
 
 import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
@@ -10,7 +8,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +46,7 @@ public class DatabaseUtils {
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         List<Tour> outputTours = new ArrayList<>();
 
+        tourParseQuery.clearCachedResult();
         tourParseQuery.whereEqualTo(Tour.IS_FEATURED, true);
 
         try {
@@ -67,6 +65,8 @@ public class DatabaseUtils {
 
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         List<Tour> outputTours = new ArrayList<>();
+
+        tourParseQuery.clearCachedResult();
 
         tourParseQuery.addDescendingOrder(Tour.KEY_UPDATED_AT)
                 .setLimit(limit);
