@@ -1,10 +1,12 @@
-package com.example.where_to_go;
+package com.example.where_to_go.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.example.where_to_go.R;
 import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {

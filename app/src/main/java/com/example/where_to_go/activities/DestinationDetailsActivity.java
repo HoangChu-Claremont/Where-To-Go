@@ -1,4 +1,4 @@
-package com.example.where_to_go;
+package com.example.where_to_go.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.example.where_to_go.R;
 
 public class DestinationDetailsActivity extends AppCompatActivity {
 

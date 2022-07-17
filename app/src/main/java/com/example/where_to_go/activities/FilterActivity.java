@@ -1,4 +1,4 @@
-package com.example.where_to_go;
+package com.example.where_to_go.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.utilities.SeekBarComparator;
 import org.json.JSONException;

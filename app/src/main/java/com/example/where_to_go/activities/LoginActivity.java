@@ -1,4 +1,4 @@
-package com.example.where_to_go;
+package com.example.where_to_go.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +17,7 @@ import android.widget.Toast;
 //import com.facebook.GraphResponse;
 //import com.facebook.login.LoginResult;
 //import com.facebook.login.widget.LoginButton;
+import com.example.where_to_go.R;
 import com.parse.ParseUser;
 
 public class LoginActivity extends AppCompatActivity {

@@ -16,7 +16,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.where_to_go.DestinationDetailsActivity;
+import com.example.where_to_go.activities.DestinationDetailsActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.models.Destination;
