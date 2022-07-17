@@ -36,6 +36,18 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        Log.i(TAG, "onResume");
+        super.onResume();
+        setUpLatestLayout(requireView());
+    }
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -50,7 +62,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setUpLatestLayout(view);
+    }
 
+    // HELPER METHODS
+
+    private void setUpLatestLayout(@NonNull View view) {
         CardView cvContinueTour = view.findViewById(R.id.cvContinueTour);
 
         cvContinueTour.setOnClickListener(v -> {
@@ -127,9 +144,5 @@ public class HomeFragment extends Fragment {
 
         recentTours.addAll(DatabaseUtils.getLimitedRecentToursFromDatabase(limit));
         recentTourAdapter.notifyDataSetChanged();
-    }
-
-    public ToursAdapter getRecentTourAdapter() {
-        return recentTourAdapter;
     }
 }

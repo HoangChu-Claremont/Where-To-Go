@@ -8,8 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.where_to_go.NavigationActivity;
@@ -22,12 +25,12 @@ import java.util.List;
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
     public static int POSITION = -1;
-    private List<Tour> featuredTours;
+    private List<Tour> inputTours;
     private Context context;
 
     public ToursAdapter(Context _context, List<Tour> _featured_tours) {
         context = _context;
-        featuredTours = _featured_tours;
+        inputTours = _featured_tours;
     }
 
     @NonNull
@@ -39,14 +42,13 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
     @Override
     public void onBindViewHolder(@NonNull FeaturedTourViewHolder holder, int position) {
-        Tour featuredTour = featuredTours.get(position);
+        Tour featuredTour = inputTours.get(position);
         holder.bind(featuredTour);
     }
 
     @Override
     public int getItemCount() {
-        Log.i(TAG, "getItemCount");
-        return featuredTours.size();
+        return inputTours.size();
     }
 
     public class FeaturedTourViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -71,6 +73,13 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
         public void bind(@NonNull Tour tour) {
             Log.i(TAG, "binding");
 
+            Fragment currentVisibleFragmentIsProfile = ((AppCompatActivity) context).getSupportFragmentManager()
+                    .findFragmentByTag("ProfileFragment");
+
+            if (isProfileFragment(currentVisibleFragmentIsProfile)) { // Special layout in ProfileFragment
+                ibTourBookmark.setVisibility(View.INVISIBLE);
+            }
+
             ivTourName.setText(tour.getTourNameDB());
 
             Glide.with(context).load("https://imgur.com/a/K0wRQZO")
@@ -88,13 +97,16 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             ibRemove.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 String removeTourID = tour.getObjectId();
-                featuredTours.remove(position);
-
-                Log.i(TAG, "removeTourId: " + removeTourID);
-
-                DatabaseUtils.removeOneTourFromDatabaseIfExists(removeTourID);
-
+                inputTours.remove(position);
                 notifyItemRemoved(position);
+
+                // Just switch state of a saved tour
+                if (isProfileFragment(currentVisibleFragmentIsProfile)) {
+                    tour.setIsSavedDB(!tour.getIsSavedDB());
+                    tour.saveInBackground();
+                } else {
+                    DatabaseUtils.removeOneTourFromDatabaseIfExists(removeTourID);
+                }
             });
         }
 
@@ -124,5 +136,9 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
                 ibTourBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark));
             }
         }
+    }
+
+    private boolean isProfileFragment(Fragment currentFragment) {
+        return currentFragment != null && currentFragment.isVisible();
     }
 }

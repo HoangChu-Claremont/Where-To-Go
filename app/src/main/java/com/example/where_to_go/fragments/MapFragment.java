@@ -105,13 +105,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         btnStartSaveTour.setOnClickListener(v -> {
             try {
                 startSaveAction();
-
+                updateTourInHomeFragment();
                 goHomeActivity();
             } catch (Exception e) {
                 Log.i(TAG, "Can't start / save." + e.getMessage());
                 e.printStackTrace();
             }
         });
+    }
+
+    private void updateTourInHomeFragment() {
+        List<Fragment> fragments = getFragmentManager().getFragments();
+        for (Fragment fragment : fragments) {
+            Log.i(TAG, "Previous Fragment: " + fragment.getTag());
+        }
     }
 
     @Override
@@ -164,7 +171,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         startActivity(intent);
     }
 
-    private void startSaveAction() throws Exception {
+    private void startSaveAction() {
         Log.i(TAG, "startSaveAction");
 
         String tourName = etTourName.getText().toString();

@@ -47,22 +47,26 @@ public class NavigationActivity extends AppCompatActivity {
         // Bottom Navigation
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             Fragment fragment;
+            String fragmentTag;
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_home:
                         fragment = new HomeFragment();
+                        fragmentTag = "HomeFragment";
                         break;
                     case R.id.action_map:
                         fragment = new MapFragment();
+                        fragmentTag = "MapFragment";
                         break;
                     case R.id.action_profile:
                     default:
                         fragment = new ProfileFragment();
+                        fragmentTag = "ProfileFragment";
                         break;
                 }
                 fragmentManager.beginTransaction()
-                        .replace(R.id.flContainer, fragment)
+                        .replace(R.id.flContainer, fragment, fragmentTag)
                         .addToBackStack(String.valueOf(item.getItemId())).commit();
                 return true;
             }

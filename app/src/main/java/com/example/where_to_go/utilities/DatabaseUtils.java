@@ -156,10 +156,9 @@ public class DatabaseUtils {
 
     public static boolean saveDestinationsToDatabase(@NonNull List<Destination> destinations, @NonNull String tourId) {
         Log.i(TAG, "saveDestinationsToDatabase");
+        Log.i(TAG, "saveToDestinationsDB: " + tourId);
 
         for (Destination destination : destinations) {
-            Log.i(TAG, "saveToDestinationsDB: " + tourId);
-
             // Getting information to set up the POST query
             destination.put("tour_id", ParseObject.createWithoutData(Tour.class, tourId));
             destination.putToDB();
