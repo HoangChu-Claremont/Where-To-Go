@@ -93,7 +93,7 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
     }
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private static final String TAG = "FeaturedTourViewHolder";
+        private static final String TAG = "FilteredDestinationViewHolder";
 
         private final ImageView ivDestinationImage;
         private final TextView tvDestinationName;
@@ -108,13 +108,11 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
             ibRemove.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-
-                Log.i(TAG, String.valueOf(position));
                 if (position != RecyclerView.NO_POSITION) {
-                    Destination destinationToRemove = destinations.get(position);
-                    String destinationIdToRemove = destinationToRemove.getObjectId();
-                    Log.i(TAG, "destinationIdToRemove: " + destinationIdToRemove);
-                    DatabaseUtils.removeDestinationsFromDatabaseIfExists(destinationIdToRemove);
+                    String destinationIdToRemoveId = destinations.get(position).getObjectId();
+                    DatabaseUtils.removeDestinationsFromDatabaseIfExists(destinationIdToRemoveId);
+                    destinations.remove(position);
+
                     notifyItemRemoved(position);
                 }
             });

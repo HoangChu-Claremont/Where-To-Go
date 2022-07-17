@@ -96,16 +96,19 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
             ibRemove.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                String removeTourID = tour.getObjectId();
-                inputTours.remove(position);
-                notifyItemRemoved(position);
 
-                // Just switch state of a saved tour
-                if (isProfileFragment(currentVisibleFragmentIsProfile)) {
-                    tour.setIsSavedDB(!tour.getIsSavedDB());
-                    tour.saveInBackground();
-                } else {
-                    DatabaseUtils.removeOneTourFromDatabaseIfExists(removeTourID);
+                if (position != RecyclerView.NO_POSITION) {
+                    String removeTourID = tour.getObjectId();
+                    inputTours.remove(position);
+                    notifyItemRemoved(position);
+
+                    // Just switch state of a saved tour
+                    if (isProfileFragment(currentVisibleFragmentIsProfile)) {
+                        tour.setIsSavedDB(!tour.getIsSavedDB());
+                        tour.saveInBackground();
+                    } else {
+                        DatabaseUtils.removeOneTourFromDatabaseIfExists(removeTourID);
+                    }
                 }
             });
         }

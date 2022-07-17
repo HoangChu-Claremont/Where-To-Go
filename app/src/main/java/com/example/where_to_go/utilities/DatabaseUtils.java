@@ -9,7 +9,9 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DatabaseUtils {
 
@@ -144,7 +146,8 @@ public class DatabaseUtils {
             destinationParseQuery.whereEqualTo(Destination.TOUR_ID, tourDB_Object);
 
             try {
-                outputDestinations = destinationParseQuery.find();
+                outputDestinations = destinationParseQuery.find()
+                        .stream().distinct().collect(Collectors.toList()); // Remove duplicates
             } catch (ParseException e) {
                 Log.e(TAG, "Issues with getting destinations from DB: " + e.getMessage());
             }
