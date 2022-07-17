@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
 
 public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.FilteredDestinationViewHolder> {
     private static final String TAG = "DestinationsAdapter";

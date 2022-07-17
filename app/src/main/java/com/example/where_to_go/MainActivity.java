@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         navigateToFragment();
     }
 
-
     // HELPER METHODS
 
     private void navigateToFragment() {
