@@ -13,12 +13,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-import com.example.where_to_go.FilterActivity;
+import com.example.where_to_go.activities.FilterActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Tour;
-import com.parse.ParseQuery;
+import com.example.where_to_go.utilities.DatabaseUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +25,26 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
 
-    private ToursAdapter featuredTourAdapter, recentTourAdapter;
+    private ToursAdapter featuredTourAdapter;
+    private ToursAdapter recentTourAdapter;
     private List<Tour> featuredTours;
     private List<Tour> recentTours;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        Log.i(TAG, "onResume");
+        super.onResume();
+        setUpLatestLayout(requireView());
     }
 
     public HomeFragment() {
@@ -42,14 +54,18 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Toast.makeText(getContext(), "You're in Home!", Toast.LENGTH_SHORT).show();
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setUpLatestLayout(view);
+    }
 
+    // HELPER METHODS
+
+    private void setUpLatestLayout(@NonNull View view) {
         CardView cvContinueTour = view.findViewById(R.id.cvContinueTour);
 
         cvContinueTour.setOnClickListener(v -> {
@@ -115,39 +131,16 @@ public class HomeFragment extends Fragment {
     private void getFeaturedTours() {
         Log.i(TAG, "getFeaturedTours");
 
-        // Create a Query
-        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
-
-        // Include information we want to query
-        destinationCollectionsParseQuery.whereEqualTo(Tour.IS_FEATURED, true);
-
-        // Query
-        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
-            if (e != null) {
-                Log.e(TAG, "Issues with getting tours from DB", e);
-                return;
-            }
-            featuredTours.addAll(_destinationCollections);
-            featuredTourAdapter.notifyDataSetChanged();
-        });
+        featuredTours.addAll(DatabaseUtils.getFeaturedToursFromDatabase());
+        featuredTourAdapter.notifyDataSetChanged();
     }
 
     private void getRecentTours() {
         Log.i(TAG, "getRecentTours");
 
-        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
-        final int LIMIT = 5;
-        destinationCollectionsParseQuery.include(Tour.USER_ID)
-                .addDescendingOrder(Tour.KEY_UPDATED_AT)
-                .setLimit(LIMIT);
+        int limit = 5;
 
-        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
-            if (e != null) {
-                Log.e(TAG, "Issues with getting tours from DB", e);
-                return;
-            }
-            recentTours.addAll(_destinationCollections);
-            recentTourAdapter.notifyDataSetChanged();
-        });
+        recentTours.addAll(DatabaseUtils.getLimitedRecentToursFromDatabase(limit));
+        recentTourAdapter.notifyDataSetChanged();
     }
 }

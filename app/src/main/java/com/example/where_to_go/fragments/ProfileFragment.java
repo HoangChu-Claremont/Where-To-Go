@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,15 +31,18 @@ public class ProfileFragment extends Fragment {
     private List<Tour> savedTours;
     private ToursAdapter toursAdapter;
 
+    private ImageButton ibTourBookmark;
+    private ImageButton ibRemove;
+
+
     public ProfileFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Toast.makeText(getContext(), "You're in Profile!", Toast.LENGTH_SHORT).show();
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
@@ -46,19 +50,23 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ibTourBookmark = view.findViewById(R.id.ibBookmark);
+        ibRemove = view.findViewById(R.id.ibRemove);
+
+        setUpUserLayout(view);
+        setSavedTourRecyclerView();
+        getSavedTours();
+    }
+
+    private void setUpUserLayout(@NonNull View view) {
         TextView tvAccountName = view.findViewById(R.id.account_name);
         TextView tvAccountTwitterName = view.findViewById(R.id.account_twitter_name);
-
         ParseUser currentUser = ParseUser.getCurrentUser();
-
         String accountName = currentUser.getUsername();
         String accountTwitterName = "@" + accountName;
 
         tvAccountName.setText(accountName);
         tvAccountTwitterName.setText(accountTwitterName);
-
-        setSavedTourRecyclerView();
-        getSavedTours();
     }
 
     // HELPER METHODS
@@ -81,7 +89,7 @@ public class ProfileFragment extends Fragment {
     private void getSavedTours() {
         ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
         destinationCollectionsParseQuery.include(Tour.USER_ID)
-                        .whereEqualTo("isSaved", true);
+                        .whereEqualTo(Tour.IS_SAVED, true);
 
         destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
             if (e != null) {

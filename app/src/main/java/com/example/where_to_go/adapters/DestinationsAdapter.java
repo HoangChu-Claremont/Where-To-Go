@@ -6,35 +6,42 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.where_to_go.DestinationDetailsActivity;
+import com.example.where_to_go.activities.DestinationDetailsActivity;
 import com.example.where_to_go.R;
+import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.models.Destination;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
-
+import com.example.where_to_go.utilities.DatabaseUtils;
+import com.google.android.gms.maps.model.Marker;
+import com.parse.ParseObject;
 import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.FilteredDestinationViewHolder> {
     private static final String TAG = "DestinationsAdapter";
 
     public Context context;
-    private final List<Destination> destinations;
 
-    public DestinationsAdapter(Context _context, List<Destination> _destinations) {
+    private final List<Destination> destinations;
+    private List<Marker> currentMarkers;
+    private NavigationAdapter navigationListener;
+
+    public DestinationsAdapter(Context _context, List<Destination> _destinations, List<Marker> _currentMarkers, NavigationAdapter _navigationListener) {
         context = _context;
         destinations = _destinations;
+        currentMarkers = _currentMarkers;
+        navigationListener = _navigationListener;
     }
 
     @NonNull
@@ -52,7 +59,6 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
     @Override
     public int getItemCount() {
-        Log.i(TAG, "getItemCount");
         return destinations.size();
     }
 
@@ -73,56 +79,63 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
         notifyItemMoved(fromPosition, toPosition);
     }
 
-    public void onItemRemove(int deletingPosition) {
+    public void onItemRemove(int position) {
         Log.i(TAG, "onItemDeleted");
         Log.i(TAG, "Previous size: " + destinations.size());
-        Log.i(TAG, "Delete destination #" + deletingPosition);
+        Log.i(TAG, "Delete destination #" + position);
 
-        String removeDestinationId = destinations.get(deletingPosition).getIdDB();
-        destinations.remove(deletingPosition);
+        Destination removeDestination = destinations.get(position);
+
+        String removeDestinationId = removeDestination.getIdDB();
+        ParseObject associatedTour = removeDestination.getParseObject(Destination.TOUR_ID);
+
+        DatabaseUtils.removeDestinationsFromDatabaseIfExists(removeDestinationId);
+        destinations.remove(position);
+        notifyItemRemoved(position);
+
         Log.i(TAG, "Current size: " + destinations.size());
 
-        removeDestinationsFromDatabaseIfExists(removeDestinationId);
+        if (getItemCount() == 0) {
+            if (associatedTour != null) {
+                String associatedTourId = Objects.requireNonNull(associatedTour).getObjectId();
+                Log.i(TAG, "Remove tour: " + associatedTourId);
+                DatabaseUtils.removeOneTourFromDatabaseIfExists(associatedTourId);
+                Toast.makeText(context, "Go back Home...", Toast.LENGTH_SHORT).show();
 
-        notifyItemRemoved(deletingPosition);
-    }
-
-    private void removeDestinationsFromDatabaseIfExists(String removeDestinationId) {
-        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery("Destinations");
-
-        try {
-            Destination removeDestination = destinationParseQuery.get(removeDestinationId);
-            String removeDestinationName = removeDestination.getLocationNameDB(); // For debugging purpose
-
-            removeDestinationFromDB(removeDestination);
-            Log.i(TAG, "Remove destination " + removeDestinationName + "successfully!");
-        } catch (ParseException e) {
-            Toast.makeText(context, "Can't find destination", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
-    private void removeDestinationFromDB(@NonNull Destination removeDestination) {
-        try {
-            removeDestination.delete();
-            removeDestination.saveInBackground();
-        } catch (ParseException exception) {
-            Toast.makeText(context, "Can't remove destination", Toast.LENGTH_SHORT).show();
-            exception.printStackTrace();
+                Object lock = new Object();
+                synchronized (lock) {
+                    try {
+                        lock.wait(3000);
+                    } catch (InterruptedException e) {
+                        Log.i(TAG, "Can't wait. " + e.getMessage());
+                    }
+                }
+                navigationListener.goHomeActivity();
+            }
         }
     }
 
     public class FilteredDestinationViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private static final String TAG = "FeaturedTourViewHolder";
+        private static final String TAG = "FilteredDestinationViewHolder";
 
         private final ImageView ivDestinationImage;
         private final TextView tvDestinationName;
+        private final ImageButton ibRemove;
 
         public FilteredDestinationViewHolder(View itemView) {
             super(itemView);
 
             ivDestinationImage = itemView.findViewById(R.id.ivTourImage);
             tvDestinationName = itemView.findViewById(R.id.tvTourName);
+            ibRemove = itemView.findViewById(R.id.ibRemove);
+
+            ibRemove.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    onItemRemove(position);
+                    MapFragment.resetMarkers(currentMarkers, position);
+                }
+            });
             
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
@@ -163,7 +176,7 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         @NonNull
         @Contract("_, _ -> param1")
-        private Intent addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
+        private void addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
             // Add information to the intent
             _intent.putExtra("destination_photo", destination.getImageUrl());
             _intent.putExtra("destination_name", destination.getLocationName());
@@ -171,8 +184,10 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
             _intent.putExtra("destination_rating", destination.getRating());
             _intent.putExtra("destination_distance", destination.getDistance());
             _intent.putExtra("destination_address", destination.getAddress());
-
-            return _intent;
         }
+    }
+
+    public interface NavigationAdapter {
+        void goHomeActivity();
     }
 }
