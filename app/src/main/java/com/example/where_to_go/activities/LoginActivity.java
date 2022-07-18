@@ -1,32 +1,51 @@
 package com.example.where_to_go.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.example.where_to_go.R;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private EditText etUsername;
     private EditText etPassword;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        Log.i(TAG, "isLoggedIn:" + isLoggedIn);
+        callbackManager = CallbackManager.Factory.create();
+
         // Set Values
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);
         Button btnSignup = findViewById(R.id.btnSignup);
-        Button facebookLoginButton = findViewById(R.id.fb_login_button);
+        LoginButton btnFBLogin = findViewById(R.id.fb_login_button);
 
         // Button clicks
         btnLogin.setOnClickListener(v -> {
@@ -47,6 +66,40 @@ public class LoginActivity extends AppCompatActivity {
             // Log in -> LoginActivity
             signUp(username, password);
         });
+
+        List<String> permissions = new ArrayList<>();
+        permissions.add("email");
+        permissions.add("public_profile");
+        btnFBLogin.setPermissions(permissions);
+
+        btnFBLogin.setOnClickListener(v -> {
+            if (isLoggedIn) {
+                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, permissions);
+            } else {
+                btnFBLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        goNavigationActivity();
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull FacebookException e) {
+
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     // HELPER METHODS

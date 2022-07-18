@@ -54,10 +54,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
-
         <provider android:authorities="com.facebook.app.FacebookContentProvider992688341423995"
             android:name="com.facebook.FacebookContentProvider"
             android:exported="true" />
+        <meta-data
+            android:name="com.facebook.sdk.EMAIL_PERMISSIONS"
+            android:value="email" />
+        <meta-data
+            android:name="com.facebook.sdk.USER_PROFILE_PERMISSIONS"
+            android:value="public_profile" />
     </application>
 
 </manifest>
