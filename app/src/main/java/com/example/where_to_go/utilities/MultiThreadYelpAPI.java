@@ -1,16 +1,13 @@
 package com.example.where_to_go.utilities;
 
 import android.util.Log;
-
+import androidx.annotation.NonNull;
 import com.example.where_to_go.BuildConfig;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.Objects;
-
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -44,7 +41,6 @@ public class MultiThreadYelpAPI extends Thread {
         }
     }
 
-
     // HELPER METHODS
 
     public JSONArray getJsonResults() {
@@ -52,16 +48,11 @@ public class MultiThreadYelpAPI extends Thread {
     }
 
     public void query(double currentLongitude, double currentLatitude, String category) throws JSONException, IOException {
-        // Build URL
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(BUSINESS_SEARCH_URL))).newBuilder();
+        Log.i(TAG, "querying...");
 
-        // Add URL Params
-        urlBuilder.addQueryParameter("longitude", String.valueOf(currentLongitude));
-        urlBuilder.addQueryParameter("latitude", String.valueOf(currentLatitude));
-        urlBuilder.addQueryParameter("limit", String.valueOf(YELP_LIMIT_PER_REQUEST));
-        urlBuilder.addQueryParameter("categories", category);
-        String url = urlBuilder.build().toString();
+        OkHttpClient client = new OkHttpClient.Builder().build();
+
+        String url = buildUrlRequest(currentLongitude, currentLatitude, category);
         Log.i(TAG, "URL: " + url);
 
         // Make request
@@ -74,11 +65,32 @@ public class MultiThreadYelpAPI extends Thread {
         Call call = client.newCall(request);
         Response response = call.execute();
 
-        // Get response body in JSON
+        // Test response body
+        testResponse(response);
+    }
+
+    private void testResponse(@NonNull Response response) throws IOException, JSONException {
+        Log.i(TAG, "testResponse");
+
         Log.i(TAG, "response code: " + response.code());
         String responseData = Objects.requireNonNull(response.body()).string();
         JSONObject jsonData = new JSONObject(responseData);
         jsonResults = jsonData.getJSONArray("businesses");
         Log.i(TAG, "jsonResults Size:" + jsonResults.length());
+    }
+
+    @NonNull
+    private String buildUrlRequest(double currentLongitude, double currentLatitude, String category) {
+        Log.i(TAG, "buildUrlRequest");
+
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(Objects.requireNonNull(HttpUrl.parse(BUSINESS_SEARCH_URL))).newBuilder();
+
+        // Add URL Params
+        urlBuilder.addQueryParameter("longitude", String.valueOf(currentLongitude));
+        urlBuilder.addQueryParameter("latitude", String.valueOf(currentLatitude));
+        urlBuilder.addQueryParameter("limit", String.valueOf(YELP_LIMIT_PER_REQUEST));
+        urlBuilder.addQueryParameter("categories", category);
+
+        return urlBuilder.build().toString();
     }
 }

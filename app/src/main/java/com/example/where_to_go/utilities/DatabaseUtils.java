@@ -17,29 +17,6 @@ public class DatabaseUtils {
     private static final String TAG = "DatabaseUtils";
 
     // TourDB
-    public static void removeOneTourFromDatabaseIfExists(String tourIdToRemove) {
-        Log.i(TAG, "removeOneTourFromDatabaseIfExists");
-        Log.i(TAG, "tourIdToRemove: " + tourIdToRemove);
-
-        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
-
-        if (hasTourExisted(tourIdToRemove)) {
-            ParseObject tourDB_Object = ParseObject.createWithoutData(Tour.class, tourIdToRemove);
-
-            // Remove the tour from DB
-            tourParseQuery.getInBackground(tourIdToRemove, (tourToRemove, e) -> removeTourFromDB(tourToRemove));
-
-            // Remove destinations associated with removed tour
-            destinationParseQuery.whereEqualTo(Destination.TOUR_ID, tourDB_Object);
-            destinationParseQuery.findInBackground((destinationsToRemove, e) -> {
-                for (Destination destinationToRemove : destinationsToRemove) {
-                    removeDestinationFromDB(destinationToRemove);
-                }
-            });
-        }
-    }
-
     @NonNull
     public static List<Tour> getFeaturedToursFromDatabase() {
         Log.i(TAG, "getFeaturedToursFromDatabase");
@@ -82,6 +59,7 @@ public class DatabaseUtils {
         return outputTours;
     }
 
+    @NonNull
     public static List<Tour> getAllToursFromDatabase() {
         Log.i(TAG, "getAllToursFromDatabase");
 
@@ -94,7 +72,31 @@ public class DatabaseUtils {
             Log.i(TAG, "Can't get tours from DB: " + e.getMessage());
         }
 
+        Log.i(TAG, "allTours size: " + outputTours.size());
         return outputTours;
+    }
+
+    public static void removeOneTourFromDatabaseIfExists(String tourIdToRemove) {
+        Log.i(TAG, "removeOneTourFromDatabaseIfExists");
+        Log.i(TAG, "tourIdToRemove: " + tourIdToRemove);
+
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
+
+        if (hasTourExisted(tourIdToRemove)) {
+            ParseObject tourDB_Object = ParseObject.createWithoutData(Tour.class, tourIdToRemove);
+
+            // Remove the tour from DB
+            tourParseQuery.getInBackground(tourIdToRemove, (tourToRemove, e) -> removeTourFromDB(tourToRemove));
+
+            // Remove destinations associated with removed tour
+            destinationParseQuery.whereEqualTo(Destination.TOUR_ID, tourDB_Object);
+            destinationParseQuery.findInBackground((destinationsToRemove, e) -> {
+                for (Destination destinationToRemove : destinationsToRemove) {
+                    removeDestinationFromDB(destinationToRemove);
+                }
+            });
+        }
     }
 
     public static String saveOneTourToDatabaseAndReturnID(String tourName, @NonNull ParseUser currentUser) {
@@ -115,22 +117,11 @@ public class DatabaseUtils {
             Log.i(TAG, "Can't save tour. " + e.getMessage());
         }
 
+        Log.i(TAG, "returnedTourId: " + returnedTourId);
         return returnedTourId;
     }
 
     // DestinationDB
-    public static void removeDestinationsFromDatabaseIfExists(String destinationIdToRemove) {
-        Log.i(TAG, "removeDestinationsFromDatabaseIfExists");
-        Log.i(TAG, "destinationIdToRemove: " + destinationIdToRemove);
-
-        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
-
-        if (hasDestinationExisted(destinationIdToRemove)) {
-            destinationParseQuery.getInBackground(destinationIdToRemove, (destinationToRemove, e)
-                    -> removeDestinationFromDB(destinationToRemove));
-        }
-    }
-
     @NonNull
     public static List<Destination> getAllUnPackedDestinationsFromATour(String tourId) {
         Log.i(TAG, "getAllUnPackedDestinationsFromATour");
@@ -154,6 +145,18 @@ public class DatabaseUtils {
 
         Log.i(TAG, "outputDestinations size: " + outputDestinations.size());
         return outputDestinations;
+    }
+
+    public static void removeDestinationsFromDatabaseIfExists(String destinationIdToRemove) {
+        Log.i(TAG, "removeDestinationsFromDatabaseIfExists");
+        Log.i(TAG, "destinationIdToRemove: " + destinationIdToRemove);
+
+        ParseQuery<Destination> destinationParseQuery = ParseQuery.getQuery(Destination.class);
+
+        if (hasDestinationExisted(destinationIdToRemove)) {
+            destinationParseQuery.getInBackground(destinationIdToRemove, (destinationToRemove, e)
+                    -> removeDestinationFromDB(destinationToRemove));
+        }
     }
 
     public static boolean saveDestinationsToDatabase(@NonNull List<Destination> destinations, @NonNull String tourId) {

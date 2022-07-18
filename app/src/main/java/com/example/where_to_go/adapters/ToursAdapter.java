@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -25,6 +24,7 @@ import java.util.List;
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
     public static int POSITION = -1;
+
     private List<Tour> inputTours;
     private Context context;
 
@@ -41,9 +41,9 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FeaturedTourViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FeaturedTourViewHolder featuredTourViewHolder, int position) {
         Tour featuredTour = inputTours.get(position);
-        holder.bind(featuredTour);
+        featuredTourViewHolder.bind(featuredTour);
     }
 
     @Override
@@ -53,6 +53,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
     public class FeaturedTourViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private static final String TAG = "FeaturedTourViewHolder";
+
         private ImageView ivTourImage;
         private TextView ivTourName;
         private ImageButton ibTourBookmark;
@@ -80,14 +81,17 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
                 ibTourBookmark.setVisibility(View.INVISIBLE);
             }
 
+            // Set TextView
             ivTourName.setText(tour.getTourNameDB());
 
+            // Set ImageView
             Glide.with(context).load("https://imgur.com/a/K0wRQZO")
                     .centerCrop()
                     .placeholder(R.drawable.profile_gradient)
                     .into(ivTourImage); // TODO: Set this image right
             showSavedStatus(tour.getIsSavedDB());
 
+            // Button clicks
             ibTourBookmark.setOnClickListener(v -> {
                 tour.setIsSavedDB(!tour.getIsSavedDB());
                 tour.saveInBackground();
@@ -115,10 +119,9 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
 
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: " + v);
-
             // gets item position
             int position = getAdapterPosition();
+            Log.i(TAG, "onClick item position: " + position);
 
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
@@ -139,9 +142,11 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
                 ibTourBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark));
             }
         }
-    }
 
-    private boolean isProfileFragment(Fragment currentFragment) {
-        return currentFragment != null && currentFragment.isVisible();
+        private boolean isProfileFragment(Fragment currentFragment) {
+            Log.i(TAG, "isProfileFragment");
+
+            return currentFragment != null && currentFragment.isVisible();
+        }
     }
 }

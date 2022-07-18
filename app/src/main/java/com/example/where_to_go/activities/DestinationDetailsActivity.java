@@ -1,9 +1,11 @@
 package com.example.where_to_go.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -40,13 +42,18 @@ public class DestinationDetailsActivity extends AppCompatActivity {
 
     // HELPER METHODS
 
-    private void setInformation(ImageView ivDestinationPhoto, TextView tvDestinationName, TextView tvDestinationPhone, TextView tvAddress, TextView tvDistance, RatingBar rbPathRating) {
+    private void setInformation(ImageView ivDestinationPhoto, @NonNull TextView tvDestinationName, @NonNull TextView tvDestinationPhone,
+                                @NonNull TextView tvAddress, @NonNull TextView tvDistance, @NonNull RatingBar rbPathRating) {
+
         // Un-pack the object transferred here.
         Intent intent = getIntent();
 
         // Numbers
         double destinationRating = intent.getDoubleExtra("destination_rating", 0.0);
         double destinationDistance = intent.getDoubleExtra("destination_distance", 0.00);
+
+        Log.i(TAG, "destinationRating: " + destinationRating);
+        Log.i(TAG, "destinationDistance: " + destinationDistance);
 
         // Text
         String destinationPhoto = intent.getStringExtra("destination_photo");

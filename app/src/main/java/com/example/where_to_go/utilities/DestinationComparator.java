@@ -1,13 +1,17 @@
 package com.example.where_to_go.utilities;
 
+import android.util.Log;
+import androidx.annotation.NonNull;
 import com.example.where_to_go.models.Destination;
-
 import java.util.Comparator;
 
 public class DestinationComparator implements Comparator<Destination> {
 
+    private static final String TAG = "DestinationComparator";
+
     @Override
-    public int compare(Destination destination1, Destination destination2) {
+    public int compare(@NonNull Destination destination1, @NonNull Destination destination2) {
+        Log.i(TAG, "comparing 2 destinations in descending order");
         double rating1 = destination1.getRating();
         double rating2 = destination2.getRating();
 

@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
@@ -49,16 +48,16 @@ public class NavigationActivity extends AppCompatActivity {
             Log.i(TAG, "Requesting location permission...");
             requestPermissions();
         } else {
-            getDeviceLocation();
+//            getDeviceLocation();
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-        final FragmentManager fragmentManager = getSupportFragmentManager();
 
         // Bottom Navigation
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             Fragment fragment;
             String fragmentTag;
+
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -76,9 +75,7 @@ public class NavigationActivity extends AppCompatActivity {
                         fragmentTag = "ProfileFragment";
                         break;
                 }
-                fragmentManager.beginTransaction()
-                        .replace(R.id.flContainer, fragment, fragmentTag)
-                        .addToBackStack(String.valueOf(item.getItemId())).commit();
+                goAppropriateFragment(item, fragment, fragmentTag);
                 return true;
             }
         });
@@ -86,7 +83,6 @@ public class NavigationActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
-    // Logout Button
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -97,6 +93,8 @@ public class NavigationActivity extends AppCompatActivity {
     // Button clicks
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.i(TAG, "onOptionsItemSelected");
+
         if (item.getItemId() == R.id.action_logout) {
             Log.i(TAG, "onClick Logout Button");
             ParseUser.logOutInBackground();
@@ -108,15 +106,26 @@ public class NavigationActivity extends AppCompatActivity {
 
     // HELPER METHODS
 
+    private void goAppropriateFragment(@NonNull MenuItem menuItem, Fragment fragment, String fragmentTag) {
+        Log.i(TAG, "goAppropriateFragment");
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.flContainer, fragment, fragmentTag)
+                .addToBackStack(String.valueOf(menuItem.getItemId())).commit();
+    }
+
     private void goLoginActivity() {
+        Log.i(TAG, "goLoginActivity");
+
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
     }
 
-    // HELPER METHODS
-
     @SuppressLint("MissingPermission")
     private void getDeviceLocation() {
+        Log.i(TAG, "getDeviceLocation");
+
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
                     @NonNull
                     @Override
@@ -146,12 +155,14 @@ public class NavigationActivity extends AppCompatActivity {
         Log.i(TAG, "getLocationFromPassiveProvide");
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);;
-        Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         MainActivity.CURRENT_LONGITUDE = location.getLongitude();
         MainActivity.CURRENT_LATITUDE = location.getLatitude();
     }
 
     private boolean hasPermission() {
+        Log.i(TAG, "hasPermission");
+
         return ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this,
@@ -159,6 +170,8 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
     private void requestPermissions() {
+        Log.i(TAG, "requestPermissions");
+
         ActivityCompat.requestPermissions(this, new String[] {
                 Manifest.permission.ACCESS_FINE_LOCATION
         }, 1);

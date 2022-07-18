@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.utilities.SeekBarComparator;
@@ -110,10 +109,11 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
-
     // HELPER METHODS
 
     private void initCategories(SeekBar[] _seekBars) {
+        Log.i(TAG, "initCategories");
+
         addCategoryClickCount = -1; // When click "Add Categories", 1st category is 0th-indexed.
 
         for (int id = 0; id < TOTAL_CATEGORIES; ++id) { // Add all currently existing seekbars
@@ -129,26 +129,37 @@ public class FilterActivity extends AppCompatActivity {
 
     @NonNull
     private List<SeekBar> getVisibleSeekBars(@NonNull SeekBar[] seekBars) {
+        Log.i(TAG, "getVisibleSeekBars");
+
         List<SeekBar> visibleSeekBars = new ArrayList<>();
+
         for (SeekBar seekBar : seekBars) {
             if (seekBar.getProgress() > 0) {
                 visibleSeekBars.add(seekBar);
             }
         }
+
         return visibleSeekBars;
     }
 
     private int getCurrentTotalProgress(@NonNull List<SeekBar> visibleSeekBars) {
+        Log.i(TAG, "getCurrentTotalProgress");
+
         int currentTotalProgress = 0;
+
         for (SeekBar seekBar : visibleSeekBars) {
             currentTotalProgress += seekBar.getProgress();
         }
+
         return currentTotalProgress;
     }
 
     private void resetInvisibleSeekBarValue(int addCategoryClickCount) {
+        Log.i(TAG, "resetInvisibleSeekBarValue");
+
         String seekBarId = "seekBar" + addCategoryClickCount;
         SeekBar seekBar = findViewById(getResources().getIdentifier(seekBarId, "id", getPackageName()));
+
         if (addCategoryClickCount == 0) {
             seekBar.setProgress(100);
         } else {
@@ -165,24 +176,34 @@ public class FilterActivity extends AppCompatActivity {
             for (SeekBar visibleSeekBar : visibleSeekBars) {
                 currentTotalProgress = Math.max(currentTotalProgress - TOTAL_PERCENTAGE, 0);
                 int progressToSet = Math.max(visibleSeekBar.getProgress() - currentTotalProgress, 0);
+
                 visibleSeekBar.setProgress(progressToSet);
             }
         }
     }
 
     private void setCategoryInVisible(int _addCategoryClickCount) {
+        Log.i(TAG, "setCategoryInVisible");
+
         String llDestinationId = "llDestinationType" + _addCategoryClickCount;
         LinearLayout llDestinationType = findViewById(getResources().getIdentifier(llDestinationId, "id", getPackageName()));
+
         llDestinationType.setVisibility(View.INVISIBLE);
     }
 
     private void setCategoryVisible(int _addCategoryClickCount) {
+        Log.i(TAG, "setCategoryVisible");
+
         String llDestinationId = "llDestinationType" + _addCategoryClickCount;
         LinearLayout llDestinationType = findViewById(getResources().getIdentifier(llDestinationId, "id", getPackageName()));
+
         llDestinationType.setVisibility(View.VISIBLE);
     }
 
-    private synchronized void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull Spinner _spPrice, @NonNull Spinner _spTransportation, SeekBar[] _seekBars) throws JSONException {
+    private synchronized void receiveFilterResult(@NonNull EditText _tvNoDays, @NonNull Spinner _spPrice,
+                                                  @NonNull Spinner _spTransportation, SeekBar[] _seekBars) throws JSONException {
+        Log.i(TAG, "receiveFilterResult");
+
         String tvNoDays_str = _tvNoDays.getText().toString();
         String spPrice = _spPrice.getSelectedItem().toString();
         String spTransportationType = _spTransportation.getSelectedItem().toString();
@@ -212,18 +233,25 @@ public class FilterActivity extends AppCompatActivity {
     }
 
     private boolean isValidNoDays(String tvNoDays_str) {
+        Log.i(TAG, "isValidNoDays");
+
         String regexDoubleTypedNumber = "[0-9.]*";
         Pattern digitPattern = Pattern.compile(regexDoubleTypedNumber);
+
+        Log.i(TAG, "isValidNoDays: " + digitPattern.matcher(tvNoDays_str).matches());
         return digitPattern.matcher(tvNoDays_str).matches();
     }
 
     @NonNull
     private List<Integer> getPreferences(@NonNull SeekBar[] _seekBars) {
+        Log.i(TAG, "getPreferences");
+
         List<Integer> preferences = new ArrayList<>();
         HashSet<Integer> category_set = new HashSet<>();
 
         for (SeekBar currentSeekBar : _seekBars) {
             int currentProgress = currentSeekBar.getProgress();
+
             if (currentSeekBar.getProgress() > 0) {
                 if (!category_set.contains(currentProgress)) {
                     category_set.add(currentProgress);
@@ -232,14 +260,41 @@ public class FilterActivity extends AppCompatActivity {
             }
         }
 
+        Log.i(TAG, "getPreferences: " + preferences);
         return preferences;
     }
 
     @NonNull
     private String getCategory(@NonNull SeekBar[] _seekBars) {
+        Log.i(TAG, "getCategory");
+
+        List<String> categories = getCategoryList(new ArrayList<>(), _seekBars);
+
+        if (categories.size() == 0) {
+            return "";
+        }
+        return getCategoryString(new StringBuilder(), categories);
+    }
+
+    @NonNull
+    private String getCategoryString(StringBuilder returnCategory, @NonNull List<String> categories) {
+        Log.i(TAG, "getCategoryString");
+
+        int lastCategoryIndex = categories.size() - 1;
+        for (int i = 0; i < lastCategoryIndex; ++i) {
+            returnCategory.append(categories.get(i));
+            returnCategory.append(",");
+        }
+        returnCategory.append(categories.get(lastCategoryIndex));
+
+        Log.i(TAG, "returnCategory: " + returnCategory);
+        return returnCategory.toString();
+    }
+
+    private List<String> getCategoryList(List<String> categories, @NonNull SeekBar[] _seekBars) {
+        Log.i(TAG, "getCategoryList");
+
         HashSet<String> category_set = new HashSet<>();
-        List<String> categories = new ArrayList<>();
-        StringBuilder returnCategory = new StringBuilder();
 
         for (int i = 0; i < _seekBars.length; ++i) {
             SeekBar currentSeekBar = _seekBars[i];
@@ -262,23 +317,15 @@ public class FilterActivity extends AppCompatActivity {
             }
         }
 
-        if (categories.size() == 0) {
-            return "";
-        }
-
-        int lastCategoryIndex = categories.size() - 1;
-        for (int i = 0; i < lastCategoryIndex; ++i) {
-            returnCategory.append(categories.get(i));
-            returnCategory.append(",");
-        }
-        returnCategory.append(categories.get(lastCategoryIndex));
-
-        Log.i(TAG, returnCategory.toString());
-        return returnCategory.toString();
+        Log.i(TAG, "categories: " + categories);
+        return categories;
     }
 
     @NonNull
-    private JSONObject getJsonFilterObject(int _noDays, String _spPrice, String _category, String _spTransportationType, List<Integer> _preferences) throws JSONException {
+    private JSONObject getJsonFilterObject(int _noDays, String _spPrice, String _category,
+                                           String _spTransportationType, List<Integer> _preferences) throws JSONException {
+        Log.i(TAG, "getJsonFilterObject");
+
         JSONObject jsonFilterObject = new JSONObject();
 
         jsonFilterObject.put("no_days", _noDays);
@@ -287,11 +334,14 @@ public class FilterActivity extends AppCompatActivity {
         jsonFilterObject.put("transportation_option", _spTransportationType);
         jsonFilterObject.put("preference_values", _preferences);
 
+        Log.i(TAG, jsonFilterObject.toString());
         return jsonFilterObject;
     }
 
     @NonNull
     private Map<String, String> getBaseCategories() {
+        Log.i(TAG, "getBaseCategories");
+
         Map<String, String> _categories = new HashMap<>();
 
         _categories.put("Food", "food");
