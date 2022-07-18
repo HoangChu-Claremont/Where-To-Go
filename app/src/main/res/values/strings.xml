@@ -8,9 +8,9 @@
     <string name="login">Login</string>
     <string name="signup">Signup</string>
     <string name="google_maps_api_key">AIzaSyDHTC8V3aP-7nX_CEvtrU7OyLrgUZcrh5g</string>
-    <string name="facebook_app_id">488384535263120</string>
+    <string name="facebook_app_id">992688341423995</string>
     <string name="fb_login_protocol_scheme">fb488384535263120</string>
-    <string name="facebook_client_token">5669ea79d3d278a9d5b758b83f024756</string>
+    <string name="facebook_client_token">4a5d6ad6326ca4ffa6d0e5e7b105fa32</string>
     <string name="btnHome">Home</string>
     <string name="btnMap">Map</string>
     <string name="btnProfile">Profile</string>

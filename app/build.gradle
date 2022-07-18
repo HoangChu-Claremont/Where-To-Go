@@ -66,10 +66,10 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // Parse SDK
-    implementation 'com.github.parse-community.Parse-SDK-Android:parse:1.25.0'
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:4.0.0'
 
     // Facebook SDK
-//    implementation "com.github.parse-community.Parse-SDK-Android:facebook:$parseVersion"
+    implementation "com.github.parse-community.Parse-SDK-Android:facebook:4.0.0"
 
     // CodePath's Parsing Network Request
     implementation 'com.codepath.libraries:asynchttpclient:2.2.0'

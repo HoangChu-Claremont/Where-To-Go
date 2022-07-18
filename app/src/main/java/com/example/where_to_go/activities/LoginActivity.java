@@ -16,13 +16,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etUsername;
     private EditText etPassword;
 
-    // Log in by Facebook
-    //    private LoginButton facebookLoginButton;
-    //    private CallbackManager callbackManager;
-    //    private boolean isLoggedInFB = false;
-    //    private String id, firstName, lastName, email;
-    //    private URL profilePic;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);
         Button btnSignup = findViewById(R.id.btnSignup);
-        // facebookLoginButton = findViewById(R.id.login_button);
+        Button facebookLoginButton = findViewById(R.id.fb_login_button);
 
         // Button clicks
         btnLogin.setOnClickListener(v -> {
