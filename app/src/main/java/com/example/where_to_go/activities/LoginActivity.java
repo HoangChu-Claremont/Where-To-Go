@@ -77,6 +77,7 @@ public class LoginActivity extends AppCompatActivity {
                 List<String> permissions = new ArrayList<>();
                 permissions.add("email");
                 permissions.add("public_profile");
+                permissions.add("user_friends");
                 btnFBLogin.setPermissions(permissions);
 
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions,
@@ -171,10 +172,11 @@ public class LoginActivity extends AppCompatActivity {
         if (!ParseFacebookUtils.isLinked(user)) {
             ParseFacebookUtils.linkWithReadPermissionsInBackground(user, LoginActivity.this, permissions, e -> {
                 if (ParseFacebookUtils.isLinked(user)) {
-                    username = user.getUsername();
                     Log.i(TAG, "User is linked in with Facebook!");
+                    username = user.getUsername();
                 } else {
                     Log.i(TAG, "User can't link with Facebook. " + e.getMessage());
+                    username = ParseUser.getCurrentUser().getUsername();
                 }
             });
         }
