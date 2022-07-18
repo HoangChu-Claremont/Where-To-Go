@@ -7,16 +7,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.example.where_to_go.BuildConfig;
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
@@ -29,6 +28,11 @@ import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.parse.ParseUser;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
 
 public class NavigationActivity extends AppCompatActivity {
 
@@ -48,7 +52,7 @@ public class NavigationActivity extends AppCompatActivity {
             Log.i(TAG, "Requesting location permission...");
             requestPermissions();
         } else {
-//            getDeviceLocation();
+            getDeviceLocation();
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -130,8 +134,8 @@ public class NavigationActivity extends AppCompatActivity {
                     @NonNull
                     @Override
                     public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
-                        Log.i("CurrentLocation", "CancelRequest");
-                        getLocationFromPassiveProvide();
+                        Log.i(TAG, "CancelRequest");
+                        getDeviceLocationFromLocalPropertiesFile();
                         return null;
                     }
 
@@ -143,21 +147,39 @@ public class NavigationActivity extends AppCompatActivity {
                 .addOnSuccessListener(this, location -> {
                     // Got last known location. In some rare situations this can be null.
                     if (location != null) {
-                        // Logic to handle location object
                         MainActivity.CURRENT_LONGITUDE = location.getLongitude();
                         MainActivity.CURRENT_LATITUDE = location.getLatitude();
+
+                        setLatLngToLocalPropertiesFile();
                     }
                 });
     }
 
-    @SuppressLint("MissingPermission")
-    private void getLocationFromPassiveProvide() {
-        Log.i(TAG, "getLocationFromPassiveProvide");
+    private void setLatLngToLocalPropertiesFile() {
+        Log.i(TAG, "setLatLngToLocalPropertiesFile");
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);;
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        MainActivity.CURRENT_LONGITUDE = location.getLongitude();
-        MainActivity.CURRENT_LATITUDE = location.getLatitude();
+        try {
+            OutputStream output = new FileOutputStream(BuildConfig.LOCAL_PROPERTIES_DIRECTORY + "/local.properties");
+            Properties prop = new Properties();
+
+            // set the properties value
+            prop.setProperty("DEVICE_LATITUDE", String.valueOf(MainActivity.CURRENT_LATITUDE));
+            prop.setProperty("DEVICE_LONGITUDE", String.valueOf(MainActivity.CURRENT_LONGITUDE));
+
+            // save properties to project root folder
+            prop.store(output, null);
+            Log.i(TAG, "Save to local properties file done!");
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getDeviceLocationFromLocalPropertiesFile() {
+        Log.i(TAG, "getDeviceLocationFromLocalPropertiesFile");
+
+        MainActivity.CURRENT_LONGITUDE = Double.parseDouble(BuildConfig.DEVICE_LONGITUDE);
+        MainActivity.CURRENT_LATITUDE = Double.parseDouble(BuildConfig.DEVICE_LATITUDE);
     }
 
     private boolean hasPermission() {

@@ -7,6 +7,24 @@ def yelpPropertiesFile = rootProject.file("yelpclient.properties")
 def yelpProperties = new Properties()
 yelpProperties.load(new FileInputStream(yelpPropertiesFile))
 
+def getDeviceLongitude() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("DEVICE_LONGITUDE")
+}
+
+def getDeviceLatitude() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("DEVICE_LATTTUDE")
+}
+
+def getLocalPropertiesDirectory() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("sdk.dir")
+}
+
 android {
     compileSdk 32
 
@@ -21,6 +39,9 @@ android {
 
         buildConfigField("String", "YELP_API_KEY", yelpProperties['API_KEY'])
         buildConfigField("String", "CLIENT_ID", yelpProperties['CLIENT_ID'])
+        buildConfigField "String", "DEVICE_LONGITUDE", "\""+getDeviceLongitude()+"\""
+        buildConfigField "String", "DEVICE_LATITUDE", "\""+getDeviceLatitude()+"\""
+        buildConfigField "String", "LOCAL_PROPERTIES_DIRECTORY", "\""+getLocalPropertiesDirectory()+"\""
     }
 
     buildTypes {
