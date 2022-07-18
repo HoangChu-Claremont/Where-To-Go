@@ -19,7 +19,6 @@ import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.fragments.ProfileFragment;
-import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
