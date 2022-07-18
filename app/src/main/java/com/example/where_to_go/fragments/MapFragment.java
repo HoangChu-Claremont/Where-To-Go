@@ -68,6 +68,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private static final String COMMA = "%2C";
 
     private static final Object LOCK = new Object();
+    public static final String DEFAULT_TRAVEL_MOD = "driving";
 
     private DestinationsAdapter filteredDestinationAdapter;
     private List<Destination> filteredDestinations;
@@ -176,7 +177,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         Log.i(TAG, "startGoogleDirection");
 
         // TODO: Start Google Map Application
-        String url = getUrl(filteredDestinations, "driving"); // TODO: Create an enum
+        String url = getUrl(filteredDestinations); // TODO: Create an enum
 
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(url));
@@ -434,7 +435,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     }
 
     private void setGoogleMapAndAddMarkers(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
-        Log.i(TAG, "setGoogleMapAndAddMarkers");
+        Log.i(TAG, "setGoogmeMapAndAddMarkers");
 
         List<Marker> markers = new ArrayList<>();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -461,12 +462,12 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     }
 
     @NonNull
-    private String getUrl(@NonNull List<Destination> filteredDestinations, String mode) {
+    private String getUrl(@NonNull List<Destination> filteredDestinations) {
         Log.i(TAG, "getUrl");
 
         Log.i(TAG, "Get Url with filteredDestinations size: " + filteredDestinations.size());
 
-        String travelMode = getTravelMode(mode);
+        String travelMode = getTravelMode();
         String startEnd = getStartEndDestinations();
         StringBuilder waypoints = buildWayPoints(filteredDestinations);
 
@@ -478,10 +479,21 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
 
     @NonNull
     @Contract(pure = true)
-    private String getTravelMode(String mode) {
+    private String getTravelMode() {
         Log.i(TAG, "getTravelMode");
 
-        return PARAM_TRAVEL_MODE + mode;
+        String travelMode;
+
+        try {
+            travelMode = jsonFilteredResult.getString("transportation_option");
+        } catch (JSONException e) {
+            travelMode = DEFAULT_TRAVEL_MOD;
+            Log.i(TAG, "Can't get travel mode. " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "travelMode: " + travelMode);
+        return PARAM_TRAVEL_MODE + travelMode;
     }
 
     @NonNull
