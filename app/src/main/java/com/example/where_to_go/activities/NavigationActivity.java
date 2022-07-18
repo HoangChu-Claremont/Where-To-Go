@@ -20,6 +20,7 @@ import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.fragments.ProfileFragment;
 import com.facebook.CallbackManager;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
@@ -101,6 +102,7 @@ public class NavigationActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_logout) {
             Log.i(TAG, "onClick Logout Button");
             ParseUser.logOutInBackground();
+            LoginManager.getInstance().logOut();
             goLoginActivity();
             return true;
         }

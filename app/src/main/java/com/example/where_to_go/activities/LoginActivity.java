@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,9 +17,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseUser;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
@@ -38,6 +35,11 @@ public class LoginActivity extends AppCompatActivity {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         Log.i(TAG, "isLoggedIn:" + isLoggedIn);
+
+        if (isLoggedIn) {
+            goNavigationActivity();
+        }
+
         callbackManager = CallbackManager.Factory.create();
 
         // Set Values
@@ -73,26 +75,22 @@ public class LoginActivity extends AppCompatActivity {
         btnFBLogin.setPermissions(permissions);
 
         btnFBLogin.setOnClickListener(v -> {
-            if (isLoggedIn) {
-                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, permissions);
-            } else {
-                btnFBLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(LoginResult loginResult) {
-                        goNavigationActivity();
-                    }
+            btnFBLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    goNavigationActivity();
+                }
 
-                    @Override
-                    public void onCancel() {
+                @Override
+                public void onCancel() {
 
-                    }
+                }
 
-                    @Override
-                    public void onError(@NonNull FacebookException e) {
+                @Override
+                public void onError(@NonNull FacebookException e) {
 
-                    }
-                });
-            }
+                }
+            });
         });
     }
 
@@ -153,4 +151,10 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(i);
         finish();
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        LoginManager.getInstance().logOut();
+//    }
 }
