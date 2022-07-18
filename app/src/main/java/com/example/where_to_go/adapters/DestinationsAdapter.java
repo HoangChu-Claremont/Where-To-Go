@@ -177,13 +177,16 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
         @NonNull
         @Contract("_, _ -> param1")
         private void addInformationToIntent(@NonNull Intent _intent, @NonNull Destination destination) {
-            // Add information to the intent
+            Log.i(TAG, "addInformationToIntent");
+
             _intent.putExtra("destination_photo", destination.getImageUrl());
             _intent.putExtra("destination_name", destination.getLocationName());
             _intent.putExtra("destination_phone", destination.getPhone());
             _intent.putExtra("destination_rating", destination.getRating());
             _intent.putExtra("destination_distance", destination.getDistance());
             _intent.putExtra("destination_address", destination.getAddress());
+            _intent.putExtra("destination_longitude", String.valueOf(destination.getLongitude()));
+            _intent.putExtra("destination_latitude", String.valueOf(destination.getLatitude()));
         }
     }
 

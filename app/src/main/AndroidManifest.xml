@@ -64,7 +64,7 @@
             android:name="com.facebook.sdk.USER_PROFILE_PERMISSIONS"
             android:value="public_profile" />
         <meta-data
-            android:name="com.facebook.sdk.USER_PROFILE_PERMISSIONS"
+            android:name="com.facebook.sdk.USER_FRIENDS_PERMISSIONS"
             android:value="user_friends" />
     </application>
 
