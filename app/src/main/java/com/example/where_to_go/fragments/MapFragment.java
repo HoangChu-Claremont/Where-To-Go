@@ -74,7 +74,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private List<Destination> filteredDestinations;
     private RecyclerView rvDestinations;
     private EditText etTourName;
-    private JSONObject jsonFilteredResult;
+    private JSONObject jsonFilteredResult = new JSONObject();
     private String intent = "Default";
     private List<Marker> currentMarkers;
 

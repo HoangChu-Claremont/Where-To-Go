@@ -6,6 +6,7 @@ import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.models.Tour;
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.parse.facebook.ParseFacebookUtils;
 
 public class ParseApp extends Application {
     @Override
@@ -21,5 +22,8 @@ public class ParseApp extends Application {
                 .server(getString(R.string.back4app_server_url))
                 .build()
         );
+
+        // ParseFacebookUtils should initialize the Facebook SDK for you
+        ParseFacebookUtils.initialize(this);
     }
 }

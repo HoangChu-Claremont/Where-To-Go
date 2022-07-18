@@ -14,12 +14,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.example.where_to_go.BuildConfig;
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
 import com.example.where_to_go.fragments.ProfileFragment;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
@@ -28,7 +28,6 @@ import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.parse.ParseUser;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -102,6 +101,7 @@ public class NavigationActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_logout) {
             Log.i(TAG, "onClick Logout Button");
             ParseUser.logOutInBackground();
+            LoginManager.getInstance().logOut();
             goLoginActivity();
             return true;
         }
