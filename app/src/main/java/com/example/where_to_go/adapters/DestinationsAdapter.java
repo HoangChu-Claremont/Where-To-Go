@@ -110,7 +110,7 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
                         Log.i(TAG, "Can't wait. " + e.getMessage());
                     }
                 }
-                navigationListener.goHomeActivity();
+                navigationListener.goHomeFragment();
             }
         }
     }
@@ -188,6 +188,6 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
     }
 
     public interface NavigationAdapter {
-        void goHomeActivity();
+        void goHomeFragment();
     }
 }

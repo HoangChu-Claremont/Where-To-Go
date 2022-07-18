@@ -7,17 +7,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.example.where_to_go.BuildConfig;
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.HomeFragment;
 import com.example.where_to_go.fragments.MapFragment;
@@ -30,6 +28,11 @@ import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.parse.ParseUser;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
 
 public class NavigationActivity extends AppCompatActivity {
 
@@ -53,12 +56,12 @@ public class NavigationActivity extends AppCompatActivity {
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-        final FragmentManager fragmentManager = getSupportFragmentManager();
 
         // Bottom Navigation
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             Fragment fragment;
             String fragmentTag;
+
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -76,9 +79,7 @@ public class NavigationActivity extends AppCompatActivity {
                         fragmentTag = "ProfileFragment";
                         break;
                 }
-                fragmentManager.beginTransaction()
-                        .replace(R.id.flContainer, fragment, fragmentTag)
-                        .addToBackStack(String.valueOf(item.getItemId())).commit();
+                goAppropriateFragment(item, fragment, fragmentTag);
                 return true;
             }
         });
@@ -86,7 +87,6 @@ public class NavigationActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
-    // Logout Button
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -97,6 +97,8 @@ public class NavigationActivity extends AppCompatActivity {
     // Button clicks
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.i(TAG, "onOptionsItemSelected");
+
         if (item.getItemId() == R.id.action_logout) {
             Log.i(TAG, "onClick Logout Button");
             ParseUser.logOutInBackground();
@@ -108,21 +110,32 @@ public class NavigationActivity extends AppCompatActivity {
 
     // HELPER METHODS
 
+    private void goAppropriateFragment(@NonNull MenuItem menuItem, Fragment fragment, String fragmentTag) {
+        Log.i(TAG, "goAppropriateFragment");
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.flContainer, fragment, fragmentTag)
+                .addToBackStack(String.valueOf(menuItem.getItemId())).commit();
+    }
+
     private void goLoginActivity() {
+        Log.i(TAG, "goLoginActivity");
+
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
     }
 
-    // HELPER METHODS
-
     @SuppressLint("MissingPermission")
     private void getDeviceLocation() {
+        Log.i(TAG, "getDeviceLocation");
+
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
                     @NonNull
                     @Override
                     public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
-                        Log.i("CurrentLocation", "CancelRequest");
-                        getLocationFromPassiveProvide();
+                        Log.i(TAG, "CancelRequest");
+                        getDeviceLocationFromLocalPropertiesFile();
                         return null;
                     }
 
@@ -134,24 +147,44 @@ public class NavigationActivity extends AppCompatActivity {
                 .addOnSuccessListener(this, location -> {
                     // Got last known location. In some rare situations this can be null.
                     if (location != null) {
-                        // Logic to handle location object
                         MainActivity.CURRENT_LONGITUDE = location.getLongitude();
                         MainActivity.CURRENT_LATITUDE = location.getLatitude();
+
+                        setLatLngToLocalPropertiesFile();
                     }
                 });
     }
 
-    @SuppressLint("MissingPermission")
-    private void getLocationFromPassiveProvide() {
-        Log.i(TAG, "getLocationFromPassiveProvide");
+    private void setLatLngToLocalPropertiesFile() {
+        Log.i(TAG, "setLatLngToLocalPropertiesFile");
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);;
-        Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        MainActivity.CURRENT_LONGITUDE = location.getLongitude();
-        MainActivity.CURRENT_LATITUDE = location.getLatitude();
+        try {
+            OutputStream output = new FileOutputStream(BuildConfig.LOCAL_PROPERTIES_DIRECTORY + "/local.properties");
+            Properties prop = new Properties();
+
+            // set the properties value
+            prop.setProperty("DEVICE_LATITUDE", String.valueOf(MainActivity.CURRENT_LATITUDE));
+            prop.setProperty("DEVICE_LONGITUDE", String.valueOf(MainActivity.CURRENT_LONGITUDE));
+
+            // save properties to project root folder
+            prop.store(output, null);
+            Log.i(TAG, "Save to local properties file done!");
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getDeviceLocationFromLocalPropertiesFile() {
+        Log.i(TAG, "getDeviceLocationFromLocalPropertiesFile");
+
+        MainActivity.CURRENT_LONGITUDE = Double.parseDouble(BuildConfig.DEVICE_LONGITUDE);
+        MainActivity.CURRENT_LATITUDE = Double.parseDouble(BuildConfig.DEVICE_LATITUDE);
     }
 
     private boolean hasPermission() {
+        Log.i(TAG, "hasPermission");
+
         return ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this,
@@ -159,6 +192,8 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
     private void requestPermissions() {
+        Log.i(TAG, "requestPermissions");
+
         ActivityCompat.requestPermissions(this, new String[] {
                 Manifest.permission.ACCESS_FINE_LOCATION
         }, 1);

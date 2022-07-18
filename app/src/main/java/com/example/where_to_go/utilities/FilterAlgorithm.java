@@ -2,15 +2,13 @@ package com.example.where_to_go.utilities;
 
 import android.util.Log;
 import android.util.Pair;
-
 import androidx.annotation.NonNull;
-
 import com.example.where_to_go.models.Destination;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +19,7 @@ import java.util.Random;
 public class FilterAlgorithm {
 
     private static final String TAG = "FilterAlgorithm";
+
     private static final int AVG_SLEEP_HOURS_PER_DAY = 8;
     private static final int MAX_PERCENTAGE = 100;
     private static final int TIME_PER_DESTINATION = 2; // TODO: Calculate for each category
@@ -29,37 +28,46 @@ public class FilterAlgorithm {
     private static int numberOfTours; // TODO: Need a better way to calculate this as well
 
     @NonNull
-    public static List<Destination> getTopRatedTour(@NonNull JSONArray businesses) throws JSONException {
-        List<Destination> outputDestinations = new ArrayList<>();
-        List<Destination> inputDestinations = new ArrayList<>();
+    public static List<Destination> getTopTenDestinations(@NonNull JSONArray businesses) {
+        Log.i(TAG, "getFilteredTour");
 
-        for (int pos = 0; pos < businesses.length(); ++pos) {
-            Destination destination = new Destination();
-            destination.setData(businesses.getJSONObject(pos));
-            inputDestinations.add(destination);
-        }
+        List<Destination> sortedFetchedAPIDestinations = getSortedFetchedAPI(businesses);
 
-        inputDestinations.sort(new DestinationComparator());
-
-        for (int pos = 0; pos < 10; ++pos) {
-            outputDestinations.add(inputDestinations.get(pos));
-        }
-
-        return outputDestinations;
+        return getTopTenTours(sortedFetchedAPIDestinations);
     }
 
     @NonNull
     public static List<Destination> getFilteredTour(@NonNull JSONObject jsonFilteredResult,
                                                     HashMap<String, JSONArray> _categoryDestinationsMap) throws JSONException {
+        Log.i(TAG, "getFilteredTour");
+
         List<Destination> outputDestinations;
         List<String> categories = Arrays.asList(jsonFilteredResult.getString("destination_type").split(","));
 
-        Log.i(TAG, "jsonFilteredResult: " + jsonFilteredResult);
-        Log.i(TAG, "_categoryDestinationsMap: " + _categoryDestinationsMap);
-
         // Preliminary work
-        List<Pair<String, Integer>> sortedPreferenceMap = getPreferenceMap(jsonFilteredResult, categories); // Descending order
-        sortedPreferenceMap.sort((o1, o2) -> {
+        List<Pair<String, Integer>> sortedPreferencePairs = getSortedPreferencePairs(jsonFilteredResult, categories);
+        HashMap<String, Integer> noDestinationsPerCategory = getNoDestinationsPerCategory(jsonFilteredResult.getInt("no_days"), sortedPreferencePairs);
+        Log.i(TAG, "sortedPreferencePairs: " + sortedPreferencePairs.size());
+        Log.i(TAG, "noDestinationsPerCategory: " + noDestinationsPerCategory.size());
+
+        // Step 1
+        List<String> orderedCategories = getOrderedCategories(noDestinationsPerCategory, categories);
+        Log.i(TAG, "orderedCategories: " + orderedCategories);
+
+        // Step 2
+        List<Pair<List<Destination>, Double>> builtRatedTours = buildTours(orderedCategories, _categoryDestinationsMap);
+        Log.i(TAG, "builtRatedTours size: " + builtRatedTours.size());
+
+        // Step 3
+        outputDestinations = getBestRatedTour(builtRatedTours);
+
+        return outputDestinations;
+    }
+
+    @NonNull
+    private static List<Pair<String, Integer>> getSortedPreferencePairs(@NonNull JSONObject jsonFilteredResult, List<String> categories) throws JSONException {
+        List<Pair<String, Integer>> sortedPreferencePairs = getPreferenceMap(jsonFilteredResult, categories); // Descending order
+        sortedPreferencePairs.sort((o1, o2) -> {
             if (o1.second < o2.second) { // Descending order
                 return 1;
             } else if (o1.second > o2.second) {
@@ -67,23 +75,48 @@ public class FilterAlgorithm {
             }
             return 0;
         });
-
-        HashMap<String, Integer> noDestinationsPerCategory = getNoDestinationsPerCategory(jsonFilteredResult.getInt("no_days"), sortedPreferenceMap);
-
-        // Step 1
-        List<String> orderedCategories = getOrderedCategories(noDestinationsPerCategory, categories);
-        Log.i(TAG, "orderedCategories: " + orderedCategories);
-        // Step 2
-        List<Pair<List<Destination>, Double>> builtRatedTours = buildTours(orderedCategories, _categoryDestinationsMap);
-        Log.i(TAG, "builtRatedTours size: " + builtRatedTours.size());
-        // Step 3
-        outputDestinations = getBestRatedTour(builtRatedTours);
-
-        return outputDestinations;
+        return sortedPreferencePairs;
     }
 
 
     // HELPER METHODS
+
+    @NonNull
+    @Contract("_, _ -> param2")
+    private static List<Destination> getSortedFetchedAPI(@NonNull JSONArray businesses) {
+        Log.i(TAG, "getSortedFetchedAPI");
+
+        List<Destination> fetchedAPITours = new ArrayList<>();
+
+        for (int pos = 0; pos < businesses.length(); ++pos) {
+            Destination destination = new Destination();
+
+            try {
+                destination.setData(businesses.getJSONObject(pos));
+            } catch (JSONException e) {
+                Log.i(TAG, "Can't fetch from YelpAPI. " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            fetchedAPITours.add(destination);
+        }
+
+        fetchedAPITours.sort(new DestinationComparator()); // Descending order
+
+        Log.i(TAG, "fetchedAPITours size: " + fetchedAPITours.size());
+        return fetchedAPITours;
+    }
+
+    @NonNull
+    private static List<Destination> getTopTenTours(List<Destination> sortedFetchedAPITours) {
+        List<Destination> outputTours = new ArrayList<>();
+
+        for (int pos = 0; pos < 10; ++pos) {
+            outputTours.add(sortedFetchedAPITours.get(pos));
+        }
+
+        return outputTours;
+    }
 
     private static List<Destination> getBestRatedTour(@NonNull List<Pair<List<Destination>, Double>> _builtRatedTours) {
         double bestRating = 0.0;

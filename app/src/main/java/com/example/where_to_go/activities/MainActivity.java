@@ -5,7 +5,6 @@ import androidx.core.app.ActivityCompat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
 import com.example.where_to_go.R;
 import com.parse.ParseUser;
 
@@ -26,23 +25,26 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     // HELPER METHODS
 
     private void navigateToFragment() {
-        if (ParseUser.getCurrentUser() == null) {
-            // If someone has logged out already
-            Log.i(TAG, "goLogin");
+        Log.i(TAG, "navigateToFragment");
+        
+        if (ParseUser.getCurrentUser() == null) { // If someone has logged out already
             goLoginActivity();
         } else {
-            Log.i(TAG, "goHome");
-            goHomeActivity();
+            goHomeFragment();
         }
     }
 
-    private void goHomeActivity() {
+    private void goHomeFragment() {
+        Log.i(TAG, "goHomeFragment");
+        
         Intent i = new Intent(this, NavigationActivity.class);
         startActivity(i);
         finish();
     }
 
     private void goLoginActivity() {
+        Log.i(TAG, "goLoginActivity");
+        
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
         finish();
