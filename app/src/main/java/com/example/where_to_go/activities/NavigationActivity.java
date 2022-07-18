@@ -159,7 +159,7 @@ public class NavigationActivity extends AppCompatActivity {
         Log.i(TAG, "setLatLngToLocalPropertiesFile");
 
         try {
-            OutputStream output = new FileOutputStream(BuildConfig.LOCAL_PROPERTIES_DIRECTORY + "/local.properties");
+            OutputStream output = new FileOutputStream("/Users/hoangchu223/StudioProjects/wheretogo/local.properties");
             Properties prop = new Properties();
 
             // set the properties value
@@ -168,6 +168,9 @@ public class NavigationActivity extends AppCompatActivity {
 
             // save properties to project root folder
             prop.store(output, null);
+
+            Log.i(TAG, "New Device LatLng: " + MainActivity.CURRENT_LATITUDE + "," + MainActivity.CURRENT_LONGITUDE);
+
             Log.i(TAG, "Save to local properties file done!");
         } catch (IOException io) {
             io.printStackTrace();

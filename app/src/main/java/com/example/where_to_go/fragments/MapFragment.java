@@ -176,8 +176,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private void startGoogleDirection(List<Destination> filteredDestinations) {
         Log.i(TAG, "startGoogleDirection");
 
-        // TODO: Start Google Map Application
-        String url = getUrl(filteredDestinations); // TODO: Create an enum
+        String url = getUrl(filteredDestinations);
 
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(url));
