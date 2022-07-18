@@ -9,24 +9,28 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.where_to_go.NavigationActivity;
+import com.example.where_to_go.activities.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Tour;
+import com.example.where_to_go.utilities.DatabaseUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.List;
 
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
     public static int POSITION = -1;
-    private List<Tour> featuredTours;
+
+    private List<Tour> inputTours;
     private Context context;
 
     public ToursAdapter(Context _context, List<Tour> _featured_tours) {
         context = _context;
-        featuredTours = _featured_tours;
+        inputTours = _featured_tours;
     }
 
     @NonNull
@@ -37,22 +41,23 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FeaturedTourViewHolder holder, int position) {
-        Tour featuredTour = featuredTours.get(position);
-        holder.bind(featuredTour);
+    public void onBindViewHolder(@NonNull FeaturedTourViewHolder featuredTourViewHolder, int position) {
+        Tour featuredTour = inputTours.get(position);
+        featuredTourViewHolder.bind(featuredTour);
     }
 
     @Override
     public int getItemCount() {
-        Log.i(TAG, "getItemCount");
-        return featuredTours.size();
+        return inputTours.size();
     }
 
     public class FeaturedTourViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private static final String TAG = "FeaturedTourViewHolder";
+
         private ImageView ivTourImage;
         private TextView ivTourName;
         private ImageButton ibTourBookmark;
+        private ImageButton ibRemove;
 
         public FeaturedTourViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -60,6 +65,7 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             ivTourImage = itemView.findViewById(R.id.ivTourImage);
             ivTourName = itemView.findViewById(R.id.tvTourName);
             ibTourBookmark = itemView.findViewById(R.id.ibBookmark);
+            ibRemove = itemView.findViewById(R.id.ibRemove);
 
             // add this as the itemView's OnClickListener
             itemView.setOnClickListener(this);
@@ -68,30 +74,54 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
         public void bind(@NonNull Tour tour) {
             Log.i(TAG, "binding");
 
-            ivTourName.setText(tour.getTourName());
+            Fragment currentVisibleFragmentIsProfile = ((AppCompatActivity) context).getSupportFragmentManager()
+                    .findFragmentByTag("ProfileFragment");
 
+            if (isProfileFragment(currentVisibleFragmentIsProfile)) { // Special layout in ProfileFragment
+                ibTourBookmark.setVisibility(View.INVISIBLE);
+            }
+
+            // Set TextView
+            ivTourName.setText(tour.getTourNameDB());
+
+            // Set ImageView
             Glide.with(context).load("https://imgur.com/a/K0wRQZO")
                     .centerCrop()
                     .placeholder(R.drawable.profile_gradient)
                     .into(ivTourImage); // TODO: Set this image right
-            showSavedStatus(tour.getSaved());
+            showSavedStatus(tour.getIsSavedDB());
 
+            // Button clicks
             ibTourBookmark.setOnClickListener(v -> {
-                Log.i(TAG, String.valueOf(tour.getSaved()));
-                tour.setIsSaved(!tour.getSaved());
-                Log.i(TAG, String.valueOf(tour.getSaved()));
-
+                tour.setIsSavedDB(!tour.getIsSavedDB());
                 tour.saveInBackground();
-                showSavedStatus(tour.getSaved());
+                showSavedStatus(tour.getIsSavedDB());
+            });
+
+            ibRemove.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+
+                if (position != RecyclerView.NO_POSITION) {
+                    String removeTourID = tour.getObjectId();
+                    inputTours.remove(position);
+                    notifyItemRemoved(position);
+
+                    // Just switch state of a saved tour
+                    if (isProfileFragment(currentVisibleFragmentIsProfile)) {
+                        tour.setIsSavedDB(!tour.getIsSavedDB());
+                        tour.saveInBackground();
+                    } else {
+                        DatabaseUtils.removeOneTourFromDatabaseIfExists(removeTourID);
+                    }
+                }
             });
         }
 
         @Override
         public void onClick(View v) {
-            Log.i(TAG, "onClick: " + v);
-
             // gets item position
             int position = getAdapterPosition();
+            Log.i(TAG, "onClick item position: " + position);
 
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
@@ -111,6 +141,12 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             } else {
                 ibTourBookmark.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bookmark));
             }
+        }
+
+        private boolean isProfileFragment(Fragment currentFragment) {
+            Log.i(TAG, "isProfileFragment");
+
+            return currentFragment != null && currentFragment.isVisible();
         }
     }
 }
