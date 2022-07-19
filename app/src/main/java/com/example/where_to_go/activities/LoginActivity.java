@@ -1,6 +1,7 @@
 package com.example.where_to_go.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,10 +10,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.example.where_to_go.R;
+import com.example.where_to_go.models.Friend;
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.ParseException;
@@ -26,8 +30,9 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private EditText etUsername;
     private EditText etPassword;
-    private CallbackManager callbackManager;
     public static String username;
+    private AccessTokenTracker accessTokenTracker;
+    public static List<Friend> friends;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +47,8 @@ public class LoginActivity extends AppCompatActivity {
             goNavigationActivity();
         }
 
-        callbackManager = CallbackManager.Factory.create();
+        CallbackManager callbackManager = CallbackManager.Factory.create();
+        friends = new ArrayList<>();
 
         // Set Values
         etUsername = findViewById(R.id.etUsername);
@@ -80,6 +86,10 @@ public class LoginActivity extends AppCompatActivity {
                 permissions.add("user_friends");
                 btnFBLogin.setPermissions(permissions);
 
+                friends.add(new Friend("1", "a"));
+                friends.add(new Friend("2", "b"));
+                Log.i(TAG, "Added " + friends.size() + " friends.");
+
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions,
                         (user, err) -> { // Succeeded
                             createNewUserOrLinkToFacebook(permissions, user, err);
@@ -99,6 +109,22 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
+
+        accessTokenTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(@Nullable AccessToken oldAccessToken, @Nullable AccessToken currentAccessToken) {
+                if (currentAccessToken == null) {
+                    friends.clear();
+                    LoginManager.getInstance().logOut();
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        accessTokenTracker.stopTracking();
     }
 
     // HELPER METHODS

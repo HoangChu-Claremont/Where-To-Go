@@ -14,7 +14,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import com.example.where_to_go.R;
 import com.example.where_to_go.activities.LoginActivity;
+import com.example.where_to_go.adapters.FriendsAdapter;
 import com.example.where_to_go.adapters.ToursAdapter;
+import com.example.where_to_go.models.Friend;
 import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
 import java.util.ArrayList;
@@ -25,6 +27,9 @@ public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private List<Tour> savedTours;
     private ToursAdapter toursAdapter;
+
+    private List<Friend> friends;
+    private FriendsAdapter friendsAdapter;
 
     private ImageButton ibTourBookmark;
     private ImageButton ibRemove;
@@ -49,8 +54,34 @@ public class ProfileFragment extends Fragment {
         ibRemove = view.findViewById(R.id.ibRemove);
 
         setUpUserLayout(view);
+
+        setSavedFriendsRecyclerView();
         setSavedTourRecyclerView();
+
+        getFriends();
         getSavedTours();
+    }
+
+    private void getFriends() {
+        Log.i(TAG, "getFriends");
+
+        friends = LoginActivity.friends;
+        Log.i(TAG, "Friends size: " + friends.size());
+        friendsAdapter.notifyDataSetChanged();
+    }
+
+    private void setSavedFriendsRecyclerView() {
+        Log.i(TAG, "setSavedFriendsRecyclerView");
+
+        RecyclerView rvFriends = requireView().findViewById(R.id.rvFriends);
+
+        friends = LoginActivity.friends;
+        friendsAdapter = new FriendsAdapter(getContext(), friends);
+
+        LinearLayoutManager tLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        rvFriends.setLayoutManager(tLayoutManager);
+
+        rvFriends.setAdapter(friendsAdapter);
     }
 
     private void setUpUserLayout(@NonNull View view) {
@@ -70,8 +101,6 @@ public class ProfileFragment extends Fragment {
 
     private void setSavedTourRecyclerView() {
         Log.i(TAG, "setSavedTourRecyclerView");
-
-        toursAdapter = new ToursAdapter(getContext(), savedTours);
 
         RecyclerView rvSavedTours = requireView().findViewById(R.id.rvSavedTours);
 
