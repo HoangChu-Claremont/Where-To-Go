@@ -66,7 +66,6 @@ public class ProfileFragment extends Fragment {
         Log.i(TAG, "getFriends");
 
         friends = LoginActivity.friends;
-        Log.i(TAG, "Friends size: " + friends.size());
         friendsAdapter.notifyDataSetChanged();
     }
 

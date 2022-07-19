@@ -43,11 +43,6 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
         return friends.size();
     }
 
-    public void clear() {
-        friends.clear();
-        notifyDataSetChanged();
-    }
-
     public static class FriendsViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivFriendImage;

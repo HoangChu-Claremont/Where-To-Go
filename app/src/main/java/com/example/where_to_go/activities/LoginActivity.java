@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPassword;
     public static String username;
     private AccessTokenTracker accessTokenTracker;
-    public static List<Friend> friends;
+    public static List<Friend> friends = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +44,11 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "isLoggedIn:" + isLoggedIn);
 
         if (isLoggedIn) {
+            addFacebookFriends();
             goNavigationActivity();
         }
 
         CallbackManager callbackManager = CallbackManager.Factory.create();
-        friends = new ArrayList<>();
 
         // Set Values
         etUsername = findViewById(R.id.etUsername);
@@ -127,6 +127,8 @@ public class LoginActivity extends AppCompatActivity {
 
     // HELPER METHODS
     private void addFacebookFriends() {
+        Log.i(TAG, "addFacebookFriends");
+
         friends.add(new Friend("1", "a"));
         friends.add(new Friend("2", "b"));
         Log.i(TAG, "Added " + friends.size() + " friends.");
