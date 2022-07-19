@@ -115,7 +115,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         Button btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
             try {
-                startSaveAction();
+                startSaveAction(filteredDestinations);
                 synchronized (LOCK) {
                     LOCK.wait(3000);
                 }
@@ -176,14 +176,14 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private void startGoogleDirection(List<Destination> filteredDestinations) {
         Log.i(TAG, "startGoogleDirection");
 
-        String url = getUrl(filteredDestinations);
+        String url = getGoogleMapsURL(filteredDestinations);
 
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                 Uri.parse(url));
         startActivity(intent);
     }
 
-    private void startSaveAction() {
+    private void startSaveAction(List<Destination> filteredDestinations) {
         Log.i(TAG, "startSaveAction");
 
         String tourName = etTourName.getText().toString();
@@ -191,10 +191,12 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         Log.i(TAG, "Current User: " + currentUser);
 
         List<String> tourNames = getExistingTourNamesInDB(new ArrayList<>());
-        decideToSaveTourToDBorNot(tourName, currentUser, tourNames);
+        String googleMapsURL = getGoogleMapsURL(filteredDestinations);
+
+        decideToSaveTourToDBorNot(tourName, currentUser, tourNames, googleMapsURL);
     }
 
-    private void decideToSaveTourToDBorNot(String tourName, ParseUser currentUser, List<String> tourNames) {
+    private void decideToSaveTourToDBorNot(String tourName, ParseUser currentUser, List<String> tourNames, String googleMapsURL) {
         Log.i(TAG, "decideToSaveTourToDBorNot");
 
         if (ToursAdapter.POSITION == -1) { // Destinations after being filtered
@@ -205,7 +207,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
             } else if (filteredDestinations.size() == 0) {
                 Toast.makeText(getContext(), "There is no destinations to save", Toast.LENGTH_SHORT).show();
             } else {
-                saveToursToParseDB(tourName, currentUser);
+                saveToursToParseDB(tourName, currentUser, googleMapsURL);
                 Log.i(TAG, "Start Google Maps's Directions");
                 startGoogleDirection(filteredDestinations);
             }
@@ -461,7 +463,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     }
 
     @NonNull
-    private String getUrl(@NonNull List<Destination> filteredDestinations) {
+    private String getGoogleMapsURL(@NonNull List<Destination> filteredDestinations) {
         Log.i(TAG, "getUrl");
 
         Log.i(TAG, "Get Url with filteredDestinations size: " + filteredDestinations.size());
@@ -568,10 +570,10 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         currentMarkers.remove(position);
     }
 
-    private void saveToursToParseDB(String tourName, ParseUser currentUser) {
+    private void saveToursToParseDB(String tourName, ParseUser currentUser, String googleMapsURL) {
         Log.i(TAG, "saveToursToParseDB");
 
-        String savedTourId = DatabaseUtils.saveOneTourToDatabaseAndReturnID(tourName, currentUser);
+        String savedTourId = DatabaseUtils.saveOneTourToDatabaseAndReturnID(tourName, currentUser, googleMapsURL);
         if (savedTourId.isEmpty()) {
             Toast.makeText(getContext(), "Error while saving your tour :(", Toast.LENGTH_SHORT).show();
             return;
