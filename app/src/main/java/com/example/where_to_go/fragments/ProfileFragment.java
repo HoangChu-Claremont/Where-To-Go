@@ -31,9 +31,6 @@ public class ProfileFragment extends Fragment {
     private List<Friend> friends;
     private FriendsAdapter friendsAdapter;
 
-    private ImageButton ibTourBookmark;
-    private ImageButton ibRemove;
-
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -49,9 +46,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        ibTourBookmark = view.findViewById(R.id.ibBookmark);
-        ibRemove = view.findViewById(R.id.ibRemove);
 
         setUpUserLayout(view);
 

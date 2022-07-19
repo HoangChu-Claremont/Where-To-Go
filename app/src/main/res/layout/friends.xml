@@ -23,14 +23,6 @@
             android:scaleType="centerCrop"
             card_view:srcCompat="@android:drawable/ic_menu_gallery" />
 
-        <ImageButton
-            android:id="@+id/ibRemoveFriend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="120dp"
-            android:background="@color/chipTextUnclicked"
-            card_view:srcCompat="@android:drawable/btn_dialog" />
-
         <TextView
             android:id="@+id/tvFriendName"
             style="@style/TextAppearance.AppCompat.Title"
