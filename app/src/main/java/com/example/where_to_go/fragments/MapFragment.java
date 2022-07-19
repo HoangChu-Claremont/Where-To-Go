@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.activities.FilterActivity;
 import com.example.where_to_go.activities.MainActivity;
@@ -33,7 +32,6 @@ import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.DatabaseUtils;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.MultiThreadYelpAPI;
-import com.facebook.share.model.ShareMessengerURLActionButton;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,7 +46,6 @@ import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,8 +72,9 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private RecyclerView rvDestinations;
     private EditText etTourName;
     private JSONObject jsonFilteredResult = new JSONObject();
-    private String intent = "Default";
     private List<Marker> currentMarkers;
+
+    private String intent = "Default";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,7 +113,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         Button btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
             try {
-                startSaveShareAction(filteredDestinations);
+                buttonStartSaveAction(filteredDestinations);
                 synchronized (LOCK) {
                     LOCK.wait(3000);
                 }
@@ -123,6 +121,14 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
             } catch (Exception e) {
                 Log.i(TAG, "Can't start / save." + e.getMessage());
                 e.printStackTrace();
+            }
+        });
+
+        Button btnShare = view.findViewById(R.id.btnShare);
+        btnShare.setOnClickListener(v -> {
+            if (!ToursAdapter.CLICKED_TOUR_NAME.equals("")) {
+                String googleMapsURL = DatabaseUtils.getGoogleMapsURLFromOneTour(ToursAdapter.CLICKED_TOUR_NAME, ParseUser.getCurrentUser());
+                sendToMessenger(googleMapsURL);
             }
         });
     }
@@ -146,27 +152,19 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
 
     // HELPER METHODS
 
-    private void setStartSaveShareButton(View view) {
+    private void setStartSaveShareButton(@NonNull View view) {
         Log.i(TAG, "setStartSaveShareButton");
 
-        if (ToursAdapter.POSITION != -1) {
-            EditText etSavedTourName = view.findViewById(getResources()
-                    .getIdentifier("etTourName", "id", requireActivity().getPackageName()));
-            Button btnShare = view.findViewById(getResources()
-                    .getIdentifier("btnShare", "id", requireActivity().getPackageName()));
+        EditText etSaveTourName = view.findViewById(getResources()
+                .getIdentifier("etTourName", "id", requireActivity().getPackageName()));
+        Button btnShare = view.findViewById(getResources()
+                .getIdentifier("btnShare", "id", requireActivity().getPackageName()));
 
-            etSavedTourName.setVisibility(View.GONE);
+        if (ToursAdapter.POSITION != -1) { // Destinations come from filter algorithm
+            etSaveTourName.setVisibility(View.GONE);
             btnShare.setVisibility(View.VISIBLE);
-
-            btnShare.setOnClickListener(v -> {
-                String clickedTourName = DatabaseUtils.getAllToursFromDatabase().get(ToursAdapter.POSITION).getTourNameDB();
-                Log.i(TAG, "clickedTourName: " + clickedTourName);
-
-                String googleMapsURL = DatabaseUtils.getGoogleMapsURLFromOneTour(clickedTourName, ParseUser.getCurrentUser());
-                Log.i(TAG, "googleMapsURL: " + googleMapsURL);
-
-                sendToMessenger(googleMapsURL);
-            });
+        } else { // Destinations come from a saved tour
+            btnShare.setVisibility(View.GONE);
         }
     }
 
@@ -215,7 +213,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         startActivity(intent);
     }
 
-    private void startSaveShareAction(List<Destination> filteredDestinations) {
+    private void buttonStartSaveAction(List<Destination> filteredDestinations) {
         Log.i(TAG, "startSaveShareAction");
 
         String tourName = etTourName.getText().toString();
@@ -350,6 +348,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         } else {
             getFilteredDestinationsFromAlgorithmIfNotExist();
         }
+
         filteredDestinationAdapter.notifyDataSetChanged();
 
         setGoogleMapAndAddMarkers(googleMap, filteredDestinations);

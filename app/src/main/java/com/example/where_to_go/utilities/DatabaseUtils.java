@@ -78,74 +78,6 @@ public class DatabaseUtils {
     }
 
     @NonNull
-    public static List<String> getFeaturedTourIDFromDatabaseByMostRecentlyUpdated() {
-        Log.i(TAG, "getFeaturedTourIDFromDatabaseByMostRecentlyUpdated");
-
-        List<String> featuredTourIDs = new ArrayList<>();
-
-        
-        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-        tourParseQuery.addDescendingOrder("updatedAt")
-                .whereEqualTo("isFeatured", true)
-                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
-
-        try {
-            List<Tour> tourFounds = tourParseQuery.find();
-            for (Tour tourFound : tourFounds) {
-                featuredTourIDs.add(tourFound.getObjectId());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        Log.i(TAG, "featuredTourIDs: " + featuredTourIDs);
-        return featuredTourIDs;
-    }
-
-    @NonNull
-    public static List<String> getSavedTourIDFromDatabaseByMostRecentlyUpdated() {
-        Log.i(TAG, "getSavedTourIDFromDatabaseByMostRecentlyUpdated");
-
-        List<String> savedTourIDs = new ArrayList<>();
-
-        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-        tourParseQuery.addDescendingOrder("updatedAt")
-                .whereEqualTo("isSaved", true)
-                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
-
-        try {
-            List<Tour> tourFounds = tourParseQuery.find();
-            for (Tour tourFound : tourFounds) {
-                savedTourIDs.add(tourFound.getObjectId());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        Log.i(TAG, "savedTourIDs: " + savedTourIDs);
-        return savedTourIDs;
-    }
-    
-    public static boolean isFeaturedTour(String tourName) {
-        Log.i(TAG, "isFeaturedTour");
-
-        boolean isFeatured = false;
-        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-
-        tourParseQuery.addDescendingOrder("updatedAt")
-                .whereEqualTo(Tour.TOUR_NAME, tourName)
-                .selectKeys(Collections.singletonList(Tour.IS_FEATURED));
-
-        try {
-            isFeatured = tourParseQuery.find().get(0).getIsFeaturedDB();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return isFeatured;
-    }
-
-    @NonNull
     public static List<String> getTourIdFromDatabaseByMostRecentlyUpdated() {
         Log.i(TAG, "getTourIdFromDatabaseByMostRecentlyUpdated");
 
@@ -219,7 +151,7 @@ public class DatabaseUtils {
         ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
         String outputURL = "";
 
-        tourParseQuery.include("googleMapsURL")
+        tourParseQuery.include("googleMapsURL").include(currentUser.getObjectId())
                 .whereEqualTo("tour_name", tourName);
 
         try {
@@ -229,6 +161,7 @@ public class DatabaseUtils {
             e.printStackTrace();
         }
 
+        Log.i(TAG, "outputURL: " + outputURL);
         return outputURL;
     }
 

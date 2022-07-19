@@ -24,6 +24,7 @@ import java.util.List;
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
     private static final String TAG = "ToursAdapter";
     public static int POSITION = -1;
+    public static String CLICKED_TOUR_NAME = "";
 
     private List<Tour> inputTours;
     private Context context;
@@ -118,10 +119,14 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
         }
 
         @Override
-        public void onClick(View v) {
+        public void onClick(@NonNull View v) {
             // gets item position
             int position = getAdapterPosition();
             Log.i(TAG, "onClick item position: " + position);
+
+            TextView tvOnClickTourName = v.findViewById(R.id.tvTourName);
+            CLICKED_TOUR_NAME = (String) tvOnClickTourName.getText();
+            Log.i(TAG, "CLICKED_TOUR_NAME: " + CLICKED_TOUR_NAME);
 
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
