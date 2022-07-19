@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.example.where_to_go.activities.FilterActivity;
 import com.example.where_to_go.activities.MainActivity;
@@ -32,6 +33,7 @@ import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.DatabaseUtils;
 import com.example.where_to_go.utilities.FilterAlgorithm;
 import com.example.where_to_go.utilities.MultiThreadYelpAPI;
+import com.facebook.share.model.ShareMessengerURLActionButton;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,16 +43,14 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -106,7 +106,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         filteredDestinations = new ArrayList<>();
 
         // Set up appropriate view
-        setStartSaveButton(view);
+        setStartSaveShareButton(view);
         setUpGoogleMap();
         setFilteredDestinationRecyclerView();
 
@@ -115,7 +115,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         Button btnStartSaveTour = view.findViewById(R.id.btnStartSave);
         btnStartSaveTour.setOnClickListener(v -> {
             try {
-                startSaveAction(filteredDestinations);
+                startSaveShareAction(filteredDestinations);
                 synchronized (LOCK) {
                     LOCK.wait(3000);
                 }
@@ -146,8 +146,8 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
 
     // HELPER METHODS
 
-    private void setStartSaveButton(View view) {
-        Log.i(TAG, "setStartSaveButton");
+    private void setStartSaveShareButton(View view) {
+        Log.i(TAG, "setStartSaveShareButton");
 
         if (ToursAdapter.POSITION != -1) {
             EditText etSavedTourName = view.findViewById(getResources()
@@ -158,12 +158,33 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
             etSavedTourName.setVisibility(View.GONE);
             btnShare.setVisibility(View.VISIBLE);
 
-            btnShare.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            btnShare.setOnClickListener(v -> {
+                String clickedTourName = DatabaseUtils.getAllToursFromDatabase().get(ToursAdapter.POSITION).getTourNameDB();
+                Log.i(TAG, "clickedTourName: " + clickedTourName);
 
-                }
+                String googleMapsURL = DatabaseUtils.getGoogleMapsURLFromOneTour(clickedTourName, ParseUser.getCurrentUser());
+                Log.i(TAG, "googleMapsURL: " + googleMapsURL);
+
+                sendToMessenger(googleMapsURL);
             });
+        }
+    }
+
+    private void sendToMessenger(String googleMapsURL) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent
+                .putExtra(Intent.EXTRA_TEXT,
+                        googleMapsURL);
+        sendIntent.setType("text/plain");
+        sendIntent.setPackage("com.facebook.orca");
+        try {
+            startActivity(sendIntent);
+        }
+        catch (android.content.ActivityNotFoundException e) {
+            Toast.makeText(getContext(),"Please Install Facebook Messenger", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "Can't send to Messenger. " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -194,8 +215,8 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         startActivity(intent);
     }
 
-    private void startSaveAction(List<Destination> filteredDestinations) {
-        Log.i(TAG, "startSaveAction");
+    private void startSaveShareAction(List<Destination> filteredDestinations) {
+        Log.i(TAG, "startSaveShareAction");
 
         String tourName = etTourName.getText().toString();
         ParseUser currentUser = ParseUser.getCurrentUser();
@@ -398,7 +419,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private String getClickedTourID(){
         Log.i(TAG, "getDestinationsFromDB");
 
-        List<String> tourIDs = getExistingTourIdFromDB();
+        List<String> tourIDs = DatabaseUtils.getTourIdFromDatabaseByMostRecentlyUpdated();
 
         // Get the clicked tour, which is the most recently session.
         Log.i(TAG, "tourIDs: " + tourIDs);
@@ -407,27 +428,6 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         Log.i(TAG, "clickedTourID: " + clickedTourID);
 
         return clickedTourID;
-    }
-
-    @NonNull
-    private List<String> getExistingTourIdFromDB() {
-        Log.i(TAG, "getExistingTourIdFromDB");
-
-        List<String> tourIDs = new ArrayList<>();
-
-        // Get a list of existing tour names
-        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
-        tourParseQuery.addDescendingOrder("updatedAt")
-                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
-        try {
-            List<Tour> tourFounds = tourParseQuery.find();
-            for (Tour tourFound : tourFounds) {
-                tourIDs.add(tourFound.getObjectId());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return tourIDs;
     }
 
     private void setFilteredDestinationRecyclerView() {
@@ -449,7 +449,6 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
     private void setGoogleMapAndAddMarkers(GoogleMap googleMap, @NonNull List<Destination> filteredDestinations) {
         Log.i(TAG, "setGoogmeMapAndAddMarkers");
 
-        List<Marker> markers = new ArrayList<>();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         // Mark each destination on the Map and build bounds
@@ -470,7 +469,7 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         googleMap.moveCamera(cameraUpdate);
 
-        Log.i(TAG, "markers size: " + markers.size());
+        Log.i(TAG, "markers size: " + currentMarkers.size());
     }
 
     @NonNull

@@ -9,6 +9,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,98 @@ public class DatabaseUtils {
         return outputTours;
     }
 
+    @NonNull
+    public static List<String> getFeaturedTourIDFromDatabaseByMostRecentlyUpdated() {
+        Log.i(TAG, "getFeaturedTourIDFromDatabaseByMostRecentlyUpdated");
+
+        List<String> featuredTourIDs = new ArrayList<>();
+
+        
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.addDescendingOrder("updatedAt")
+                .whereEqualTo("isFeatured", true)
+                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
+
+        try {
+            List<Tour> tourFounds = tourParseQuery.find();
+            for (Tour tourFound : tourFounds) {
+                featuredTourIDs.add(tourFound.getObjectId());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "featuredTourIDs: " + featuredTourIDs);
+        return featuredTourIDs;
+    }
+
+    @NonNull
+    public static List<String> getSavedTourIDFromDatabaseByMostRecentlyUpdated() {
+        Log.i(TAG, "getSavedTourIDFromDatabaseByMostRecentlyUpdated");
+
+        List<String> savedTourIDs = new ArrayList<>();
+
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.addDescendingOrder("updatedAt")
+                .whereEqualTo("isSaved", true)
+                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
+
+        try {
+            List<Tour> tourFounds = tourParseQuery.find();
+            for (Tour tourFound : tourFounds) {
+                savedTourIDs.add(tourFound.getObjectId());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "savedTourIDs: " + savedTourIDs);
+        return savedTourIDs;
+    }
+    
+    public static boolean isFeaturedTour(String tourName) {
+        Log.i(TAG, "isFeaturedTour");
+
+        boolean isFeatured = false;
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+
+        tourParseQuery.addDescendingOrder("updatedAt")
+                .whereEqualTo(Tour.TOUR_NAME, tourName)
+                .selectKeys(Collections.singletonList(Tour.IS_FEATURED));
+
+        try {
+            isFeatured = tourParseQuery.find().get(0).getIsFeaturedDB();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return isFeatured;
+    }
+
+    @NonNull
+    public static List<String> getTourIdFromDatabaseByMostRecentlyUpdated() {
+        Log.i(TAG, "getTourIdFromDatabaseByMostRecentlyUpdated");
+
+        List<String> tourIDs = new ArrayList<>();
+
+        
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.addDescendingOrder("updatedAt")
+                .selectKeys(Collections.singletonList(Tour.KEY_OBJECT_ID));
+
+        try {
+            List<Tour> tourFounds = tourParseQuery.find();
+            for (Tour tourFound : tourFounds) {
+                tourIDs.add(tourFound.getObjectId());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Log.i(TAG, "tourIDs: " + tourIDs);
+        return tourIDs;
+    }
+
     public static void removeOneTourFromDatabaseIfExists(String tourIdToRemove) {
         Log.i(TAG, "removeOneTourFromDatabaseIfExists");
         Log.i(TAG, "tourIdToRemove: " + tourIdToRemove);
@@ -120,6 +213,23 @@ public class DatabaseUtils {
 
         Log.i(TAG, "returnedTourId: " + returnedTourId);
         return returnedTourId;
+    }
+
+    public static String getGoogleMapsURLFromOneTour(String tourName, @NonNull ParseUser currentUser) {
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        String outputURL = "";
+
+        tourParseQuery.include("googleMapsURL")
+                .whereEqualTo("tour_name", tourName);
+
+        try {
+            outputURL = tourParseQuery.find().get(0).getGoogleMapsUrlDB();
+        } catch (ParseException e) {
+            Log.i(TAG, "Can't get GoogleMapsURL from DB. " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return outputURL;
     }
 
     // DestinationDB

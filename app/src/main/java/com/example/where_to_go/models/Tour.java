@@ -31,6 +31,10 @@ public class Tour extends ParseObject {
         return getBoolean(IS_SAVED);
     }
 
+    public boolean getIsFeaturedDB() {
+        return getBoolean(IS_FEATURED);
+    }
+
     public String getGoogleMapsUrlDB() {
         return getString(GOOGLE_MAPS_URL);
     }
