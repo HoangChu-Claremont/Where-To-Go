@@ -13,12 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
 import com.example.where_to_go.activities.NavigationActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.models.Tour;
 import com.example.where_to_go.utilities.DatabaseUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTourViewHolder> {
@@ -86,8 +87,8 @@ public class ToursAdapter extends RecyclerView.Adapter<ToursAdapter.FeaturedTour
             ivTourName.setText(tour.getTourNameDB());
 
             // Set ImageView
-            Glide.with(context).load("https://imgur.com/a/K0wRQZO")
-                    .centerCrop()
+            Picasso.get().load("https://imgur.com/a/K0wRQZO")
+                    .fit()
                     .placeholder(R.drawable.profile_gradient)
                     .into(ivTourImage); // TODO: Set this image right
             showSavedStatus(tour.getIsSavedDB());

@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
 import com.example.where_to_go.activities.DestinationDetailsActivity;
 import com.example.where_to_go.R;
 import com.example.where_to_go.fragments.MapFragment;
@@ -23,6 +22,8 @@ import com.example.where_to_go.models.Destination;
 import com.example.where_to_go.utilities.DatabaseUtils;
 import com.google.android.gms.maps.model.Marker;
 import com.parse.ParseObject;
+import com.squareup.picasso.Picasso;
+
 import org.jetbrains.annotations.Contract;
 import java.util.Collections;
 import java.util.List;
@@ -143,7 +144,10 @@ public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapte
 
         public void bind(@NonNull Destination filteredDestination) {
             tvDestinationName.setText(filteredDestination.getLocationName());
-            Glide.with(context).load(filteredDestination.getImageUrl()).into(ivDestinationImage);
+            Picasso.get()
+                    .load(filteredDestination.getImageUrl())
+                    .fit()
+                    .into(ivDestinationImage);
         }
 
         @Override

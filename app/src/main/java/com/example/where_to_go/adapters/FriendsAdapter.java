@@ -33,7 +33,9 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
 
     @Override
     public void onBindViewHolder(@NonNull FriendsViewHolder holder, int position) {
-        Picasso.get().load("https://graph.facebook.com/" + friends.get(position).getId() + "/picture?type=large")
+        Picasso.get()
+                .load("https://graph.facebook.com/" + friends.get(position).getId() + "/picture?type=large")
+                .fit()
                 .into(holder.ivFriendImage);
         holder.tvFriendName.setText(friends.get(position).getName());
     }
