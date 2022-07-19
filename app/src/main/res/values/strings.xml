@@ -36,6 +36,7 @@
     <string name="transportation">Transportation Options</string>
     <string name="add_types_max_10">Add Categories</string>
     <string name="remove_types">Remove Categories</string>
+    <string name="share">Share</string>
 
     <string-array name="filter_list">
         <item>Food</item>

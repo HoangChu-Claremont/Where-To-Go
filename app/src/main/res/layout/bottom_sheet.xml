@@ -35,10 +35,20 @@
                 tools:ignore="TextContrastCheck" />
 
             <Button
+                android:id="@+id/btnShare"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:layout_marginEnd="2dp"
+                android:adjustViewBounds="false"
+                android:scaleType="fitCenter"
+                android:text="@string/share" />
+
+            <Button
                 android:id="@+id/btnStartSave"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0.25"
+                android:layout_weight="0.2"
                 android:adjustViewBounds="false"
                 android:scaleType="fitCenter"
                 android:text="@string/start_save" />

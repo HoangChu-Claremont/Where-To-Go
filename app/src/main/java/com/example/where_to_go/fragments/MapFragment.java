@@ -152,7 +152,18 @@ public class MapFragment extends Fragment implements DestinationsAdapter.Navigat
         if (ToursAdapter.POSITION != -1) {
             EditText etSavedTourName = view.findViewById(getResources()
                     .getIdentifier("etTourName", "id", requireActivity().getPackageName()));
+            Button btnShare = view.findViewById(getResources()
+                    .getIdentifier("btnShare", "id", requireActivity().getPackageName()));
+
             etSavedTourName.setVisibility(View.GONE);
+            btnShare.setVisibility(View.VISIBLE);
+
+            btnShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
     }
 
