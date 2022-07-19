@@ -99,7 +99,7 @@ public class DatabaseUtils {
         }
     }
 
-    public static String saveOneTourToDatabaseAndReturnID(String tourName, @NonNull ParseUser currentUser) {
+    public static String saveOneTourToDatabaseAndReturnID(String tourName, @NonNull ParseUser currentUser, String googleMapsURL) {
         Log.i(TAG, "saveOneTourToDatabaseAndReturnID");
 
         Tour tour = new Tour();
@@ -109,6 +109,7 @@ public class DatabaseUtils {
         tour.put(Tour.USER_ID, ParseObject.createWithoutData(ParseUser.class, currentUser.getObjectId()));
         tour.setTourNameDB(tourName);
         tour.setTransportationSecondsDB(0); // TODO: Create an algorithm to calculate this
+        tour.setGoogleMapsURL(googleMapsURL);
 
         try {
             tour.save();
