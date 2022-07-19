@@ -86,9 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 permissions.add("user_friends");
                 btnFBLogin.setPermissions(permissions);
 
-                friends.add(new Friend("1", "a"));
-                friends.add(new Friend("2", "b"));
-                Log.i(TAG, "Added " + friends.size() + " friends.");
+                addFacebookFriends();
 
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions,
                         (user, err) -> { // Succeeded
@@ -128,6 +126,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // HELPER METHODS
+    private void addFacebookFriends() {
+        friends.add(new Friend("1", "a"));
+        friends.add(new Friend("2", "b"));
+        Log.i(TAG, "Added " + friends.size() + " friends.");
+    }
 
     private void login(String _username, String _password) {
         Log.i(TAG, "Logging in with username: " + _username);

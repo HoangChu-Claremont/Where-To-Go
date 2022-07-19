@@ -118,11 +118,11 @@ public class ProfileFragment extends Fragment {
     private void getSavedTours() {
         Log.i(TAG, "getSavedTours");
 
-        ParseQuery<Tour> destinationCollectionsParseQuery = ParseQuery.getQuery(Tour.class);
-        destinationCollectionsParseQuery.include(Tour.USER_ID)
+        ParseQuery<Tour> tourParseQuery = ParseQuery.getQuery(Tour.class);
+        tourParseQuery.include(Tour.USER_ID)
                         .whereEqualTo(Tour.IS_SAVED, true);
 
-        destinationCollectionsParseQuery.findInBackground((_destinationCollections, e) -> {
+        tourParseQuery.findInBackground((_destinationCollections, e) -> {
             if (e != null) {
                 Log.e(TAG, "Issues with getting tours from DB. " + e.getMessage());
                 return;
