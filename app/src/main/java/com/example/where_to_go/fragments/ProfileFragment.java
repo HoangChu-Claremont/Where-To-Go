@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import com.example.where_to_go.R;
 import com.example.where_to_go.activities.LoginActivity;
@@ -19,6 +18,7 @@ import com.example.where_to_go.adapters.ToursAdapter;
 import com.example.where_to_go.models.Friend;
 import com.example.where_to_go.models.Tour;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +83,8 @@ public class ProfileFragment extends Fragment {
         TextView tvAccountName = view.findViewById(R.id.account_name);
         TextView tvAccountTwitterName = view.findViewById(R.id.account_twitter_name);
 
-        String accountName = LoginActivity.username;
+        String accountName = (ParseUser.getCurrentUser().getUsername() != null) ?
+                ParseUser.getCurrentUser().getUsername() : LoginActivity.username;
         String accountTwitterName = "@" + accountName;
 
         tvAccountName.setText(accountName);

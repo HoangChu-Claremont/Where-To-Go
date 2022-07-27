@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         
         Intent i = new Intent(this, NavigationActivity.class);
         startActivity(i);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         finish();
     }
 
@@ -48,5 +49,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
         finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }
